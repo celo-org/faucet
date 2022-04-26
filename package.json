@@ -14,24 +14,11 @@
     "docs": "yarn run lerna run docs",
     "postinstall": "yarn run lerna run postinstall && patch-package && yarn keys:decrypt",
     "keys:decrypt": "bash scripts/key_placer.sh decrypt",
-    "keys:encrypt": "bash scripts/key_placer.sh encrypt",
-
-    "update-dependency-graph": "ts-node ./scripts/update_dependency_graph.ts",
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "pretty-quick --staged --pattern '**/*.+(ts|tsx|js|jsx|sol|java)'",
-      "pre-push": "node ./scripts/hooks/pre-push.js"
-    }
+    "keys:encrypt": "bash scripts/key_placer.sh encrypt"
   },
   "workspaces": {
     "packages": [
       "packages/*"
-    ],
-    "nohoist": [
-      "**/openzeppelin-solidity",
-      "**/solidity-bytes-utils",
-      "**/@apollo/react-testing"
     ]
   },
   "devDependencies": {},
