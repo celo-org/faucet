@@ -91,6 +91,7 @@ packages/docs/_book/
 
 */.next/*
 .env.local
+.env.*
 
 # old packages
 packages/reserve-site/*
@@ -100,6 +101,14 @@ packages/mobile/*
 packages/moonpay-auth/*
 packages/notification-service/*
 packages/react-components/*
+packages/attestation-*
+packages/azure/*
+packages/celotool/*
+packages/cli/*
+packages/dev-utils/*
+packages/sdk/*
+
+
 
 # temp json file for deploy-sdks script
 scripts/failedSDKs.json
