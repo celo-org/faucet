@@ -11,8 +11,7 @@
     "reset": "yarn reset-modules && yarn reset-cache",
     "test": "yarn run lerna run test",
     "build": "yarn run lerna run build",
-    "docs": "yarn run lerna run docs",
-    "postinstall": "yarn run lerna run postinstall && patch-package && yarn keys:decrypt",
+    "postinstall": "yarn run lerna run postinstall && yarn keys:decrypt",
     "keys:decrypt": "bash scripts/key_placer.sh decrypt",
     "keys:encrypt": "bash scripts/key_placer.sh encrypt"
   },
@@ -21,6 +20,12 @@
       "packages/*"
     ]
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/node": "^17.0.29",
+    "husky": "^7.0.4",
+    "lerna": "^4.0.0",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.3"
+  },
   "resolutions": {}
 }

@@ -208,7 +208,7 @@ function withTimeout<A>(
   onTimeout?: () => A | Promise<A>
 ): Promise<A> {
   return new Promise((resolve, reject) => {
-    let timeoutHandler: number | null = setTimeout(() => {
+    let timeoutHandler: NodeJS.Timeout | null = setTimeout(() => {
       timeoutHandler = null
 
       if (onTimeout) {
