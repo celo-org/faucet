@@ -20,7 +20,7 @@ The accounts are stored in firebase realtime DB. For each account it needs:
 
 ## Adding additional stable tokens to the faucet
 
-In addition to funding the faucet address with the new token, update the `contractkit` dependency (such that the new desired token is included in the `StableTokenConfig`) and then redeploy this function on firebase. (Note that the dependencies must be published packages; local `-dev` versions will not suffice.)
+In addition to funding the faucet address with the new token, update the `contractkit` dependency (such that the new desired token is included in the `StableTokenConfig`) and then redeploy this function on firebase.
 
 ### Setting Faucet Amounts
 
@@ -79,12 +79,12 @@ You can verify with `yarn cli config:get --net alfajores`
 
 ### Setting Accounts
 
-To generate the faucet account addresses and private keys we use celotool.
+To generate the faucet account addresses and private keys we use celotool in the celo-monorepo.
 
-1.  source the mnemonic `.env` file (i.e. `source .env.mnemonic.alfajores`)
-2.  Run `celotooljs generate bip32 -m "$MNEMONIC" -a faucet -i 0` to obtain faucet account `0` private key
-3.  Run `celotooljs generate account-address --private-key <<pk_here>>` to obtain the address
-4.  Run `yarn cli accounts:add --net alfajores <<pk_here>> <<address_here>>` to add the account to the faucet server
+1.  In Monorepo source the mnemonic `.env` file (i.e. `source .env.mnemonic.alfajores`)
+2.  In Monorepo Run `celotooljs generate bip32 -m "$MNEMONIC" -a faucet -i 0` to obtain faucet account `0` private key
+3.  In Monorepo Run `celotooljs generate account-address --private-key <<pk_here>>` to obtain the address
+4.  In Faucet Run `yarn cli accounts:add --net alfajores <<pk_here>> <<address_here>>` to add the account to the faucet server
 
 Repeat the operation for all the faucet accounts you need (change index `-i` to `1,2,...`)
 
