@@ -12,7 +12,7 @@
     "deploy:prod": "firebase deploy --project celo-faucet",
     "clean": "tsc -b . --clean",
     "build": "tsc -b .",
-    "lint": "tslint --project .",
+    "lint": "eslint -c ../../.eslintrc.js --ext .ts ./src",
     "transfer-funds": "ts-node scripts/transfer-funds.ts",
     "cli": "ts-node scripts/cli.ts",
     "build:rules": "firebase-bolt database-rules.bolt"
@@ -20,8 +20,8 @@
   "dependencies": {
     "@celo/connect": "2.0.0",
     "@celo/contractkit": "2.0.0",
-    "@celo/utils": "2.0.0",
     "@celo/phone-utils": "2.0.0",
+    "@celo/utils": "2.0.0",
     "@firebase/app": "^0.5.3",
     "@google-cloud/logging": "^7.1.0",
     "debug": "^4.1.1",
@@ -35,7 +35,10 @@
     "@types/debug": "^4.1.4",
     "@types/twilio": "^0.0.10",
     "@types/yargs": "^13.0.2",
+    "@typescript-eslint/eslint-plugin": "^5.21.0",
+    "@typescript-eslint/parser": "^5.21.0",
     "cross-env": "5.2.0",
+    "eslint": "^8.14.0",
     "firebase-bolt": "^0.8.4",
     "firebase-tools": "^8.4.2",
     "yargs": "14.0.0"

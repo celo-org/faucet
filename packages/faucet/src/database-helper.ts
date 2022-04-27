@@ -256,7 +256,9 @@ export class AccountPool {
       retryWaitMS: 3000,
       actionTimeoutMS: 50 * SECOND,
     }
-  ) {}
+  ) {
+     // is empty.
+  }
 
   get accountsRef() {
     return this.db.ref(`/${this.network}/accounts`)
