@@ -1,7 +1,7 @@
 {
   "functions": {
     "source": ".",
-    "predeploy": ["yarn lint", "yarn build"]
+    "predeploy": ["yarn lint", "yarn build", "yarn build:rules"]
   },
   "database": [{ "target": "faucet", "rules": "database-rules.bolt" }]
 }

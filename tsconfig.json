@@ -22,7 +22,7 @@
     "preserveConstEnums": true,
     "composite": true
   },
-  "include": ["src", "script", "index.d.ts"],
+  "include": ["src", "script"],
   "exclude": ["dist"],
   "compileOnSave": true
 }

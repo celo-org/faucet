@@ -112,3 +112,13 @@ packages/sdk/*
 
 # temp json file for deploy-sdks script
 scripts/failedSDKs.json
+
+dist/
+
+# Firebase cache
+.firebase/
+
+serviceAccountKey.json
+firebase-debug.log
+database-rules.json
+
