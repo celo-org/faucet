@@ -27,12 +27,6 @@ export class CeloAdapter {
     return goldToken.transfer(to, amount)
   }
 
-  // TODO deprecate after deployment
-  async transferDollars(to: string, amount: string): Promise<CeloTransactionObject<boolean>> {
-    const stableToken = await this.kit.contracts.getStableToken()
-    return stableToken.transfer(to, amount)
-  }
-
   async transferStableTokens(to: string, amount: string) {
     return this.kit.celoTokens.forStableCeloToken(async (info: StableTokenInfo) => {
       const token = await this.kit.celoTokens.getWrapper(info.symbol as StableToken)
