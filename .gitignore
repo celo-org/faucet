@@ -62,16 +62,10 @@ buck-out/
 # For more information about the recommended setup visit:
 # https://docs.fastlane.tools/best-practices/source-control/
 
-*/fastlane/report.xml
-*/fastlane/Preview.html
-*/fastlane/screenshots
-
-*/**/junit.xml
 
 coverage
 coverage.json
 
-lerna-debug.log
 
 # Typechain types
 **/types/typechain/
@@ -87,26 +81,11 @@ tsconfig.tsbuildinfo
 # git mergetool
 *.orig
 
-packages/docs/_book/
 
 */.next/*
 .env.local
 .env.*
 
-# old packages
-packages/reserve-site/*
-packages/blockchain-api/*
-packages/komencikit/*
-packages/mobile/*
-packages/moonpay-auth/*
-packages/notification-service/*
-packages/react-components/*
-packages/attestation-*
-packages/azure/*
-packages/celotool/*
-packages/cli/*
-packages/dev-utils/*
-packages/sdk/*
 
 
 
