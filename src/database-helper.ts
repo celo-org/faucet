@@ -182,8 +182,13 @@ async function sendStableTokens(
 
   return Promise.all(
     Object.entries(tokenTxs).map(async ([symbol, tx]) => {
-      if (tx) {
-        await retryAsync(sendTxHelper, 3, [symbol, tx!], 500)
+      try {
+        if (tx) {
+          await retryAsync(sendTxHelper, 3, [symbol, tx!], 500)
+        }
+      } catch (e) {
+        // Log that one transfer failed. if error is not caught it looks like all failed
+        console.log(`req(${snap.key}): tx=>${tx} ${symbol} Transaction Failed. ${e}`)
       }
     })
   )

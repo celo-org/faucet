@@ -101,7 +101,7 @@ funds from validatos-0 account to the faucet account.
 
 To do this, we use `celotool account faucet` command.
 
-Since the command faucet a fixed amount, open `packages/celotool/src/cmds/account/faucet.ts` and modify `-d` (dollars) and `-g` (gold) with the desired amounts:
+Since the command faucet a fixed amount, open `celo-monorepo/packages/celotool/src/cmds/account/faucet.ts` and modify (ex: `--tokenParams CELO,3 cUSD,10 cEUR,5`) with the desired amounts:
 
 ```ts
 const cb = async () => {
@@ -126,8 +126,7 @@ celotooljs account faucet -e alfajores --account 0xCEa3eF8e187490A9d85A1849D9841
 3.  Deployment can be seen at [https://console.firebase.google.com/project/celo-faucet-staging/overview](https://console.firebase.google.com/project/celo-faucet-staging/overview)
 4.  You can simulate the access at [https://console.firebase.google.com/project/celo-faucet-staging/database/celo-faucet-staging/rules](https://console.firebase.google.com/project/celo-faucet-staging/database/celo-faucet-staging/rules)
 
-`packages/web $ yarn run dev`
-Go to [http://localhost:3000/build/wallet](http://localhost:3000/build/wallet) and perform submit, verify that no failure appears in the logs.
+Go to [https://dev.celo.org/developers/faucet](https://dev.celo.org/developers/faucet) and perform submit, verify that no failure appears in the [logs](https://console.firebase.google.com/project/celo-faucet-staging/functions/logs?search=&severity=DEBUG).
 
 
 ## ✍️ <a id="contributing"></a>Contributing
