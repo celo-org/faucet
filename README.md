@@ -27,7 +27,7 @@ In addition to funding the faucet address with the new token, update the `contra
 Replace net with proper net
 
 ```
-yarn cli config:set --net alfajores --faucetGoldAmount 5000000000000000000 --faucetStableAmount 10000000000000000000
+yarn cli config:set --net alfajores --faucetGoldAmount 1000000000000000000 --faucetStableAmount 1000000000000000000
 ```
 
 You can verify with `yarn cli config:get --net alfajores`
