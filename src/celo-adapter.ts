@@ -36,6 +36,15 @@ export class CeloAdapter {
   async transferStableTokens(to: string, amount: string) {
     return this.kit.celoTokens.forStableCeloToken(async (info: StableTokenInfo) => {
       const token = await this.kit.celoTokens.getWrapper(info.symbol as StableToken)
+      const faucetBalance = await token.balanceOf(this.defaultAddress)
+
+      if (faucetBalance.isLessThanOrEqualTo(amount)) {
+        const exchangeContract = await this.kit.contracts.getContract(info.exchangeContract)
+        const quote = await exchangeContract.quoteStableBuy(amount)
+        const tx = await exchangeContract.buyStable(amount, quote.multipliedBy(1.015))
+        await tx.sendAndWaitForReceipt()
+      }
+
       return token.transfer(to, amount)
     })
   }
