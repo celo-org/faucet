@@ -1,4 +1,5 @@
 import { CeloTransactionObject } from '@celo/connect'
+import BigNumber from "bignumber.js"
 import { ContractKit, newKitFromWeb3 } from '@celo/contractkit'
 import { StableToken, StableTokenInfo } from '@celo/contractkit/lib/celo-tokens'
 import { ensureLeading0x, privateKeyToAddress } from '@celo/utils/lib/address'
@@ -41,12 +42,28 @@ export class CeloAdapter {
       if (faucetBalance.isLessThanOrEqualTo(amount)) {
         const exchangeContract = await this.kit.contracts.getContract(info.exchangeContract)
         const quote = await exchangeContract.quoteStableBuy(amount)
-        const tx = await exchangeContract.buyStable(amount, quote.multipliedBy(1.015))
+        const maxCeloToTrade = quote.multipliedBy(1.015)
+        await this.increaseAllowanceIfNeeded(info, maxCeloToTrade as unknown as BigNumber)
+        const tx = await exchangeContract.buyStable(amount, maxCeloToTrade)
         await tx.sendAndWaitForReceipt()
       }
 
       return token.transfer(to, amount)
     })
+  }
+
+  async increaseAllowanceIfNeeded(info: StableTokenInfo, amount: BigNumber) {
+
+    const celoERC20Wrapper = await this.kit.contracts.getGoldToken()
+    const exchangeContractAddress = await this.kit.registry.addressFor(info.exchangeContract)
+
+    const allowance = await celoERC20Wrapper.allowance(this.defaultAddress, exchangeContractAddress)
+
+    if (allowance.isLessThanOrEqualTo(amount)) {
+      // multiply by 10 so we don't have to be setting this for every transaction
+      const transaction = await celoERC20Wrapper.increaseAllowance(exchangeContractAddress, amount.multipliedBy(10))
+      await transaction.sendAndWaitForReceipt()
+    }
   }
 
   async escrowDollars(

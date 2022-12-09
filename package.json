@@ -26,6 +26,7 @@
     "@celo/utils": "2.0.0",
     "@firebase/app": "^0.7.21",
     "@google-cloud/logging": "^9.8.3",
+    "bignumber.js": "^9.1.1",
     "debug": "^4.1.1",
     "firebase": "^9.6.11",
     "firebase-admin": "^10.1.0",
