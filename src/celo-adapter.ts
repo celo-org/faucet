@@ -1,8 +1,8 @@
 import { CeloTransactionObject } from '@celo/connect'
-import BigNumber from "bignumber.js"
 import { ContractKit, newKitFromWeb3 } from '@celo/contractkit'
 import { StableToken, StableTokenInfo } from '@celo/contractkit/lib/celo-tokens'
 import { ensureLeading0x, privateKeyToAddress } from '@celo/utils/lib/address'
+import BigNumber from "bignumber.js"
 import Web3 from 'web3'
 
 export class CeloAdapter {
@@ -41,11 +41,14 @@ export class CeloAdapter {
 
       if (faucetBalance.isLessThanOrEqualTo(amount)) {
         const exchangeContract = await this.kit.contracts.getContract(info.exchangeContract)
-        const quote = await exchangeContract.quoteStableBuy(amount)
-        const maxCeloToTrade = quote.multipliedBy(1.015)
+
+        // this surprised me but if you want to send CELO and receive an Amount of stable, quoteGoldBuy is the function to call not quoteStableBuy
+        const celoBuyquote = await exchangeContract.quoteGoldBuy(amount)
+
+        const maxCeloToTrade = celoBuyquote.multipliedBy(1.05).integerValue(BigNumber.ROUND_UP)
         await this.increaseAllowanceIfNeeded(info, maxCeloToTrade as unknown as BigNumber)
-        const tx = await exchangeContract.buyStable(amount, maxCeloToTrade)
-        await tx.sendAndWaitForReceipt()
+
+        await exchangeContract.buyStable(amount, maxCeloToTrade).sendAndWaitForReceipt()
       }
 
       return token.transfer(to, amount)
@@ -58,11 +61,11 @@ export class CeloAdapter {
     const exchangeContractAddress = await this.kit.registry.addressFor(info.exchangeContract)
 
     const allowance = await celoERC20Wrapper.allowance(this.defaultAddress, exchangeContractAddress)
-
     if (allowance.isLessThanOrEqualTo(amount)) {
       // multiply by 10 so we don't have to be setting this for every transaction
-      const transaction = await celoERC20Wrapper.increaseAllowance(exchangeContractAddress, amount.multipliedBy(10))
-      await transaction.sendAndWaitForReceipt()
+      const transaction = await celoERC20Wrapper.increaseAllowance(exchangeContractAddress, amount.multipliedBy(10).integerValue(BigNumber.ROUND_UP))
+      const receipt = await transaction.sendAndWaitForReceipt()
+      console.log('increasedAllowance', receipt.transactionHash)
     }
   }
 
@@ -87,14 +90,14 @@ export class CeloAdapter {
     )
   }
 
-  async getDollarsBalance(accountAddress: string = this.defaultAddress) {
+  async getDollarsBalance(accountAddress: string = this.defaultAddress): Promise<BigNumber> {
     const stableToken = await this.kit.contracts.getStableToken()
-    return stableToken.balanceOf(accountAddress)
+    return stableToken.balanceOf(accountAddress) as unknown as Promise<BigNumber>
   }
 
-  async getGoldBalance(accountAddress: string = this.defaultAddress) {
+  async getGoldBalance(accountAddress: string = this.defaultAddress): Promise<BigNumber> {
     const goldToken = await this.kit.contracts.getStableToken()
-    return goldToken.balanceOf(accountAddress)
+    return goldToken.balanceOf(accountAddress)  as unknown as Promise<BigNumber>
   }
 
   stop() {
