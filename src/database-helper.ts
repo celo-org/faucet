@@ -30,9 +30,6 @@ export enum RequestType {
   Invite = 'Invite',
 }
 
-
-
-
 enum MobileOS {
   android = 'android',
   ios = 'ios',
