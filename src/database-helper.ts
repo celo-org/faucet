@@ -3,11 +3,13 @@ import { CeloTransactionObject } from '@celo/connect'
 import { PhoneNumberUtils } from '@celo/phone-utils'
 import { retryAsync, sleep } from '@celo/utils/lib/async'
 import { database } from 'firebase-admin'
-import { DataSnapshot } from 'firebase-functions/lib/providers/database'
+import { database as functionsDB } from 'firebase-functions'
 import { CeloAdapter } from './celo-adapter'
 import { NetworkConfig } from './config'
 import { ExecutionResult, logExecutionResult } from './metrics'
 import { generateInviteCode } from './utils'
+
+type DataSnapshot = functionsDB.DataSnapshot
 
 export type Address = string
 export interface AccountRecord {
