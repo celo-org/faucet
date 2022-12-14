@@ -1,13 +1,11 @@
 /* tslint:disable max-classes-per-file */
 import { CeloTransactionObject } from '@celo/connect'
-import { PhoneNumberUtils } from '@celo/phone-utils'
 import { retryAsync, sleep } from '@celo/utils/lib/async'
 import { database } from 'firebase-admin'
 import { database as functionsDB } from 'firebase-functions'
 import { CeloAdapter } from './celo-adapter'
 import { NetworkConfig } from './config'
 import { ExecutionResult, logExecutionResult } from './metrics'
-import { generateInviteCode } from './utils'
 
 type DataSnapshot = functionsDB.DataSnapshot
 
@@ -27,22 +25,14 @@ export enum RequestStatus {
 
 export enum RequestType {
   Faucet = 'Faucet',
-  Invite = 'Invite',
-}
-
-enum MobileOS {
-  android = 'android',
-  ios = 'ios',
 }
 
 export interface RequestRecord {
   beneficiary: Address
   status: RequestStatus
   type: RequestType
-  mobileOS?: MobileOS // only on invite
   dollarTxHash?: string
   goldTxHash?: string
-  escrowTxHash?: string // only on Invites
 }
 
 export async function processRequest(snap: DataSnapshot, pool: AccountPool, config: NetworkConfig) {
@@ -60,8 +50,6 @@ export async function processRequest(snap: DataSnapshot, pool: AccountPool, conf
     let requestHandler
     if (request.type === RequestType.Faucet) {
       requestHandler = buildHandleFaucet(request, snap, config)
-    } else if (request.type === RequestType.Invite) {
-      requestHandler = buildHandleInvite(request, snap, config)
     } else {
       logExecutionResult(snap.key, ExecutionResult.InvalidRequestErr)
       return ExecutionResult.InvalidRequestErr
@@ -96,63 +84,6 @@ function buildHandleFaucet(request: RequestRecord, snap: DataSnapshot, config: N
     await retryAsync(sendGold, 3, [celo, request.beneficiary, faucetGoldAmount, snap], 500)
     await sendStableTokens(celo, request.beneficiary, faucetStableAmount, snap)
   }
-}
-
-function buildHandleInvite(request: RequestRecord, snap: DataSnapshot, config: NetworkConfig) {
-  return async (account: AccountRecord) => {
-    if (!config.twilioClient) {
-      throw new Error('Cannot send an invite without a valid twilio client')
-    }
-    if (!PhoneNumberUtils.isE164Number(request.beneficiary)) {
-      throw new Error('Must send to valid E164 Number.')
-    }
-    console.info(`req(${snap.key}): Creating Celo Adapter`)
-    const celo = new CeloAdapter({ nodeUrl: config.nodeUrl, pk: account.pk })
-    console.info(`req(${snap.key}): New kit created`)
-    const { address: tempAddress, inviteCode } = generateInviteCode()
-    console.info(`req(${snap.key}): Invite code generated`)
-
-    await retryAsync(sendGold, 3, [celo, tempAddress, config.inviteGoldAmount, snap], 500)
-    await retryAsync(sendDollars, 3, [celo, tempAddress, config.inviteDollarAmount, snap], 500)
-
-    const phoneHash = PhoneNumberUtils.getPhoneHash(request.beneficiary)
-    console.info(`req(${snap.key}): Sending escrow payment for phone hash ${phoneHash}`)
-    const escrowTx = await celo.escrowDollars(
-      phoneHash,
-      tempAddress,
-      config.escrowDollarAmount,
-      config.expirySeconds,
-      config.minAttestations
-    )
-    const escrowReceipt = await escrowTx.sendAndWaitForReceipt()
-    const escrowTxHash = escrowReceipt.transactionHash
-    console.info(`req(${snap.key}): Escrow Dollar Transaction Sent. txhash:${escrowTxHash}`)
-    await snap.ref.update({ escrowTxHash })
-
-    console.info(`req(${snap.key}): Txs done, stopping kit`)
-    celo.stop()
-
-    await config.twilioClient.messages.create({
-      body: messageText(inviteCode, request),
-      from: config.twilioPhoneNumber,
-      to: request.beneficiary,
-    })
-  }
-}
-
-async function sendDollars(
-  celo: CeloAdapter,
-  address: Address,
-  amount: string,
-  snap: DataSnapshot
-) {
-  console.info(`req(${snap.key}): Sending ${amount} dollars`)
-  const dollarTx = await celo.transferDollars(address, amount)
-  const dollarTxReceipt = await dollarTx.sendAndWaitForReceipt()
-  const dollarTxHash = dollarTxReceipt.transactionHash
-  console.info(`req(${snap.key}): Dollar Transaction Sent. txhash:${dollarTxHash}`)
-  await snap.ref.update({ dollarTxHash })
-  return dollarTxHash
 }
 
 async function sendGold(celo: CeloAdapter, address: Address, amount: string, snap: DataSnapshot) {
@@ -194,19 +125,6 @@ async function sendStableTokens(
       }
     })
   )
-}
-
-function messageText(inviteCode: string, request: RequestRecord) {
-  return `Hello! Thank you for joining the Celo network. Your invite code is: ${inviteCode} Download the app at ${downloadLink(
-    request.mobileOS as MobileOS
-  )}`
-}
-
-const IOS_URL = 'https://apps.apple.com/us/app/celo-alfajores-wallet/id1482389446'
-const ANDROID_URL = 'https://play.google.com/store/apps/details?id=org.celo.mobile.alfajores'
-
-function downloadLink(mobileOS: MobileOS) {
-  return mobileOS === MobileOS.ios ? IOS_URL : ANDROID_URL
 }
 
 function withTimeout<A>(
