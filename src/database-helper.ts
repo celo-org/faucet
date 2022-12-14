@@ -77,6 +77,24 @@ export async function processRequest(snap: DataSnapshot, pool: AccountPool, conf
   }
 }
 
+export async function fundBigFaucet(pool: AccountPool, config: NetworkConfig) {
+  try {
+    return await pool.doWithAccount(async (account) => {
+      const celo = new CeloAdapter({pk: account.pk, nodeUrl: config.nodeUrl})
+
+      await retryAsync(sendCelo, 4, [celo, config.bigFaucetSafeAddress, config.bigFaucetSafeAmount], 2500)
+    })
+  } catch (error) {
+    console.error("bigFaucet", ExecutionResult.OtherErr, error)
+  }
+}
+
+async function sendCelo(celo: CeloAdapter, to: string, amountInWei: string, ) {
+  const goldTx = await celo.transferGold(to, amountInWei)
+  const goldTxReceipt = await goldTx.sendAndWaitForReceipt()
+  return goldTxReceipt.transactionHash
+}
+
 function buildHandleFaucet(request: RequestRecord, snap: DataSnapshot, config: NetworkConfig) {
   return async (account: AccountRecord) => {
     const { nodeUrl, faucetGoldAmount, faucetStableAmount } = config
