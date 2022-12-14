@@ -82,7 +82,13 @@ export async function fundBigFaucet(pool: AccountPool, config: NetworkConfig) {
     return await pool.doWithAccount(async (account) => {
       const celo = new CeloAdapter({pk: account.pk, nodeUrl: config.nodeUrl})
 
+      // convert some of the massive amount of cEUR and cREAL we have to CELO
+      // this amount should be smaller enough so that it probably doesn't cause slippage
+      const ONE_THOUSAND_IN_WEI ="1000000000000000000000"
+      await celo.convertExtraStablesToCelo(ONE_THOUSAND_IN_WEI)
+
       await retryAsync(sendCelo, 4, [celo, config.bigFaucetSafeAddress, config.bigFaucetSafeAmount], 2500)
+
     })
   } catch (error) {
     console.error("bigFaucet", ExecutionResult.OtherErr, error)
