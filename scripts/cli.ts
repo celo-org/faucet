@@ -108,14 +108,15 @@ yargs
           type: 'string',
           description: "Amount of CELO to be sent to *bigFaucetSafeAddress* each time the script runs"
         })
+        .option('bigFaucetSafeStablesAmount', {
+          type: 'string',
+          description: "Amount of Stables to be sent to *bigFaucetSafeAddress* each time the script runs"
+        })
         .option('bigFaucetSafeAddress', {
           type: 'string',
           description: "Address for the Celo Safe used for distributing large amounts of CELO to developers by request"
         })
-        .option('expirySeconds', {
-          type: 'number',
-          description: 'Seconds before the escrow expires',
-        })
+
         .option('deploy', {
           type: 'boolean',
           description: 'Wether to deploy functions after set config',
@@ -125,9 +126,9 @@ yargs
         faucetGoldAmount: args.faucetGoldAmount,
         faucetStableAmount: args.faucetStableAmount,
         bigFaucetSafeAmount: args.bigFaucetSafeAmount,
+        bigFaucetSafeStablesAmount: args.bigFaucetSafeStablesAmount,
         bigFaucetSafeAddress: args.bigFaucetSafeAddress,
         nodeUrl: args.nodeUrl,
-        expirySeconds: args.expirySeconds,
       })
       if (args.deploy) {
         deployFunctions()
@@ -146,7 +147,7 @@ function setConfig(network: string, config: Partial<NetworkConfig>) {
     setIfPresent('faucet_stable_amount', config.faucetStableAmount),
     setIfPresent('big_faucet_safe_address', config.bigFaucetSafeAddress),
     setIfPresent('big_faucet_safe_amount', config.bigFaucetSafeAmount),
-    setIfPresent('expiry_seconds', config.expirySeconds),
+    setIfPresent('big_faucet_safe_stables_amount', config.bigFaucetSafeStablesAmount),
   ].join(' ')
   execSync(`yarn firebase functions:config:set ${variables}`, { stdio: 'inherit' })
 }
@@ -188,7 +189,7 @@ function clearAccounts(network: string) {
 }
 
 function deployFunctions() {
-  execSync(`yarn firebase deploy --only functions:faucetRequestProcessor,functions:bigFaucetDailyDrip`, {
+  execSync(`yarn firebase deploy --only functions:faucetRequestProcessor,functions:bigFaucetFunder`, {
     stdio: 'inherit',
   })
 }

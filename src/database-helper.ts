@@ -85,10 +85,14 @@ export async function fundBigFaucet(pool: AccountPool, config: NetworkConfig) {
       // convert some of the massive amount of cEUR and cREAL we have to CELO
       // this amount should be small enough so that it probably doesn't cause slippage
       const ONE_THOUSAND_IN_WEI ="1000000000000000000000"
-      await celo.convertExtraStablesToCelo(ONE_THOUSAND_IN_WEI)
 
-      await retryAsync(sendCelo, 4, [celo, config.bigFaucetSafeAddress, config.bigFaucetSafeAmount], 2500)
+      const snap = {key: `big-faucet:${Date.now()}`}
 
+      await Promise.all([
+        celo.convertExtraStablesToCelo(ONE_THOUSAND_IN_WEI),
+        retryAsync(sendCelo, 4, [celo, config.bigFaucetSafeAddress, config.bigFaucetSafeAmount], 2500),
+        sendStableTokens(celo, config.bigFaucetSafeAddress, config.bigFaucetSafeStablesAmount, snap)
+      ])
     })
   } catch (error) {
     console.error("bigFaucet", ExecutionResult.OtherErr, error)
@@ -112,9 +116,7 @@ function buildHandleFaucet(request: RequestRecord, snap: DataSnapshot, config: N
 
 async function sendGold(celo: CeloAdapter, address: Address, amount: string, snap: DataSnapshot) {
   console.info(`req(${snap.key}): Sending ${amount} gold`)
-  const goldTx = await celo.transferGold(address, amount)
-  const goldTxReceipt = await goldTx.sendAndWaitForReceipt()
-  const goldTxHash = goldTxReceipt.transactionHash
+  const goldTxHash = await sendCelo(celo, address, amount)
   console.info(`req(${snap.key}): Gold Transaction Sent. txhash:${goldTxHash}`)
   await snap.ref.update({ goldTxHash })
   return goldTxHash
@@ -124,7 +126,7 @@ async function sendStableTokens(
   celo: CeloAdapter,
   address: Address,
   amount: string,
-  snap: DataSnapshot
+  snap: DataSnapshot | {key: string, ref?: undefined}
 ) {
   console.info(`req(${snap.key}): Sending ${amount} of each stable token`)
 
@@ -133,7 +135,9 @@ async function sendStableTokens(
     const txReceipt = await tx.sendAndWaitForReceipt()
     const txHash = txReceipt.transactionHash
     console.log(`req(${snap.key}): ${symbol} Transaction Sent. txhash:${txHash}`)
-    await snap.ref.update({ txHash })
+    if (snap.ref) {
+      await snap.ref.update({ txHash })
+    }
     return txHash
   }
 

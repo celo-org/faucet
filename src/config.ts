@@ -4,9 +4,9 @@ export interface NetworkConfig {
   nodeUrl: string
   faucetGoldAmount: string
   faucetStableAmount: string
-  expirySeconds: number
   bigFaucetSafeAddress: string
   bigFaucetSafeAmount: string
+  bigFaucetSafeStablesAmount: string
 }
 
 
@@ -23,8 +23,8 @@ export function getNetworkConfig(net: string): NetworkConfig {
     nodeUrl: config[net].node_url,
     faucetGoldAmount: config[net].faucet_gold_amount,
     faucetStableAmount: config[net].faucet_stable_amount,
-    expirySeconds: Number(config[net].expiry_seconds),
     bigFaucetSafeAddress: config[net].big_faucet_safe_address,
     bigFaucetSafeAmount: config[net].big_faucet_safe_amount,
+    bigFaucetSafeStablesAmount: config[net].big_faucet_safe_stables_amount,
   }
 }
