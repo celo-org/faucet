@@ -104,10 +104,19 @@ yargs
         .option('faucetStableAmount', {
           type: 'string',
         })
-        .option('expirySeconds', {
-          type: 'number',
-          description: 'Seconds before the escrow expires',
+        .option('bigFaucetSafeAmount', {
+          type: 'string',
+          description: "Amount of CELO to be sent to *bigFaucetSafeAddress* each time the script runs"
         })
+        .option('bigFaucetSafeStablesAmount', {
+          type: 'string',
+          description: "Amount of Stables to be sent to *bigFaucetSafeAddress* each time the script runs"
+        })
+        .option('bigFaucetSafeAddress', {
+          type: 'string',
+          description: "Address for the Celo Safe used for distributing large amounts of CELO to developers by request"
+        })
+
         .option('deploy', {
           type: 'boolean',
           description: 'Wether to deploy functions after set config',
@@ -116,8 +125,10 @@ yargs
       setConfig(args.net, {
         faucetGoldAmount: args.faucetGoldAmount,
         faucetStableAmount: args.faucetStableAmount,
+        bigFaucetSafeAmount: args.bigFaucetSafeAmount,
+        bigFaucetSafeStablesAmount: args.bigFaucetSafeStablesAmount,
+        bigFaucetSafeAddress: args.bigFaucetSafeAddress,
         nodeUrl: args.nodeUrl,
-        expirySeconds: args.expirySeconds,
       })
       if (args.deploy) {
         deployFunctions()
@@ -134,7 +145,9 @@ function setConfig(network: string, config: Partial<NetworkConfig>) {
     setIfPresent('node_url', config.nodeUrl),
     setIfPresent('faucet_gold_amount', config.faucetGoldAmount),
     setIfPresent('faucet_stable_amount', config.faucetStableAmount),
-    setIfPresent('expiry_seconds', config.expirySeconds),
+    setIfPresent('big_faucet_safe_address', config.bigFaucetSafeAddress),
+    setIfPresent('big_faucet_safe_amount', config.bigFaucetSafeAmount),
+    setIfPresent('big_faucet_safe_stables_amount', config.bigFaucetSafeStablesAmount),
   ].join(' ')
   execSync(`yarn firebase functions:config:set ${variables}`, { stdio: 'inherit' })
 }
@@ -176,7 +189,7 @@ function clearAccounts(network: string) {
 }
 
 function deployFunctions() {
-  execSync(`yarn firebase deploy --only functions:faucetRequestProcessor`, {
+  execSync(`yarn firebase deploy --only functions:faucetRequestProcessor,functions:bigFaucetFunder`, {
     stdio: 'inherit',
   })
 }

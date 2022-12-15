@@ -28,6 +28,37 @@ export class CeloAdapter {
     return goldToken.transfer(to, amount)
   }
 
+  /*
+   * @param amount -- amount is how many of the stable we will sell (in WEI)
+   *
+   */
+  async convertExtraStablesToCelo(amount: string) {
+    await this.kit.celoTokens.forStableCeloToken(async (info) => {
+      try {
+        console.log('converting', info.symbol)
+        const stableToken = await this.kit.celoTokens.getWrapper(info.symbol as StableToken)
+        const faucetBalance = await stableToken.balanceOf(this.defaultAddress)
+        const MIN_BALANCE_IN_WEI = "25000000000000000000000" // 25K
+        if (faucetBalance.isLessThan(new BigNumber(MIN_BALANCE_IN_WEI))) {
+          console.log('skipping', info.symbol, faucetBalance.toString())
+          return
+        }
+        const exchangeContract = await this.kit.contracts.getContract(info.exchangeContract)
+
+        const [quote] = await Promise.all([
+          exchangeContract.quoteStableSell(amount),
+          stableToken.increaseAllowance(exchangeContract.address, amount).sendAndWaitForReceipt()
+        ]);
+
+
+        const tx = await exchangeContract.sellStable(amount, quote.multipliedBy(0.99).integerValue(BigNumber.ROUND_UP))
+        await tx.sendAndWaitForReceipt()
+      } catch (e) {
+        console.info("caught", info.symbol, e)
+      }
+    })
+  }
+
   // TODO deprecate after deployment
   async transferDollars(to: string, amount: string): Promise<CeloTransactionObject<boolean>> {
     const stableToken = await this.kit.contracts.getStableToken()
