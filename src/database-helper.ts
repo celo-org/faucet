@@ -83,7 +83,7 @@ export async function fundBigFaucet(pool: AccountPool, config: NetworkConfig) {
       const celo = new CeloAdapter({pk: account.pk, nodeUrl: config.nodeUrl})
 
       // convert some of the massive amount of cEUR and cREAL we have to CELO
-      // this amount should be smaller enough so that it probably doesn't cause slippage
+      // this amount should be small enough so that it probably doesn't cause slippage
       const ONE_THOUSAND_IN_WEI ="1000000000000000000000"
       await celo.convertExtraStablesToCelo(ONE_THOUSAND_IN_WEI)
 

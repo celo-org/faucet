@@ -28,7 +28,7 @@ export const faucetRequestProcessor = functions
     return processRequest(snap, pool, config)
   })
 
-export const bigFaucetDailyDrip  = functions.pubsub.schedule('every day 05:00').onRun(async (context) => {
+export const bigFaucetDailyDrip = functions.pubsub.schedule('every day 05:00').onRun(async (context) => {
   const network = 'alfajores'
   const config = getNetworkConfig(network)
     const pool = new AccountPool(db, network, {
@@ -38,7 +38,7 @@ export const bigFaucetDailyDrip  = functions.pubsub.schedule('every day 05:00').
     })
 
     console.log(`Daily big drip running on ${context.resource.name} with ${config.bigFaucetSafeAmount} CELO for ${config.bigFaucetSafeAddress}`)
-    return fundBigFaucet(pool, config)
+    fundBigFaucet(pool, config)
 })
 
 // From https://firebase.googleblog.com/2019/04/schedule-cloud-functions-firebase-cron.html
