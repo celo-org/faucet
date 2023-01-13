@@ -21,3 +21,11 @@ export interface RequestRecord {
   dollarTxHash?: string
   goldTxHash?: string
 }
+
+export type FaucetAPIResponse = {
+  status: RequestStatus.Done | RequestStatus.Pending | RequestStatus.Pending,
+  key: string | null
+} | {
+  status: RequestStatus.Failed
+  message: string
+}

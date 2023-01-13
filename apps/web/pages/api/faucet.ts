@@ -1,19 +1,13 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { RequestStatus } from '../../src/FaucetInterfaces'
-import { sendRequest } from '../../src/FirebaseServerSide'
+import { FaucetAPIResponse, RequestStatus } from '../../src/faucet-interfaces'
+import { sendRequest } from '../../src/firebase-serverside'
 
-type Data = {
-  status: RequestStatus,
-  key: string | null
-} | {
-  status: RequestStatus.Failed
-  message: string
-}
+
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse<FaucetAPIResponse>
 ) {
   const { captchaToken, beneficiary } = req.body
   const captchaResponse = {success: true, "error-codes": ""} //await captchaVerify(captchaToken)

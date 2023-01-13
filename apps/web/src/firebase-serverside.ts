@@ -7,7 +7,7 @@ import {
   RequestRecord,
   RequestStatus,
   RequestType
-} from "./FaucetInterfaces"
+} from "./faucet-interfaces"
 import firebaseConfig from "./firebase-config"
 
 async function getFirebase() {

@@ -1,8 +1,8 @@
 import { Inter } from '@next/font/google'
 import Head from 'next/head'
-import RequestForm from '../src/RequestForm'
+import Logo from '../src/Logo'
+import RequestForm from '../src/request-form'
 import styles from '../styles/Home.module.css'
-
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
@@ -15,74 +15,78 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <h1 className={inter.className}>Request Alfajores Tokens</h1>
-        <div className={styles.intro}>
-          <p className={inter.className}>Enter the address of your Alfajores Testnet account to receive additional funds. Each request adds 5 CELO and 5 of each core stable token (e.g. cUSD, cEUR, cREAL).
-          </p>
+        <div className={styles.container}>
+          <div className={styles.logo}>
+            <Logo />
+          </div>
+          <header className={styles.center}>
+            <h1 className={`${inter.className} ${styles.title}`}>Alfajores Token Faucet</h1>
+          </header>
+          <div className={styles.intro}>
+            <p className={inter.className}>Enter the address of your Alfajores Testnet account to receive additional funds. Each request adds 5 CELO and 5 of each Mento stable token (e.g. cUSD, cEUR, cREAL).
+            </p>
+          </div>
+          <div className={styles.center}>
+            <RequestForm />
+          </div>
         </div>
-
-        <div className={styles.center}>
-          <RequestForm />
-        </div>
-
-        <div className={styles.grid}>
+        <footer className={styles.grid}>
           <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
+            href="https://docs.google.com/forms/d/1n6m-nMjjDn2RpBDadMMqYpf5DzDTOeRk1dhDJrLFdO4/viewform"
             className={styles.card}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <h2 className={inter.className}>
-              Docs <span>-&gt;</span>
-            </h2>
+            <h3 className={inter.className}>
+              Big Faucet <span>&gt;</span>
+            </h3>
             <p className={inter.className}>
-              Find in-depth information about Next.js features and&nbsp;API.
+              Request a larger amount of tokens for your testing needs.
             </p>
           </a>
 
           <a
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
+            href="https://docs.celo.org"
             className={styles.card}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <h2 className={inter.className}>
-              Learn <span>-&gt;</span>
-            </h2>
+            <h3 className={inter.className}>
+              Docs <span>&gt;</span>
+            </h3>
             <p className={inter.className}>
-              Learn about Next.js in an interactive course with&nbsp;quizzes!
+              Find in-depth information about the Celo blockchain
             </p>
           </a>
 
           <a
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
+            href="https://chat.celo.org"
             className={styles.card}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <h2 className={inter.className}>
-              Templates <span>-&gt;</span>
-            </h2>
+            <h3 className={inter.className}>
+              Questions <span>&gt;</span>
+            </h3>
             <p className={inter.className}>
-              Discover and deploy boilerplate example Next.js&nbsp;projects.
+              Chat with Celo Community on Discord
             </p>
           </a>
 
           <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
+            href="https://github.com/celo-org/faucet/issues/new"
             className={styles.card}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <h2 className={inter.className}>
-              Deploy <span>-&gt;</span>
-            </h2>
+            <h3 className={inter.className}>
+              Issues <span>&gt;</span>
+            </h3>
             <p className={inter.className}>
-              Instantly deploy your Next.js site to a shareable URL
-              with&nbsp;Vercel.
+              Faucet not working? Open an issue on its github
             </p>
           </a>
-        </div>
+        </footer>
       </main>
     </>
   )

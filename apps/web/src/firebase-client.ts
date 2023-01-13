@@ -1,7 +1,7 @@
 import { getAnalytics } from "firebase/analytics"
 import firebase from "firebase/compat/app"
 import "firebase/compat/database"
-import { NETWORK, RequestRecord, RequestStatus } from "./FaucetInterfaces"
+import { NETWORK, RequestRecord, RequestStatus } from "./faucet-interfaces"
 import firebaseConfig from "./firebase-config"
 // Code in this file is sent to the browser.
 // Code in FirebaseServerSide.ts is not sent to the browser.

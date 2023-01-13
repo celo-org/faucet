@@ -10,10 +10,21 @@
 }
 
 .address {
-  min-width: 380px
+  width: 380px;
+  font-size: 0.9rem;
 }
 
 .button {
   max-width: fit-content;
   margin: 1rem;
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+  .address {
+    font-size: 0.85rem;
+    width: 320px;
+    max-width: 90vw;
+  }
+
 }
