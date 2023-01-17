@@ -1,75 +1,78 @@
+import { Inter } from '@next/font/google'
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react'
-import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useAsyncCallback } from 'react-use-async-callback'
 import styles from '../styles/Form.module.css'
+const inter = Inter({ subsets: ['latin'] })
 
 import { FaucetAPIResponse, RequestRecord } from './faucet-interfaces'
 
 export default function RequestForm() {
 
-
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const [faucetRequestKey, setKey] = useState<string | null>(null)
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
-  const [onSubmit, {isExecuting, errors}] = useAsyncCallback(async (event: FormEvent<HTMLFormElement>) => {
+  const [faucetRequestKey, setKey] = useState<string | null>(null)
+  const [failureStatus, setFailureStatus] = useState<string | null>(null)
+
+  const [onSubmit, {isExecuting, errors, successfullyExecuted}] = useAsyncCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     const beneficiary = inputRef.current?.value
 
-    if (!beneficiary?.length) {
+    if (!beneficiary?.length || !executeRecaptcha) {
       return
     }
+    const captchaToken = await executeRecaptcha('faucet');
 
-    const response = await  fetch("api/faucet", {
+    const response = await fetch("api/faucet", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({beneficiary}),
+        body: JSON.stringify({beneficiary, captchaToken}),
     })
     // TODO get key from result and set
     const result = await response.json() as FaucetAPIResponse
-
     if (result.status === "Failed") {
-      throw new Error("Faucet Failed")
+      console.warn(result.message)
+      setFailureStatus(result.message)
     } else {
       setKey(result.key)
     }
 
   }, [inputRef])
 
-  const onInvalid = (event: FormEvent<HTMLInputElement>) => {
-    if (event.currentTarget.validity.patternMismatch || event.currentTarget.validity.badInput) {
+  const onInvalid = useCallback((event: FormEvent<HTMLInputElement>) => {
+    const {validity} = event.currentTarget
+    if (validity.patternMismatch || validity.badInput || !validity.valid) {
       event.currentTarget.setCustomValidity('enter an 0x address')
     } else {
       event.currentTarget.setCustomValidity('')
     }
-  }
+  },[])
 
-  return <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_KEY as string}>
-
-    <form className={styles.center} onSubmit={onSubmit} action="api/faucet" method="post">
+  return <form className={styles.center} onSubmit={onSubmit} action="api/faucet" method="post">
       <label className={styles.center}>
         <span className={styles.label}>
           Account Address
         </span>
         <input onInvalid={onInvalid} minLength={40} ref={inputRef} pattern="^0x[a-fA-F0-9]{40}"  type="text" placeholder="0x01F10..." className={styles.address} />
       </label>
-      <button className={styles.button} type="submit">{"Faucet"}</button>
-      <FaucetStatus faucetRequestKey={faucetRequestKey} isExecuting={isExecuting} errors={errors} />
-      {/* <GoogleReCaptcha /> */}
+      <button disabled={!executeRecaptcha} className={styles.button} type="submit">{"Faucet"}</button>
+      <FaucetStatus failureStatus={failureStatus} faucetRequestKey={faucetRequestKey} isExecuting={isExecuting || successfullyExecuted} errors={errors} />
     </form>
-  </GoogleReCaptchaProvider>
 }
 
 interface StatusProps {
   faucetRequestKey: string | null,
   isExecuting: boolean
+  failureStatus: string |  null
   errors: any[]
 }
 
-function FaucetStatus({faucetRequestKey, isExecuting, errors}: StatusProps) {
+function FaucetStatus({faucetRequestKey, isExecuting, errors, failureStatus}: StatusProps) {
     const [faucetRecord, setFaucetRecord] = useState<Partial<RequestRecord>>()
 
     const onFirebaseUpdate = useCallback(({status, dollarTxHash, goldTxHash}: RequestRecord) => {
@@ -92,29 +95,29 @@ function FaucetStatus({faucetRequestKey, isExecuting, errors}: StatusProps) {
   }, [faucetRequestKey])
 
 
-
   if (!faucetRecord && !isExecuting) {
     return null
   }
 
+  if (errors?.length) {
+    console.error("Faucet Error", errors)
+  }
 
 
-  return <div>
-    <h5>Status: {isExecuting ? "Initializing" : faucetRecord?.status}</h5>
+  return <div className={styles.center}>
+    <h3 className={`${inter.className} ${styles.status}`} aria-live='polite'>Status: {errors?.length || failureStatus?.length ?  "Error" : faucetRecord?.status ?? "Initializing"}</h3>
     { faucetRecord?.goldTxHash ?
-      <a target="_blank" rel="nofollow" href={`https://alfajores.celoscan.io/tx/${faucetRecord.goldTxHash}`}>
+      <a className={inter.className} target="_blank" rel="nofollow" href={`https://alfajores.celoscan.io/tx/${faucetRecord.goldTxHash}`}>
         View on CeloScan
       </a>
       : null
     }
+    {failureStatus ? <span className={inter.className} aria-live='polite'>{failureStatus}</span> : null}
   </div>
 }
 
 /*
 TODO
-  recaptcha protection
-  add back listening for firebase events
   vercel deployment
-  ui feedback
 *
 */
