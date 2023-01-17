@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import captchaVerify from '../../src/captchaVerify'
-import { FaucetAPIResponse, RequestStatus } from '../../src/faucet-interfaces'
-import { sendRequest } from '../../src/firebase-serverside'
+import captchaVerify from 'src/captcha-verify'
+import { FaucetAPIResponse, RequestStatus } from 'src/faucet-interfaces'
+import { sendRequest } from 'src/firebase-serverside'
 
 
 export default async function handler(

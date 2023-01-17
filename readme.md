@@ -5,9 +5,9 @@ The firebase app contains functions which do the actual fauceting.
 
 The web app contains a UI for making requests.
 
-To start the web app 
+To start the web app pull the env variables from vercel with `??` and  run `yarn dev`
 
-The web app deploys automatically to vercel
+The web app deploys automatically to vercel.
 
 
 

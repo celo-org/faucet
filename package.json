@@ -12,6 +12,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "yarn --cwd apps/web dev"
+    "dev": "yarn --cwd apps/web dev",
+    "setup": "yarn global add vercel@latest"
   }
 }

@@ -1,8 +1,8 @@
 import { Inter } from '@next/font/google'
 import Head from 'next/head'
-import Logo from '../src/Logo'
-import RequestForm from '../src/request-form'
-import styles from '../styles/Home.module.css'
+import Logo from 'src/logo'
+import RequestForm from 'src/request-form'
+import styles from 'styles/Home.module.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {

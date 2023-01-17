@@ -1,6 +1,6 @@
 
 
-export default {
+const config = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_KEY,
     authDomain: `${process.env.NEXT_PUBLIC_FIREBASE_PID}.firebaseapp.com`,
     databaseURL: `https://${process.env.NEXT_PUBLIC_FIREBASE_PID}.firebaseio.com`,
@@ -10,3 +10,5 @@ export default {
     appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
     measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASURE_ID,
 }
+
+export default config

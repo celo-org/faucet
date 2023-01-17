@@ -2,10 +2,11 @@ import { Inter } from '@next/font/google'
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useAsyncCallback } from 'react-use-async-callback'
-import styles from '../styles/Form.module.css'
+import { FaucetAPIResponse, RequestRecord } from './faucet-interfaces'
+import styles from 'styles/Form.module.css'
 const inter = Inter({ subsets: ['latin'] })
 
-import { FaucetAPIResponse, RequestRecord } from './faucet-interfaces'
+
 
 export default function RequestForm() {
 
@@ -85,14 +86,14 @@ function FaucetStatus({faucetRequestKey, isExecuting, errors, failureStatus}: St
 
   useEffect(() => {
     const run = async function() {
-    const subscribe = await import("./firebase-client").then(mod => mod.default)
+      const subscribe = await import("./firebase-client").then(mod => mod.default)
 
-    if (faucetRequestKey) {
-      subscribe(faucetRequestKey, onFirebaseUpdate)
+      if (faucetRequestKey) {
+        await subscribe(faucetRequestKey, onFirebaseUpdate)
+      }
     }
-  }
-  run()
-  }, [faucetRequestKey])
+    void run().catch(console.error)
+  }, [faucetRequestKey, onFirebaseUpdate])
 
 
   if (!faucetRecord && !isExecuting) {
@@ -107,7 +108,7 @@ function FaucetStatus({faucetRequestKey, isExecuting, errors, failureStatus}: St
   return <div className={styles.center}>
     <h3 className={`${inter.className} ${styles.status}`} aria-live='polite'>Status: {errors?.length || failureStatus?.length ?  "Error" : faucetRecord?.status ?? "Initializing"}</h3>
     { faucetRecord?.goldTxHash ?
-      <a className={inter.className} target="_blank" rel="nofollow" href={`https://alfajores.celoscan.io/tx/${faucetRecord.goldTxHash}`}>
+      <a className={inter.className} target="_blank" rel="noreferrer" href={`https://alfajores.celoscan.io/tx/${faucetRecord.goldTxHash}`}>
         View on CeloScan
       </a>
       : null
