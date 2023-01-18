@@ -1,11 +1,12 @@
 import { Inter } from '@next/font/google'
-import { FormEvent, useCallback, useEffect, useRef, useState } from 'react'
+import dynamic from 'next/dynamic'
+import { FormEvent, useCallback, useRef, useState } from 'react'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useAsyncCallback } from 'react-use-async-callback'
-import { FaucetAPIResponse, RequestRecord } from 'src/faucet-interfaces'
+import { FaucetAPIResponse } from 'src/faucet-interfaces'
 import styles from 'styles/Form.module.css'
-const inter = Inter({ subsets: ['latin'] })
-
+const FaucetStatus = dynamic(() => import('src/faucet-status'), {})
+export const inter = Inter({ subsets: ['latin'] })
 
 export default function RequestForm() {
 
@@ -65,62 +66,3 @@ export default function RequestForm() {
       <FaucetStatus failureStatus={failureStatus} faucetRequestKey={faucetRequestKey} isExecuting={isExecuting || successfullyExecuted} errors={errors} />
     </form>
 }
-
-interface StatusProps {
-  faucetRequestKey: string | null,
-  isExecuting: boolean
-  failureStatus: string |  null
-  errors: any[]
-}
-
-function FaucetStatus({faucetRequestKey, isExecuting, errors, failureStatus}: StatusProps) {
-    const [faucetRecord, setFaucetRecord] = useState<Partial<RequestRecord>>()
-
-    const onFirebaseUpdate = useCallback(({status, dollarTxHash, goldTxHash}: RequestRecord) => {
-      setFaucetRecord({
-        status,
-        dollarTxHash,
-        goldTxHash
-      })
-  }, [])
-
-  useEffect(() => {
-    const run = async function() {
-      console.info("subscribing to events...")
-      const subscribe = await import("src/firebase-client").then(mod => mod.default)
-
-      if (faucetRequestKey) {
-        await subscribe(faucetRequestKey, onFirebaseUpdate)
-      }
-    }
-    // eslint-disable-next-line
-    run().catch(console.error)
-  }, [faucetRequestKey, onFirebaseUpdate])
-
-
-  if (!faucetRecord && !isExecuting) {
-    return null
-  }
-
-  if (errors?.length) {
-    console.error("Faucet Error", errors)
-  }
-
-
-  return <div className={styles.center}>
-    <h3 className={`${inter.className} ${styles.status}`} aria-live='polite'>Status: {errors?.length || failureStatus?.length ?  "Error" : faucetRecord?.status ?? "Initializing"}</h3>
-    { faucetRecord?.goldTxHash ?
-      <a className={inter.className} target="_blank" rel="noreferrer" href={`https://alfajores.celoscan.io/tx/${faucetRecord.goldTxHash}`}>
-        View on CeloScan
-      </a>
-      : null
-    }
-    {failureStatus ? <span className={inter.className} aria-live='polite'>{failureStatus}</span> : null}
-  </div>
-}
-
-/*
-TODO
-  vercel deployment
-*
-*/
