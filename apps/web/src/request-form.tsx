@@ -26,8 +26,12 @@ export default function RequestForm() {
       'begin'
     )
     if (!beneficiary?.length || !executeRecaptcha) {
+      console.info('aborting', beneficiary, executeRecaptcha)
       return
     }
+    console.info(
+      'captcha start'
+    )
     const captchaToken = await executeRecaptcha('faucet');
     console.info("received captcha token...posting faucet request")
     const response = await fetch("api/faucet", {
