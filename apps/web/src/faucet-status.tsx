@@ -23,9 +23,9 @@ export default function FaucetStatus({ faucetRequestKey, isExecuting, errors, fa
 
   useEffect(() => {
     const run = async function () {
-      console.info("subscribing to events...")
 
       if (faucetRequestKey) {
+        console.info("subscribing to events...")
         await subscribe(faucetRequestKey, onFirebaseUpdate)
       }
     }

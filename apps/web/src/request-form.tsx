@@ -21,7 +21,10 @@ export default function RequestForm() {
     event.preventDefault()
 
     const beneficiary = inputRef.current?.value
-
+    debugger
+    console.info(
+      'begin'
+    )
     if (!beneficiary?.length || !executeRecaptcha) {
       return
     }
