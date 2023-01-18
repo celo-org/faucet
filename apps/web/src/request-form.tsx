@@ -2,7 +2,7 @@ import { Inter } from '@next/font/google'
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useAsyncCallback } from 'react-use-async-callback'
-import { FaucetAPIResponse, RequestRecord } from './faucet-interfaces'
+import { FaucetAPIResponse, RequestRecord } from 'src/faucet-interfaces'
 import styles from 'styles/Form.module.css'
 const inter = Inter({ subsets: ['latin'] })
 
@@ -26,7 +26,7 @@ export default function RequestForm() {
       return
     }
     const captchaToken = await executeRecaptcha('faucet');
-
+    console.info("received captcha token...posting faucet request")
     const response = await fetch("api/faucet", {
         method: "POST",
         headers: {
@@ -36,6 +36,7 @@ export default function RequestForm() {
     })
     // TODO get key from result and set
     const result = await response.json() as FaucetAPIResponse
+    console.info("faucet request sent...received")
     if (result.status === "Failed") {
       console.warn(result.message)
       setFailureStatus(result.message)
@@ -86,13 +87,15 @@ function FaucetStatus({faucetRequestKey, isExecuting, errors, failureStatus}: St
 
   useEffect(() => {
     const run = async function() {
+      console.info("subscribing to events...")
       const subscribe = await import("./firebase-client").then(mod => mod.default)
 
       if (faucetRequestKey) {
         await subscribe(faucetRequestKey, onFirebaseUpdate)
       }
     }
-    void run().catch(console.error)
+    // eslint-disable-next-line
+    run().catch(console.error)
   }, [faucetRequestKey, onFirebaseUpdate])
 
 
