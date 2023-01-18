@@ -7,7 +7,6 @@ import styles from 'styles/Form.module.css'
 const inter = Inter({ subsets: ['latin'] })
 
 
-
 export default function RequestForm() {
 
   const inputRef = useRef<HTMLInputElement>(null)
@@ -88,7 +87,7 @@ function FaucetStatus({faucetRequestKey, isExecuting, errors, failureStatus}: St
   useEffect(() => {
     const run = async function() {
       console.info("subscribing to events...")
-      const subscribe = await import("./firebase-client").then(mod => mod.default)
+      const subscribe = await import("src/firebase-client").then(mod => mod.default)
 
       if (faucetRequestKey) {
         await subscribe(faucetRequestKey, onFirebaseUpdate)

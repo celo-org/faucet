@@ -1,5 +1,3 @@
-
-
 const config = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_KEY,
     authDomain: `${process.env.NEXT_PUBLIC_FIREBASE_PID}.firebaseapp.com`,
