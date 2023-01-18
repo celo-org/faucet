@@ -1,9 +1,10 @@
 import { Inter } from '@next/font/google'
 import dynamic from 'next/dynamic'
-import { FormEvent, useCallback, useRef, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useAsyncCallback } from 'react-use-async-callback'
 import { FaucetAPIResponse } from 'src/faucet-interfaces'
+import { getAddresses, saveAddress } from 'src/history'
 import styles from 'styles/Form.module.css'
 const FaucetStatus = dynamic(() => import('src/faucet-status'), {})
 export const inter = Inter({ subsets: ['latin'] })
@@ -17,7 +18,7 @@ export default function RequestForm() {
   const [faucetRequestKey, setKey] = useState<string | null>(null)
   const [failureStatus, setFailureStatus] = useState<string | null>(null)
 
-  const [onSubmit, {isExecuting, errors, successfullyExecuted}] = useAsyncCallback(async (event: FormEvent<HTMLFormElement>) => {
+  const [onSubmit, {isExecuting, errors}] = useAsyncCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     const beneficiary = inputRef.current?.value
@@ -26,6 +27,8 @@ export default function RequestForm() {
       console.info('aborting')
       return
     }
+    // save to local storage
+    saveAddress(beneficiary)
 
     const captchaToken = await executeRecaptcha('faucet');
     console.info("received captcha token...posting faucet request")
@@ -57,14 +60,29 @@ export default function RequestForm() {
     }
   },[])
 
+
+  const previousAddress = useLastAddress()
+
+
   return <form className={styles.center} onSubmit={onSubmit} action="api/faucet" method="post">
       <label className={styles.center}>
         <span className={styles.label}>
           Account Address
         </span>
-        <input onInvalid={onInvalid} minLength={40} ref={inputRef} pattern="^0x[a-fA-F0-9]{40}"  type="text" placeholder="0x01F10..." className={styles.address} />
+        <input defaultValue={previousAddress}  onInvalid={onInvalid} minLength={40} ref={inputRef} pattern="^0x[a-fA-F0-9]{40}"  type="text" placeholder="0x01F10..." className={styles.address} />
       </label>
-      <button disabled={!executeRecaptcha} className={styles.button} type="submit">{"Faucet"}</button>
-      <FaucetStatus failureStatus={failureStatus} faucetRequestKey={faucetRequestKey} isExecuting={isExecuting || successfullyExecuted} errors={errors} />
+      <button disabled={!executeRecaptcha || !!faucetRequestKey} className={styles.button} type="submit">{"Faucet"}</button>
+      <FaucetStatus failureStatus={failureStatus} faucetRequestKey={faucetRequestKey} isExecuting={isExecuting || !!faucetRequestKey} errors={errors} />
     </form>
+}
+
+
+function useLastAddress() {
+  const [lastAddress, setLastAddress] = useState<string>()
+  useEffect(() => {
+    const lastUsedAddress = getAddresses().at(0)
+    setLastAddress(lastUsedAddress)
+  }, [])
+
+  return lastAddress
 }
