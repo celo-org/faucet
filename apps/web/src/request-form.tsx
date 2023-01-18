@@ -21,17 +21,12 @@ export default function RequestForm() {
     event.preventDefault()
 
     const beneficiary = inputRef.current?.value
-    debugger
-    console.info(
-      'begin'
-    )
+    console.info('begin faucet sequence')
     if (!beneficiary?.length || !executeRecaptcha) {
-      console.info('aborting', beneficiary, executeRecaptcha)
+      console.info('aborting')
       return
     }
-    console.info(
-      'captcha start'
-    )
+
     const captchaToken = await executeRecaptcha('faucet');
     console.info("received captcha token...posting faucet request")
     const response = await fetch("api/faucet", {
@@ -51,7 +46,7 @@ export default function RequestForm() {
       setKey(result.key)
     }
 
-  }, [inputRef])
+  }, [inputRef, executeRecaptcha])
 
   const onInvalid = useCallback((event: FormEvent<HTMLInputElement>) => {
     const {validity} = event.currentTarget
