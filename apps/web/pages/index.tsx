@@ -2,10 +2,12 @@ import { Inter } from '@next/font/google'
 import Head from 'next/head'
 import Logo from 'src/logo'
 import RequestForm from 'src/request-form'
+import { SetupButton } from 'src/setup-button'
 import styles from 'styles/Home.module.css'
-const inter = Inter({ subsets: ['latin'] })
+export const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
+
   return (
     <>
       <Head>
@@ -31,19 +33,8 @@ export default function Home() {
           </div>
         </div>
         <footer className={styles.grid}>
-          <a
-            href="https://docs.google.com/forms/d/1n6m-nMjjDn2RpBDadMMqYpf5DzDTOeRk1dhDJrLFdO4/viewform"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h3 className={inter.className}>
-              Big Faucet <span>&gt;</span>
-            </h3>
-            <p className={inter.className}>
-              Request a larger amount of tokens for your testing needs.
-            </p>
-          </a>
+
+          <SetupButton />
 
           <a
             href="https://docs.celo.org"
@@ -52,7 +43,7 @@ export default function Home() {
             rel="noopener noreferrer"
           >
             <h3 className={inter.className}>
-              Docs <span>&gt;</span>
+              Celo Docs <span>&gt;</span>
             </h3>
             <p className={inter.className}>
               Find in-depth information about the Celo blockchain
@@ -74,16 +65,16 @@ export default function Home() {
           </a>
 
           <a
-            href="https://github.com/celo-org/faucet/issues/new"
+            href="https://docs.google.com/forms/d/1n6m-nMjjDn2RpBDadMMqYpf5DzDTOeRk1dhDJrLFdO4/viewform"
             className={styles.card}
             target="_blank"
             rel="noopener noreferrer"
           >
             <h3 className={inter.className}>
-              Issues <span>&gt;</span>
+              Advanced Needs <span>&gt;</span>
             </h3>
             <p className={inter.className}>
-              Faucet not working? Open an issue on its github
+              Request a larger amount of tokens for your testing needs.
             </p>
           </a>
         </footer>
