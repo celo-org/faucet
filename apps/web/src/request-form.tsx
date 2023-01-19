@@ -1,10 +1,11 @@
 import { Inter } from '@next/font/google'
 import dynamic from 'next/dynamic'
-import { FormEvent, useCallback, useEffect, useRef, useState } from 'react'
+import { FormEvent, useCallback, useRef, useState } from 'react'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useAsyncCallback } from 'react-use-async-callback'
 import { FaucetAPIResponse } from 'src/faucet-interfaces'
-import { getAddresses, saveAddress } from 'src/history'
+import { saveAddress } from 'src/history'
+import { useLastAddress } from 'src/useLastAddress'
 import styles from 'styles/Form.module.css'
 const FaucetStatus = dynamic(() => import('src/faucet-status'), {})
 export const inter = Inter({ subsets: ['latin'] })
@@ -74,15 +75,4 @@ export default function RequestForm() {
       <button disabled={!executeRecaptcha || !!faucetRequestKey} className={styles.button} type="submit">{"Faucet"}</button>
       <FaucetStatus failureStatus={failureStatus} faucetRequestKey={faucetRequestKey} isExecuting={isExecuting || !!faucetRequestKey} errors={errors} />
     </form>
-}
-
-
-function useLastAddress() {
-  const [lastAddress, setLastAddress] = useState<string>()
-  useEffect(() => {
-    const lastUsedAddress = getAddresses().at(0)
-    setLastAddress(lastUsedAddress)
-  }, [])
-
-  return lastAddress
 }

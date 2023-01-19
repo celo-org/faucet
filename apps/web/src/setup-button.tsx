@@ -72,7 +72,8 @@ export function SetupButton() {
           params,
         }))
       )
-
+    } else {
+      alert("Wallet Not Detected")
     }
   }, [])
 
