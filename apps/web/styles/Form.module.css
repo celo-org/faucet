@@ -1,0 +1,34 @@
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.label {
+  margin: 0.25rem
+}
+
+.address {
+  width: 380px;
+  font-size: 0.9rem;
+}
+
+.status {
+  margin-bottom: 1rem
+}
+
+.button {
+  max-width: fit-content;
+  margin: 1rem;
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+  .address {
+    font-size: 0.85rem;
+    width: 320px;
+    max-width: 90vw;
+  }
+
+}

@@ -101,3 +101,4 @@ serviceAccountKey.json
 firebase-debug.log
 database-rules.json
 
+.vercel
