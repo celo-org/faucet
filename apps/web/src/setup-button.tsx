@@ -55,23 +55,28 @@ export function SetupButton() {
     const provider = await detectEthereumProvider() as EthProvider
 
     if (provider?.request) {
-      if (provider.chainId && Number(provider.chainId) !== ALFAJORES_CHAIN_ID) {
-        const result = await provider.request({
-          method: 'wallet_addEthereumChain',
-          params: [ALFAJORES_PARAMS],
-        })
+      try {
+        if (provider.chainId && Number(provider.chainId) !== ALFAJORES_CHAIN_ID) {
+          const result = await provider.request({
+            method: 'wallet_addEthereumChain',
+            params: [ALFAJORES_PARAMS],
+          })
 
-        console.info("network added",result)
+          console.info("network added",result)
 
-        // need to wait longer than just the await for the metamask popup to show
-        await delay(3_000)
+          // need to wait longer than just the await for the metamask popup to show
+          await delay(3_000)
+        }
+        await Promise.all(
+          tokenParams.map((params) => provider.request({
+            method: 'wallet_watchAsset',
+            params,
+          }))
+        )
+      } catch (e: any) {
+        console.error(e)
+        alert(`Unable to complete: ${e.message}`,
       }
-      await Promise.all(
-        tokenParams.map((params) => provider.request({
-          method: 'wallet_watchAsset',
-          params,
-        }))
-      )
     } else {
       alert("Wallet Not Detected")
     }
