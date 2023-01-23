@@ -39,6 +39,11 @@
 .card h3 {
   font-weight: 500;
   margin-bottom: 0.7rem;
+  display: inline-flex;
+}
+
+.card h3 img {
+  margin-right: 0.5rem;
 }
 
 .card p {

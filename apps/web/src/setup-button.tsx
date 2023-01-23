@@ -83,7 +83,7 @@ export function SetupButton() {
     disabled={isExecuting}
   >
     <h3 className={inter.className}>
-      Setup Wallet <span>&gt;</span>
+      <img height={24} width={24} src="/meta-mask-fox.svg"/> Setup Wallet <span>&gt;</span>
     </h3>
     <p className={inter.className}>
       Enable Alfajores and Register Mento tokens in Metamask
