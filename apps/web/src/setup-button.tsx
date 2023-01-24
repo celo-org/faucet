@@ -75,7 +75,7 @@ export function SetupButton() {
         )
       } catch (e: any) {
         console.error(e)
-        alert(`Unable to complete: ${e.message}`,
+        alert(`Unable to complete: ${e.message}`)
       }
     } else {
       alert("Wallet Not Detected")
