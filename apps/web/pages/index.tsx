@@ -43,7 +43,7 @@ export default function Home() {
             rel="noopener noreferrer"
           >
             <h3 className={inter.className}>
-              Celo Docs <span>&gt;</span>
+              Read Celo Docs <span>&gt;</span>
             </h3>
             <p className={inter.className}>
               Find in-depth information about the Celo blockchain
@@ -57,7 +57,7 @@ export default function Home() {
             rel="noopener noreferrer"
           >
             <h3 className={inter.className}>
-              Questions <span>&gt;</span>
+              Ask Questions <span>&gt;</span>
             </h3>
             <p className={inter.className}>
               Chat with Celo Community on Discord
@@ -71,7 +71,7 @@ export default function Home() {
             rel="noopener noreferrer"
           >
             <h3 className={inter.className}>
-              Advanced Needs <span>&gt;</span>
+              Have Advanced Needs? <span>&gt;</span>
             </h3>
             <p className={inter.className}>
               Request a larger amount of tokens for your testing needs.

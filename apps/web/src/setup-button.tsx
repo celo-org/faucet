@@ -88,7 +88,7 @@ export function SetupButton() {
     disabled={isExecuting}
   >
     <h3 className={inter.className}>
-      <img height={24} width={24} src="/meta-mask-fox.svg"/> Setup Wallet <span>&gt;</span>
+      <img alt="Metamask" height={24} width={24} src="/meta-mask-fox.svg"/> Add Celo Testnet <span>&gt;</span>
     </h3>
     <p className={inter.className}>
       Enable Alfajores and Register Mento tokens in Metamask

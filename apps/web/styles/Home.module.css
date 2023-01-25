@@ -54,6 +54,10 @@
   max-width: 30ch;
 }
 
+.card h3 span {
+    margin-left: 4px;
+  }
+
 .center {
   display: flex;
   justify-content: center;
