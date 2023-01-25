@@ -61,6 +61,10 @@ export default function RequestForm() {
     }
   },[])
 
+  const reset = useCallback(() => {
+    setFailureStatus(null)
+    setKey(null)
+  }, [])
 
   const previousAddress = useLastAddress()
 
@@ -73,6 +77,6 @@ export default function RequestForm() {
         <input defaultValue={previousAddress}  onInvalid={onInvalid} minLength={40} ref={inputRef} pattern="^0x[a-fA-F0-9]{40}"  type="text" placeholder="0x01F10..." className={styles.address} />
       </label>
       <button disabled={!executeRecaptcha || !!faucetRequestKey} className={styles.button} type="submit">{"Faucet"}</button>
-      <FaucetStatus failureStatus={failureStatus} faucetRequestKey={faucetRequestKey} isExecuting={isExecuting || !!faucetRequestKey} errors={errors} />
+      <FaucetStatus reset={reset} failureStatus={failureStatus} faucetRequestKey={faucetRequestKey} isExecuting={isExecuting || !!faucetRequestKey} errors={errors} />
     </form>
 }

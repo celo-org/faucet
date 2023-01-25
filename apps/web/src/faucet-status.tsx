@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { RequestRecord } from 'src/faucet-interfaces'
+import { RequestRecord, RequestStatus } from 'src/faucet-interfaces'
 import subscribe from 'src/firebase-client'
 import styles from 'styles/Form.module.css'
 import { inter } from './request-form'
@@ -9,8 +9,9 @@ interface StatusProps {
   isExecuting: boolean
   failureStatus: string | null
   errors: any[]
+  reset: () => void
 }
-export default function FaucetStatus({ faucetRequestKey, isExecuting, errors, failureStatus }: StatusProps) {
+export default function FaucetStatus({reset, faucetRequestKey, isExecuting, errors, failureStatus }: StatusProps) {
   const [faucetRecord, setFaucetRecord] = useState<Partial<RequestRecord>>()
 
   const onFirebaseUpdate = useCallback(({ status, dollarTxHash, goldTxHash }: RequestRecord) => {
@@ -19,7 +20,10 @@ export default function FaucetStatus({ faucetRequestKey, isExecuting, errors, fa
       dollarTxHash,
       goldTxHash
     })
-  }, [])
+    if (status === RequestStatus.Done) {
+      setTimeout(reset, 1_000)
+    }
+  }, [reset])
 
   useEffect(() => {
     const run = async function () {

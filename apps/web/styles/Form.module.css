@@ -6,7 +6,8 @@
 }
 
 .label {
-  margin: 0.25rem
+  margin: 0.25rem;
+  font-family: "Inter"
 }
 
 .address {
