@@ -123,6 +123,7 @@ input {
 }
 
 button {
+  color: var(--foreground-rgb);
   font-size: 1.25rem;
   border: .1rem solid rgba(0,0,0,.2);
   border-radius: 2.4rem;
