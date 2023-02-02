@@ -1,7 +1,7 @@
 import detectEthereumProvider from '@metamask/detect-provider'
 import { useAsyncCallback } from 'react-use-async-callback'
-import styles from 'styles/Home.module.css'
 import { inter } from '../pages/index'
+import styles from 'styles/Home.module.css'
 
 const tokens = [
   {
@@ -17,17 +17,15 @@ const tokens = [
     address: "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1"
   }
 ]
-const tokenParams = tokens.map(({ symbol, address }) => {
-  return {
+const tokenParams = tokens.map(({ symbol, address }) => ({
     type: 'ERC20',
     options: {
-      address: address,
-      symbol: symbol,
+      address,
+      symbol,
       decimals: 18,
       image: `https://reserve.mento.org/assets/tokens/${symbol}.svg`, // A string url of the token logo
     },
-  }
-})
+  }))
 interface EthProvider {
   request: (a: { method: string; params?: unknown} ) => Promise<void>
   chainId: string
