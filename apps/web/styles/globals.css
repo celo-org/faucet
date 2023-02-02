@@ -10,8 +10,8 @@
   --sand: #E7E3D4;
   --wood: #655947;
   --fig: #1E002B;
-
   --foreground-rgb: var(--fig);
+  --button-hover: var(--prosperity-yellow);
   --background-start-rgb: var(--sand);
   --background-end-rgb: var(--sand);
 
@@ -49,10 +49,10 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-
+    --foreground-rgb: var(--gypsum);
+    --background-start-rgb: var(--fig);
+    --background-end-rgb:  var(--fig);
+    --button-hover: var(--wood);
     --primary-glow: radial-gradient(rgba(1, 65, 255, 0.4), rgba(1, 65, 255, 0));
     --secondary-glow: linear-gradient(
       to bottom right,
@@ -77,6 +77,7 @@
     --callout-border-rgb: 108, 108, 108;
     --card-rgb: 100, 100, 100;
     --card-border-rgb: 200, 200, 200;
+
   }
 }
 
@@ -95,7 +96,7 @@ body {
 
 body {
   color: var(--foreground-rgb);
-  background: var(--sand)
+  background: var(--background-start-rgb)
 }
 
 a {
@@ -117,7 +118,7 @@ label {
 input {
   font-size: large;
   padding: 0.5rem 1rem;
-  border: .1rem solid rgba(0,0,0,.2);
+  border: .1rem solid  var(--foreground-rgb);
   background-color: transparent;
   border-radius: 2.4rem;
 }
@@ -125,12 +126,12 @@ input {
 button {
   color: var(--foreground-rgb);
   font-size: 1.25rem;
-  border: .1rem solid rgba(0,0,0,.2);
+  border: .1rem solid  var(--foreground-rgb);
   border-radius: 2.4rem;
   padding: 0.5rem 1.5rem;
   background-color: transparent;
 }
 
 button:hover {
-  background-color: var(--prosperity-yellow);
+  background-color: var(--button-hover);
 }
