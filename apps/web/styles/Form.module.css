@@ -7,12 +7,17 @@
 
 .label {
   margin: 0.25rem;
-  font-family: "Inter"
+  font-family: "Inter", Arial, Helvetica, sans-serif;
 }
 
 .address {
-  width: 380px;
+  width: 385px;
   font-size: 0.9rem;
+  font-family: "Inter", Arial, Helvetica, sans-serif;
+}
+
+.address:focus-visible {
+  outline-color: var(--outline-color);
 }
 
 .status {
