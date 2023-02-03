@@ -25,7 +25,8 @@ export default function Home() {
             <h1 className={`${inter.className} ${styles.title}`}>Alfajores Token Faucet</h1>
           </header>
           <div className={styles.intro}>
-            <p className={inter.className}>Enter the address of your Alfajores Testnet account to receive additional funds. Each request adds 5 CELO and 5 of each Mento stable token (e.g. cUSD, cEUR, cREAL).
+            <p className={`${inter.className} ${styles.center}`}>
+              Enter your testnet address below. Each request gives you: 5 CELO, 5 cUSD, 5 cEUR, & 5 cREAL.
             </p>
           </div>
           <div className={styles.center}>
@@ -40,6 +41,7 @@ export default function Home() {
             href="https://docs.celo.org"
             className={styles.card}
             target="_blank"
+            tabIndex={0}
             rel="noopener noreferrer"
           >
             <h3 className={inter.className}>
@@ -54,6 +56,7 @@ export default function Home() {
             href="https://chat.celo.org"
             className={styles.card}
             target="_blank"
+            tabIndex={0}
             rel="noopener noreferrer"
           >
             <h3 className={inter.className}>
@@ -68,6 +71,7 @@ export default function Home() {
             href="https://docs.google.com/forms/d/1n6m-nMjjDn2RpBDadMMqYpf5DzDTOeRk1dhDJrLFdO4/viewform"
             className={styles.card}
             target="_blank"
+            tabIndex={0}
             rel="noopener noreferrer"
           >
             <h3 className={inter.className}>
