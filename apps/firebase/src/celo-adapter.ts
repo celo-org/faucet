@@ -59,30 +59,40 @@ export class CeloAdapter {
     })
   }
 
-  // TODO deprecate after deployment
-  async transferDollars(to: string, amount: string): Promise<CeloTransactionObject<boolean>> {
-    const stableToken = await this.kit.contracts.getStableToken()
-    return stableToken.transfer(to, amount)
-  }
-
-  async transferStableTokens(to: string, amount: string) {
+    /*
+   * @param amount -- amount to transfer (unless balance of recipient is large enough to reduce gradually to zero)
+   * @param to -- the recipient address
+   * @param alwaysTransfer -- when false amount will be cut in half than quarter then zero determined by "to" balance of that token
+   */
+  async transferStableTokens(to: string, amount: string, alwaysTransfer: boolean = false) {
     return this.kit.celoTokens.forStableCeloToken(async (info: StableTokenInfo) => {
       const token = await this.kit.celoTokens.getWrapper(info.symbol as StableToken)
-      const faucetBalance = await token.balanceOf(this.defaultAddress)
+      const [faucetBalance, recipientBalance] = await Promise.all([
+        token.balanceOf(this.defaultAddress),
+        token.balanceOf(to)
+      ])
 
-      if (faucetBalance.isLessThanOrEqualTo(amount)) {
+
+      const realAmount = this.fadeOutAmount(recipientBalance, amount, alwaysTransfer)
+
+      if (realAmount.eq(0)) {
+        return false
+      }
+
+
+      if (faucetBalance.isLessThanOrEqualTo(realAmount)) {
         const exchangeContract = await this.kit.contracts.getContract(info.exchangeContract)
 
         // this surprised me but if you want to send CELO and receive an Amount of stable, quoteGoldBuy is the function to call not quoteStableBuy
-        const celoBuyquote = await exchangeContract.quoteGoldBuy(amount)
+        const celoBuyquote = await exchangeContract.quoteGoldBuy(realAmount)
 
         const maxCeloToTrade = celoBuyquote.multipliedBy(1.05).integerValue(BigNumber.ROUND_UP)
         await this.increaseAllowanceIfNeeded(info, maxCeloToTrade as unknown as BigNumber)
 
-        await exchangeContract.buyStable(amount, maxCeloToTrade).sendAndWaitForReceipt()
+        await exchangeContract.buyStable(realAmount, maxCeloToTrade).sendAndWaitForReceipt()
       }
 
-      return token.transfer(to, amount)
+      return token.transfer(to, realAmount.toString())
     })
   }
 
@@ -134,4 +144,24 @@ export class CeloAdapter {
   stop() {
     this.kit.connection.stop()
   }
+
+  // prevent accounts which already have many tokens from gaining more
+  // This is to prevent abuse on the faucet which is intended for small amounts
+  fadeOutAmount(recipientBalance: BigNumber, amount: string, useGivenAmount: boolean) {
+    const nextAmount = new BigNumber(amount)
+
+    if (useGivenAmount) {
+      return nextAmount
+    } else if (recipientBalance.isGreaterThan(HUNDRED_IN_WIE.multipliedBy(1.5))) {
+      return new BigNumber(0)
+    } else if (recipientBalance.isGreaterThan(HUNDRED_IN_WIE.multipliedBy(1))) {
+      return nextAmount.dividedBy(2)
+    } else if (recipientBalance.isGreaterThan(HUNDRED_IN_WIE.multipliedBy(0.5))) {
+      return nextAmount.dividedBy(4)
+    } else {
+      return nextAmount
+    }
+  }
 }
+
+const HUNDRED_IN_WIE = new BigNumber("100000000000000000000")
