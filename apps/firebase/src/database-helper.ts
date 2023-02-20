@@ -125,7 +125,7 @@ async function sendGold(celo: CeloAdapter, address: Address, amount: string, sna
   console.info(`req(${snap.key}): Sending ${actualAmount.toString()} celo to ${address} (balance ${recipientBalance.toString()})`)
   if (actualAmount.eq(0)) {
     console.info(`req(${snap.key}): CELO Transaction SKIPPED`)
-    snap.ref.update({goldTxHash: 'skipped'})
+    await snap.ref.update({goldTxHash: 'skipped'})
     return "skipped"
   }
   const goldTxHash = await sendCelo(celo, address, amount)
