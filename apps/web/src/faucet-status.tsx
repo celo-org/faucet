@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { inter } from './request-form'
 import { RequestRecord, RequestStatus } from 'src/faucet-interfaces'
 import subscribe from 'src/firebase-client'
 import styles from 'styles/Form.module.css'
+import { inter } from './request-form'
 
 interface StatusProps {
   faucetRequestKey: string | null
@@ -46,10 +46,12 @@ export default function FaucetStatus({reset, faucetRequestKey, isExecuting, erro
     console.error("Faucet Error", errors)
   }
 
-
   return <div className={styles.center}>
     <h3 className={`${inter.className} ${styles.status}`} aria-live='polite'>Status: {errors?.length || failureStatus?.length ? "Error" : faucetRecord?.status ?? "Initializing"}</h3>
     {faucetRecord?.goldTxHash ?
+      faucetRecord.goldTxHash === 'skipped' ? <span className={inter.className}>
+        No celo was transferred as the account already has a large celo balance.
+      </span> :
       <a className={inter.className} target="_blank" rel="noreferrer" href={`https://alfajores.celoscan.io/tx/${faucetRecord.goldTxHash}`}>
         View on CeloScan
       </a>

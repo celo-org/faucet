@@ -74,7 +74,13 @@
     align-self: center;
     justify-content: center;
     max-width: 100%;
+    width: 400px;
   }
+
+.container small {
+  margin-top: 2rem;
+  text-align: center;
+}
 
 .logo {
   position: fixed;
