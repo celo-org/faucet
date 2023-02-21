@@ -32,7 +32,7 @@ export default function Home() {
           <div className={styles.center}>
             <RequestForm />
           </div>
-          <small>*Accounts with large balances will received a phased down amount. Please consider sending back any tokens you don't need.</small>
+          <small>*Accounts with large balances will received a phased down amount. Please consider sending back any tokens you wont need.</small>
         </div>
         <footer className={styles.grid}>
 
