@@ -21,7 +21,7 @@ export default function FaucetStatus({reset, faucetRequestKey, isExecuting, erro
       goldTxHash
     })
     if (status === RequestStatus.Done) {
-      setTimeout(reset, 1_000)
+      setTimeout(reset, 2_000)
     }
   }, [reset])
 
