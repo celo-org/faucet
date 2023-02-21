@@ -6,9 +6,10 @@ type Request {
   mobileOS: String | Null,
   dollarTxHash: String | Null,    // Transaction Hash for the executed Request
   goldTxHash: String | Null,
-  escrowTxHash: String | Null,     
+  escrowTxHash: String | Null,
   status: RequestStatus,          // Request Status enum
   type: RequestType,               // Request Type enum
+  tokens: RequestedTokenSet,
 }
 
 type Account {
@@ -22,11 +23,19 @@ type Account {
  */
 
 type RequestStatus extends String {
-  validate() { 
+  validate() {
     this == 'Pending' ||
     this == 'Working' ||
     this == 'Done'    ||
     this == 'Failed'
+  }
+}
+
+type RequestedTokenSet extends String {
+  validate() {
+    this === 'All' ||
+    this === 'Stables'
+    this === 'Celo'
   }
 }
 

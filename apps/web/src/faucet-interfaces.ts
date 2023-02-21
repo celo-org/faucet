@@ -20,6 +20,13 @@ export interface RequestRecord {
   type: RequestType
   dollarTxHash?: string
   goldTxHash?: string
+  tokens?: RequestedTokenSet
+}
+
+export enum RequestedTokenSet {
+  All = 'All',
+  Stables = 'Stables',
+  Celo = 'Celo'
 }
 
 export type FaucetAPIResponse = {
