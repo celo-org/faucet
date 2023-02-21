@@ -34,7 +34,7 @@ type RequestStatus extends String {
 type RequestedTokenSet extends String {
   validate() {
     this === 'All' ||
-    this === 'Stables'
+    this === 'Stables' ||
     this === 'Celo'
   }
 }
