@@ -117,7 +117,7 @@ function buildHandleFaucet(request: RequestRecord, snap: DataSnapshot, config: N
     const { nodeUrl, faucetGoldAmount, faucetStableAmount } = config
     const celo = new CeloAdapter({ nodeUrl, pk: account.pk })
 
-    const ops: Promise<unknown>[] = []
+    const ops: Array<Promise<unknown>> = []
 
     if (request.tokens === 'Celo' || request.tokens === 'All' || request.tokens === undefined) {
       ops.push(retryAsync(sendGold, 3, [celo, request.beneficiary, faucetGoldAmount, snap], 500))

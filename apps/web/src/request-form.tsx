@@ -55,7 +55,7 @@ export default function RequestForm() {
       setKey(result.key)
     }
 
-  }, [inputRef, executeRecaptcha])
+  }, [inputRef, executeRecaptcha, skipStables])
 
   const onInvalid = useCallback((event: FormEvent<HTMLInputElement>) => {
     const {validity} = event.currentTarget
@@ -89,7 +89,7 @@ export default function RequestForm() {
       </label>
       <button disabled={!executeRecaptcha || !!faucetRequestKey} className={styles.button} type="submit">{"Faucet"}</button>
       <label>
-          <input onClick={toggleStables} name="token-request" value={"skip-stables"} type={"checkbox"} checked={skipStables}/>
+        <input onChange={toggleStables} name="token-request" value={"skip-stables"} type={"checkbox"} defaultChecked={skipStables}/>
         <small>CELO Only</small>
       </label>
       <FaucetStatus reset={reset} failureStatus={failureStatus} faucetRequestKey={faucetRequestKey} isExecuting={isExecuting || !!faucetRequestKey} errors={errors} />
