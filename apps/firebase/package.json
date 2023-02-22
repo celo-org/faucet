@@ -12,7 +12,7 @@
     "deploy:prod": "firebase deploy --project celo-faucet",
     "clean": "tsc -b . --clean",
     "build": "tsc -b .",
-    "lint": "eslint -c ./.eslintrc.js --ext .ts ./src",
+    "lint": "eslint -c ../../.eslintrc.js --ext .ts ./src",
     "transfer-funds": "ts-node scripts/transfer-funds.ts",
     "cli": "ts-node scripts/cli.ts",
     "build:rules": "firebase-bolt database-rules.bolt",

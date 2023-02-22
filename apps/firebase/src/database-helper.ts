@@ -33,6 +33,13 @@ export interface RequestRecord {
   type: RequestType
   dollarTxHash?: string
   goldTxHash?: string
+  tokens?: RequestedTokenSet
+}
+
+enum RequestedTokenSet {
+  All = 'All',
+  Stables = 'Stables',
+  Celo = 'Celo'
 }
 
 export async function processRequest(snap: DataSnapshot, pool: AccountPool, config: NetworkConfig) {
@@ -91,7 +98,7 @@ export async function fundBigFaucet(pool: AccountPool, config: NetworkConfig) {
       await Promise.all([
         celo.convertExtraStablesToCelo(ONE_THOUSAND_IN_WEI),
         retryAsync(sendCelo, 4, [celo, config.bigFaucetSafeAddress, config.bigFaucetSafeAmount], 2500),
-        sendStableTokens(celo, config.bigFaucetSafeAddress, config.bigFaucetSafeStablesAmount, snap)
+        sendStableTokens(celo, config.bigFaucetSafeAddress, config.bigFaucetSafeStablesAmount, true, snap)
       ])
     })
   } catch (error) {
@@ -99,7 +106,7 @@ export async function fundBigFaucet(pool: AccountPool, config: NetworkConfig) {
   }
 }
 
-async function sendCelo(celo: CeloAdapter, to: string, amountInWei: string, ) {
+async function sendCelo(celo: CeloAdapter, to: string, amountInWei: string) {
   const goldTx = await celo.transferGold(to, amountInWei)
   const goldTxReceipt = await goldTx.sendAndWaitForReceipt()
   return goldTxReceipt.transactionHash
@@ -109,15 +116,37 @@ function buildHandleFaucet(request: RequestRecord, snap: DataSnapshot, config: N
   return async (account: AccountRecord) => {
     const { nodeUrl, faucetGoldAmount, faucetStableAmount } = config
     const celo = new CeloAdapter({ nodeUrl, pk: account.pk })
-    await retryAsync(sendGold, 3, [celo, request.beneficiary, faucetGoldAmount, snap], 500)
-    await sendStableTokens(celo, request.beneficiary, faucetStableAmount, snap)
+
+    const ops: Array<Promise<unknown>> = []
+
+    if (request.tokens === 'Celo' || request.tokens === 'All' || request.tokens === undefined) {
+      ops.push(retryAsync(sendGold, 3, [celo, request.beneficiary, faucetGoldAmount, snap], 500))
+    }
+
+    if (request.tokens === 'Stables' || request.tokens === 'All' || request.tokens === undefined) {
+      ops.push(sendStableTokens(celo, request.beneficiary, faucetStableAmount, false, snap))
+    }
+
+    await Promise.all(ops)
   }
 }
 
 async function sendGold(celo: CeloAdapter, address: Address, amount: string, snap: DataSnapshot) {
-  console.info(`req(${snap.key}): Sending ${amount} gold`)
+
+  const token = await celo.kit.contracts.getGoldToken()
+
+  const recipientBalance = await token.balanceOf(address)
+
+  const actualAmount = celo.fadeOutAmount(recipientBalance, amount, false)
+
+  console.info(`req(${snap.key}): Sending ${actualAmount.toString()} celo to ${address} (balance ${recipientBalance.toString()})`)
+  if (actualAmount.eq(0)) {
+    console.info(`req(${snap.key}): CELO Transaction SKIPPED`)
+    await snap.ref.update({goldTxHash: 'skipped'})
+    return "skipped"
+  }
   const goldTxHash = await sendCelo(celo, address, amount)
-  console.info(`req(${snap.key}): Gold Transaction Sent. txhash:${goldTxHash}`)
+  console.info(`req(${snap.key}): CELO Transaction Sent. txhash:${goldTxHash}`)
   await snap.ref.update({ goldTxHash })
   return goldTxHash
 }
@@ -126,11 +155,13 @@ async function sendStableTokens(
   celo: CeloAdapter,
   address: Address,
   amount: string,
+  alwaysUseFullAmount: boolean, // when false if the recipient already has a sizeable balance the amount will gradually be reduced to zero
   snap: DataSnapshot | {key: string, ref?: undefined}
 ) {
   console.info(`req(${snap.key}): Sending ${amount} of each stable token`)
 
-  const tokenTxs = await celo.transferStableTokens(address, amount)
+  const tokenTxs = await celo.transferStableTokens(address, amount, alwaysUseFullAmount)
+
   const sendTxHelper = async (symbol: string, tx: CeloTransactionObject<boolean>) => {
     const txReceipt = await tx.sendAndWaitForReceipt()
     const txHash = txReceipt.transactionHash

@@ -5,6 +5,13 @@
   align-items: center;
 }
 
+.intro {
+  max-width: 420px;
+  font-size: 1rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
 .label {
   margin: 0.25rem;
   font-family: "Inter", Arial, Helvetica, sans-serif;
@@ -21,6 +28,7 @@
 }
 
 .status {
+  margin-top: 0.67rem;
   margin-bottom: 1rem
 }
 
@@ -35,6 +43,10 @@
     font-size: 0.85rem;
     width: 320px;
     max-width: 90vw;
+  }
+
+  .intro {
+    text-align: center;
   }
 
 }

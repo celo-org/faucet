@@ -15,6 +15,11 @@ export default function RequestForm() {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const { executeRecaptcha } = useGoogleReCaptcha();
+  const [skipStables, setSkipStables] = useState(true)
+
+  const toggleStables= useCallback(() => {
+      setSkipStables(!skipStables)
+  }, [skipStables])
 
   const [faucetRequestKey, setKey] = useState<string | null>(null)
   const [failureStatus, setFailureStatus] = useState<string | null>(null)
@@ -38,7 +43,7 @@ export default function RequestForm() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({beneficiary, captchaToken}),
+        body: JSON.stringify({beneficiary, captchaToken, skipStables}),
     })
     // TODO get key from result and set
     const result = await response.json() as FaucetAPIResponse
@@ -50,7 +55,7 @@ export default function RequestForm() {
       setKey(result.key)
     }
 
-  }, [inputRef, executeRecaptcha])
+  }, [inputRef, executeRecaptcha, skipStables])
 
   const onInvalid = useCallback((event: FormEvent<HTMLInputElement>) => {
     const {validity} = event.currentTarget
@@ -69,7 +74,13 @@ export default function RequestForm() {
   const previousAddress = useLastAddress()
 
 
-  return <form className={styles.center} onSubmit={onSubmit} action="api/faucet" method="post">
+  return <>
+    <div className={styles.intro}>
+        <p className={`${inter.className} ${styles.center}`}>
+          Enter your testnet address below. Each request gives you: 5 CELO{!skipStables && ", 5 cUSD, 5 cEUR, & 5 cREAL" }*.
+        </p>
+    </div>
+    <form className={styles.center} onSubmit={onSubmit} action="api/faucet" method="post">
       <label className={styles.center}>
         <span className={styles.label}>
           Account Address
@@ -77,6 +88,11 @@ export default function RequestForm() {
         <input defaultValue={previousAddress}  onInvalid={onInvalid} minLength={40} ref={inputRef} pattern="^0x[a-fA-F0-9]{40}"  type="text" placeholder="0x01F10..." className={styles.address} />
       </label>
       <button disabled={!executeRecaptcha || !!faucetRequestKey} className={styles.button} type="submit">{"Faucet"}</button>
+      <label>
+        <input onChange={toggleStables} name="token-request" value={"skip-stables"} type={"checkbox"} defaultChecked={skipStables}/>
+        <small> CELO Only</small>
+      </label>
       <FaucetStatus reset={reset} failureStatus={failureStatus} faucetRequestKey={faucetRequestKey} isExecuting={isExecuting || !!faucetRequestKey} errors={errors} />
     </form>
+  </>
 }

@@ -24,14 +24,10 @@ export default function Home() {
           <header className={styles.center}>
             <h1 className={`${inter.className} ${styles.title}`}>Alfajores Token Faucet</h1>
           </header>
-          <div className={styles.intro}>
-            <p className={`${inter.className} ${styles.center}`}>
-              Enter your testnet address below. Each request gives you: 5 CELO, 5 cUSD, 5 cEUR, & 5 cREAL.
-            </p>
-          </div>
           <div className={styles.center}>
             <RequestForm />
           </div>
+          <small>*Accounts with large balances will received a phased down amount. Please consider sending back any tokens you wont need.</small>
         </div>
         <footer className={styles.grid}>
 

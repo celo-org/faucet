@@ -7,12 +7,7 @@
   min-height: 100vh;
 }
 
-.intro {
-  max-width: 420px;
-  font-size: 1rem;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
-}
+
 
 .grid {
   display: grid;
@@ -74,7 +69,13 @@
     align-self: center;
     justify-content: center;
     max-width: 100%;
+    width: 400px;
   }
+
+.container small {
+  margin-top: 2rem;
+  text-align: center;
+}
 
 .logo {
   position: fixed;
@@ -130,9 +131,7 @@
     margin-bottom: 0.5rem;
   }
 
-  .intro {
-    text-align: center;
-  }
+
 
   .logo {
     position: static;

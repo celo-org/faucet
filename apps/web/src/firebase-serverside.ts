@@ -4,6 +4,7 @@ import "firebase/compat/database"
 import {
   Address,
   NETWORK,
+  RequestedTokenSet,
   RequestRecord,
   RequestStatus,
   RequestType
@@ -36,11 +37,13 @@ async function getDB(): Promise<firebase.database.Database> {
 
 export async function sendRequest(
   beneficiary: Address,
+  skipStables: boolean
 ) {
   const newRequest: RequestRecord = {
     beneficiary,
     status: RequestStatus.Pending,
-    type: RequestType.Faucet
+    type: RequestType.Faucet,
+    tokens: skipStables ? RequestedTokenSet.Celo : RequestedTokenSet.Stables
   }
 
   try {
