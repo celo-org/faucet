@@ -33,6 +33,13 @@ export interface RequestRecord {
   type: RequestType
   dollarTxHash?: string
   goldTxHash?: string
+  tokens?: RequestedTokenSet
+}
+
+enum RequestedTokenSet {
+  All = 'All',
+  Stables = 'Stables',
+  Celo = 'Celo'
 }
 
 export async function processRequest(snap: DataSnapshot, pool: AccountPool, config: NetworkConfig) {
@@ -109,8 +116,18 @@ function buildHandleFaucet(request: RequestRecord, snap: DataSnapshot, config: N
   return async (account: AccountRecord) => {
     const { nodeUrl, faucetGoldAmount, faucetStableAmount } = config
     const celo = new CeloAdapter({ nodeUrl, pk: account.pk })
-    await retryAsync(sendGold, 3, [celo, request.beneficiary, faucetGoldAmount, snap], 500)
-    await sendStableTokens(celo, request.beneficiary, faucetStableAmount, false, snap)
+
+    const ops: Array<Promise<unknown>> = []
+
+    if (request.tokens === 'Celo' || request.tokens === 'All' || request.tokens === undefined) {
+      ops.push(retryAsync(sendGold, 3, [celo, request.beneficiary, faucetGoldAmount, snap], 500))
+    }
+
+    if (request.tokens === 'Stables' || request.tokens === 'All' || request.tokens === undefined) {
+      ops.push(sendStableTokens(celo, request.beneficiary, faucetStableAmount, false, snap))
+    }
+
+    await Promise.all(ops)
   }
 }
 

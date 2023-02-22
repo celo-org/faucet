@@ -8,11 +8,11 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<FaucetAPIResponse>
 ) {
-  const { captchaToken, beneficiary } = req.body
+  const { captchaToken, beneficiary, skipStables } = req.body
   const captchaResponse = await captchaVerify(captchaToken)
   if (captchaResponse.success) {
     try {
-      const key = await sendRequest(beneficiary)
+      const key = await sendRequest(beneficiary, skipStables)
       res.status(200).json({ status: RequestStatus.Pending, key })
     } catch (error) {
       console.error(error)
