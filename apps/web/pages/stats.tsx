@@ -46,13 +46,11 @@ export default function Stats() {
 
       const data: Response = await response.json()
 
-      const filtered = data.result.filter((tx: Transfer) => {
-        return tx.from.toLowerCase() === "0x22579CA45eE22E2E16dDF72D955D6cf4c767B0eF".toLowerCase()
-      })
+      const filtered = data.result.filter((tx: Transfer) => tx.from.toLowerCase() === "0x22579CA45eE22E2E16dDF72D955D6cf4c767B0eF".toLowerCase())
 
       setTXList(filtered)
     }
-    fetcher()
+    void fetcher()
   }, [])
 
 
@@ -81,11 +79,8 @@ export default function Stats() {
       const trailingCount = [12, 11, 10,9, 8, 7,6,5,2,3,2,1].map(n => {
         const previousBlock = blockNumber - n * period
         const size = txPerBlock[previousBlock]?.length || 0
-        console.log("size", size)
         return size
       })
-
-      stats
 
 
       return {
@@ -106,18 +101,14 @@ export default function Stats() {
   const countByAddress = useMemo(() => {
       const txByAddress = groupBy(txList, t => t.to)
 
-      return Object.keys(txByAddress).map((address) => {
-      return {value: txByAddress[address].length, address}
-    }).filter(i  => i.value > 100)
+      return Object.keys(txByAddress).map((address) => ({value: txByAddress[address].length, address})).filter(i  => i.value > 100)
 
   }, [txList])
 
   const byToken = useMemo(() => {
     const records = groupBy(txList, (tx) => tx.tokenSymbol )
 
-    return Object.keys(records).map(token => {
-      return {count: records[token].length, token}
-    })
+    return Object.keys(records).map(token => ({count: records[token].length, token}))
 
   }, [txList])
 
