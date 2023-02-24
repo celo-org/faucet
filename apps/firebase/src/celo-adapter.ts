@@ -76,8 +76,10 @@ export class CeloAdapter {
       const realAmount = this.fadeOutAmount(recipientBalance, amount, alwaysTransfer)
 
       if (realAmount.eq(0)) {
+        console.info(`skipping ${info.symbol} for ${to} balance already ${recipientBalance.toString()}`)
         return false
       }
+      console.info(`sending ${to} ${realAmount.toString()}${info.symbol}. Balance ${recipientBalance.toString()}`)
 
 
       if (faucetBalance.isLessThanOrEqualTo(realAmount)) {

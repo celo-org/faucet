@@ -158,14 +158,12 @@ async function sendStableTokens(
   alwaysUseFullAmount: boolean, // when false if the recipient already has a sizeable balance the amount will gradually be reduced to zero
   snap: DataSnapshot | {key: string, ref?: undefined}
 ) {
-  console.info(`req(${snap.key}): Sending ${amount} of each stable token`)
-
   const tokenTxs = await celo.transferStableTokens(address, amount, alwaysUseFullAmount)
 
   const sendTxHelper = async (symbol: string, tx: CeloTransactionObject<boolean>) => {
     const txReceipt = await tx.sendAndWaitForReceipt()
     const txHash = txReceipt.transactionHash
-    console.log(`req(${snap.key}): ${symbol} Transaction Sent. txhash:${txHash}`)
+    console.log(`req(${snap.key}): ${symbol} Transaction Sent.  txhash:${txHash}`)
     if (snap.ref) {
       await snap.ref.update({ txHash })
     }
