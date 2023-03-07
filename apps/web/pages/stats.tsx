@@ -34,6 +34,8 @@ interface Response {
   result: Transfer[]
 }
 
+const RESERVE_ADDRESS = "0xa7ed835288Aa4524bB6C73DD23c0bF4315D9Fe3e".toLowerCase()
+const FAUCET_ADDRESS =  "0x22579CA45eE22E2E16dDF72D955D6cf4c767B0eF".toLowerCase()
 
 
 export default function Stats() {
@@ -46,7 +48,9 @@ export default function Stats() {
 
       const data: Response = await response.json()
 
-      const filtered = data.result.filter((tx: Transfer) => tx.from.toLowerCase() === "0x22579CA45eE22E2E16dDF72D955D6cf4c767B0eF".toLowerCase())
+      const filtered = data.result
+        .filter((tx: Transfer) => tx.from.toLowerCase() === FAUCET_ADDRESS)
+        .filter((tx)  => tx.to.toLowerCase() !== RESERVE_ADDRESS)
 
       setTXList(filtered)
     }
