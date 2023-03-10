@@ -154,12 +154,12 @@ export class CeloAdapter {
 
     if (useGivenAmount) {
       return nextAmount
-    } else if (recipientBalance.isGreaterThan(HUNDRED_IN_WIE.multipliedBy(1.5))) {
-      return new BigNumber(0)
     } else if (recipientBalance.isGreaterThan(HUNDRED_IN_WIE.multipliedBy(1))) {
-      return nextAmount.dividedBy(2)
-    } else if (recipientBalance.isGreaterThan(HUNDRED_IN_WIE.multipliedBy(0.5))) {
+      return new BigNumber(0)
+    } else if (recipientBalance.isGreaterThan(HUNDRED_IN_WIE.multipliedBy(0.75))) {
       return nextAmount.dividedBy(4)
+    } else if (recipientBalance.isGreaterThan(HUNDRED_IN_WIE.multipliedBy(0.25))) {
+      return nextAmount.dividedBy(2)
     } else {
       return nextAmount
     }
