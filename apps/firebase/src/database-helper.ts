@@ -91,12 +91,13 @@ export async function fundBigFaucet(pool: AccountPool, config: NetworkConfig) {
 
       // convert some of the massive amount of cEUR and cREAL we have to CELO
       // this amount should be small enough so that it probably doesn't cause slippage
-      const ONE_THOUSAND_IN_WEI ="1000000000000000000000"
+      const ONE_THOUSAND_FIVE_HUNDRED_IN_WEI ="1500000000000000000000"
 
       const snap = {key: `big-faucet:${Date.now()}`}
 
+      await celo.convertExtraStablesToCelo(ONE_THOUSAND_FIVE_HUNDRED_IN_WEI),
+
       await Promise.all([
-        celo.convertExtraStablesToCelo(ONE_THOUSAND_IN_WEI),
         retryAsync(sendCelo, 4, [celo, config.bigFaucetSafeAddress, config.bigFaucetSafeAmount], 2500),
         sendStableTokens(celo, config.bigFaucetSafeAddress, config.bigFaucetSafeStablesAmount, true, snap)
       ])
