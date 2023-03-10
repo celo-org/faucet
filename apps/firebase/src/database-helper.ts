@@ -88,7 +88,7 @@ export async function fundBigFaucet(pool: AccountPool, config: NetworkConfig) {
   try {
     return await pool.doWithAccount(async (account) => {
       const celo = new CeloAdapter({pk: account.pk, nodeUrl: config.nodeUrl})
-
+      await celo.init()
       // convert some of the massive amount of cEUR and cREAL we have to CELO
       // this amount should be small enough so that it probably doesn't cause slippage
       const ONE_THOUSAND_FIVE_HUNDRED_IN_WEI ="1500000000000000000000"
@@ -117,7 +117,7 @@ function buildHandleFaucet(request: RequestRecord, snap: DataSnapshot, config: N
   return async (account: AccountRecord) => {
     const { nodeUrl, faucetGoldAmount, faucetStableAmount } = config
     const celo = new CeloAdapter({ nodeUrl, pk: account.pk })
-
+    await celo.init()
     const ops: Array<Promise<unknown>> = []
 
     if (request.tokens === 'Celo' || request.tokens === 'All' || request.tokens === undefined) {
