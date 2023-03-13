@@ -1,12 +1,17 @@
 import { Inter } from '@next/font/google'
 import Head from 'next/head'
+import { isBalanceBelowPar } from 'src/balance'
 import Logo from 'src/logo'
 import RequestForm from 'src/request-form'
 import { SetupButton } from 'src/setup-button'
 import styles from 'styles/Home.module.css'
 export const inter = Inter({ subsets: ['latin'] })
 
-export default function Home() {
+interface Props {
+  isOutOfCELO: boolean
+}
+
+export default function Home({isOutOfCELO}: Props) {
 
   return (
     <>
@@ -17,15 +22,21 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <div className={styles.container}>
+        <div className={styles.top}>
+          {isOutOfCELO && <header className={styles.notice}>
+            Faucet is currently out of CELO, it is refilled daily
+          </header>
+          }
           <div className={styles.logo}>
             <Logo />
           </div>
+        </div>
+        <div className={styles.container}>
           <header className={styles.center}>
             <h1 className={`${inter.className} ${styles.title}`}>Alfajores Token Faucet</h1>
           </header>
           <div className={styles.center}>
-            <RequestForm />
+            <RequestForm isOutOfCELO={isOutOfCELO}/>
           </div>
           <small>*Accounts with large balances will received a phased down amount. Please consider sending back any tokens you wont need.</small>
         </div>
@@ -81,4 +92,13 @@ export default function Home() {
       </main>
     </>
   )
+}
+
+
+export async function getServerSideProps(): Promise<{props: Props}> {
+
+  const isOutOfCELO = await isBalanceBelowPar()
+  return {
+    props: {isOutOfCELO}
+  }
 }
