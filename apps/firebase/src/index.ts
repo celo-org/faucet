@@ -28,7 +28,7 @@ export const faucetRequestProcessor = functions
     return processRequest(snap, pool, config)
   })
 
-export const bigFaucetFunder = functions.pubsub.schedule('every sunday 05:00').onRun(async (context) => {
+export const bigFaucetFunder = functions.pubsub.schedule('every sunday 02:00').onRun(async (context) => {
   const network = 'alfajores'
   const config = getNetworkConfig(network)
     const pool = new AccountPool(db, network, {
