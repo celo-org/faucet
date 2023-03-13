@@ -24,7 +24,7 @@ export default function Home({isOutOfCELO}: Props) {
       <main className={styles.main}>
         <div className={styles.top}>
           {isOutOfCELO && <header className={styles.notice}>
-            Faucet is currently out of CELO, it is refilled daily
+            The Faucet is out of CELO for Today. It will be refilled <a href="https://explorer.celo.org/alfajores/epochs">next Epoch</a>
           </header>
           }
           <div className={styles.logo}>
