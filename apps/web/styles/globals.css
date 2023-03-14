@@ -10,7 +10,7 @@
   --sand: #E7E3D4;
   --wood: #655947;
   --fig: #1E002B;
-
+  --disabled: #9B9B9B;
   --foreground-rgb: var(--fig);
   --button-hover: var(--prosperity-yellow);
   --background-start-rgb: var(--sand);
@@ -74,7 +74,7 @@ a {
 
 label {
   font-size: 1.2rem;
-  font-family: "Inter", Arial, Helvetica, sans-serif;
+
 }
 
 input {
@@ -96,4 +96,9 @@ button {
 
 button:hover {
   background-color: var(--button-hover);
+}
+
+button[disabled]:hover {
+  background-color: inherit;
+  color:var(--disabled)
 }

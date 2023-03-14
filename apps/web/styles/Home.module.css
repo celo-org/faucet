@@ -7,8 +7,6 @@
   min-height: 100vh;
 }
 
-
-
 .grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(25%, auto));
@@ -77,12 +75,33 @@
   text-align: center;
 }
 
-.logo {
+.top {
   position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+}
+
+.logo {
+  position: relative;
   top: 20px;
   left: 20px;
   opacity: 90%;
 }
+
+.notice {
+  position: relative;
+  left: 0;
+  right: 0;
+  background-color: #1E002B;
+  font-family: "Inter", Arial, Helvetica, sans-serif;
+  text-align: center;
+  color: white;
+  padding: 0.5rem;
+  border-bottom: 2px solid #FCFF52;
+}
+
 
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {

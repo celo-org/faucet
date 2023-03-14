@@ -10,7 +10,11 @@ import styles from 'styles/Form.module.css'
 const FaucetStatus = dynamic(() => import('src/faucet-status'), {})
 export const inter = Inter({ subsets: ['latin'] })
 
-export default function RequestForm() {
+interface Props {
+  isOutOfCELO: boolean
+}
+
+export default function RequestForm({isOutOfCELO}:Props) {
 
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -23,6 +27,8 @@ export default function RequestForm() {
 
   const [faucetRequestKey, setKey] = useState<string | null>(null)
   const [failureStatus, setFailureStatus] = useState<string | null>(null)
+
+  const disableCELOWhenOut = isOutOfCELO
 
   const [onSubmit, {isExecuting, errors}] = useAsyncCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -87,7 +93,7 @@ export default function RequestForm() {
         </span>
         <input defaultValue={previousAddress}  onInvalid={onInvalid} minLength={40} ref={inputRef} pattern="^0x[a-fA-F0-9]{40}"  type="text" placeholder="0x01F10..." className={styles.address} />
       </label>
-      <button disabled={!executeRecaptcha || !!faucetRequestKey} className={styles.button} type="submit">{"Faucet"}</button>
+      <button disabled={!executeRecaptcha || !!faucetRequestKey || disableCELOWhenOut} className={styles.button} type="submit">{"Faucet"}</button>
       <label>
         <input onChange={toggleStables} name="token-request" value={"skip-stables"} type={"checkbox"} defaultChecked={skipStables}/>
         <small> CELO Only</small>
