@@ -95,7 +95,7 @@ export async function fundBigFaucet(pool: AccountPool, config: NetworkConfig) {
 
       const snap = {key: `big-faucet:${Date.now()}`}
 
-      await celo.convertExtraStablesToCelo(ONE_THOUSAND_FIVE_HUNDRED_IN_WEI),
+      await celo.convertExtraStablesToCelo(ONE_THOUSAND_FIVE_HUNDRED_IN_WEI)
 
       await Promise.all([
         retryAsync(sendCelo, 4, [celo, config.bigFaucetSafeAddress, config.bigFaucetSafeAmount], 2500),
