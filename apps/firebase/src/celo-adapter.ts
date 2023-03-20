@@ -4,7 +4,7 @@ import { StableToken, StableTokenInfo } from '@celo/contractkit/lib/celo-tokens'
 import { ensureLeading0x, privateKeyToAddress } from '@celo/utils/lib/address'
 import { Mento } from '@mento-protocol/mento-sdk'
 import BigNumber from "bignumber.js"
-import { JsonRpcProvider, Signer, Wallet } from "ethers"
+import { providers, Signer, Wallet } from "ethers"
 import Web3 from 'web3'
 
 
@@ -13,7 +13,7 @@ import Web3 from 'web3'
 export class CeloAdapter {
   public readonly defaultAddress: string
   public readonly kit: ContractKit
-  private readonly etherProvider: JsonRpcProvider
+  private readonly etherProvider: providers.JsonRpcProvider
   private readonly signer: Signer
   private readonly privateKey: string
   private mento: Mento | undefined
@@ -21,7 +21,7 @@ export class CeloAdapter {
 
   constructor({ pk, nodeUrl }: { pk: string; nodeUrl: string }) {
 
-    this.etherProvider = new JsonRpcProvider(nodeUrl)
+    this.etherProvider = new providers.JsonRpcProvider(nodeUrl)
     this.signer = new Wallet(pk, this.etherProvider);
 
     // To add more logging:
@@ -137,17 +137,16 @@ export class CeloAdapter {
           realAmount.toString()
         );
         console.info(`swap quote ${quoteAmountIn.toString()} for ${realAmount.toString()} `)
+        const maxCeloToTrade = quoteAmountIn.div(100).mul(103).toString() // 3% slippage
+        await this.increaseAllowanceIfNeeded(new BigNumber(maxCeloToTrade))
 
-        const maxCeloToTrade = quoteAmountIn.multipliedBy(1.05).integerValue(BigNumber.ROUND_UP)
-        await this.increaseAllowanceIfNeeded(maxCeloToTrade)
-
-        const expectedAmountOut = quoteAmountIn.mul(0.99); // allow 1% slippage from quote
         const swapTxObj = await mento.swapOut(
           celoToken.address,
           stableTokenAddr,
           realAmount.toString(),
-          expectedAmountOut
+          maxCeloToTrade.toString()
         );
+        console.info("swap TX", swapTxObj)
         await this.signer.sendTransaction(swapTxObj);
       }
 
@@ -176,7 +175,7 @@ export class CeloAdapter {
       const allowanceTx = await this.signer.sendTransaction(allowanceTxObj);
       const allowanceReceipt = await allowanceTx.wait();
 
-      console.log('increasedAllowance', allowanceReceipt?.hash)
+      console.log('increasedAllowance', allowanceReceipt?.transactionHash)
     }
   }
 
@@ -222,11 +221,11 @@ export class CeloAdapter {
 
     if (useGivenAmount) {
       return nextAmount
-    } else if (recipientBalance.isGreaterThan(HUNDRED_IN_WIE.multipliedBy(1))) {
+    } else if (recipientBalance.isGreaterThan(HUNDRED_IN_WIE.multipliedBy(75).dividedBy(100))) {
       return new BigNumber(0)
-    } else if (recipientBalance.isGreaterThan(HUNDRED_IN_WIE.multipliedBy(0.75))) {
+    } else if (recipientBalance.isGreaterThan(HUNDRED_IN_WIE.multipliedBy(50).dividedBy(100))) {
       return nextAmount.dividedBy(4)
-    } else if (recipientBalance.isGreaterThan(HUNDRED_IN_WIE.multipliedBy(0.25))) {
+    } else if (recipientBalance.isGreaterThan(HUNDRED_IN_WIE.multipliedBy(25).dividedBy(100))) {
       return nextAmount.dividedBy(2)
     } else {
       return nextAmount
