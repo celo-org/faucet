@@ -61,10 +61,10 @@ export default function Stats() {
 
 
 
-  const txCountperBlock = useMemo(() => {
+  const statsByPeriod = useMemo(() => {
 
     // 1 block every 5 seconds is 12 blocks a minute * 60 minutes per hour * hours in period
-    const period = 12 * 60 * 6
+    const period = 12 * 60 * 2
 
     const txPerBlock = groupBy(txList, (t) => Number(t.blockNumber) - (Number(t.blockNumber) % (period)) )
 
@@ -73,24 +73,30 @@ export default function Stats() {
       const blockNumber = Number(block)
       const byAddress = groupBy(txPerBlock[blockNumber], (t) => t.to)
 
-      const addresses = Object.keys(byAddress).length
+      const addresses = Object.keys(byAddress)
 
-      const perAddress = Object.keys(byAddress).map(address => {
+      const addressCount = addresses.length
+
+      const perAddress = addresses.map(address => {
         const txCountForAddress = byAddress[address].length
         return txCountForAddress
       })
 
-      const trailingCount = [12, 11, 10,9, 8, 7,6,5,2,3,2,1].map(n => {
+      const trailingCount = [12, 11, 10,9, 8,7,6,5,4,3,2,1].map(n => {
         const previousBlock = blockNumber - n * period
         const size = txPerBlock[previousBlock]?.length || 0
         return size
       })
 
 
+      const harmonicMean = stats.harmonicMean(perAddress)
+
+
       return {
         txPerHalfDay: txPerBlock[blockNumber].length,
         trailingSTD: stats.standardDeviation(trailingCount),
-        addresses,
+        addresses: addressCount,
+        numberOfAddressesWithMoreThanMeanSends: perAddress.filter(x => x > harmonicMean).length,
         maxPerAddress: Math.max(...perAddress),
         modeTxPerAddress: stats.mode(perAddress),
         meanTxPerAddress: stats.mean(perAddress),
@@ -118,18 +124,19 @@ export default function Stats() {
 
 
   return <span>
-    <LineChart width={1400} height={600} data={txCountperBlock}>
+    <LineChart width={1400} height={600} data={statsByPeriod}>
       <YAxis />
       <XAxis dataKey={"block"} />
       <Line type="monotone" dataKey="txPerHalfDay" stroke="#8884d8" />
-      <Line type="natural" dataKey="addresses" stroke="#FF9A51" />
-      <Line type="natural" dataKey="trailingSTD" stroke="#000" />
-      <Line type="monotone" dataKey="maxPerAddress" stroke="#7CC0FF" />
-      <Line type="monotone" dataKey="meanTxPerAddress" stroke="#56DF7C" />
-      <Line type="natural" dataKey="modeTxPerAddress" stroke="#FFA3EB" />
-      <Line type="monotone" dataKey="medianTxPerAddress" stroke="#1E002B" />
-      <Line type="monotone" dataKey="stdInTXPerAddress" stroke="#655947" />
-      <Line type="monotone" dataKey="harmonicMean" stroke="#476520" />
+      <Line type="natural" dataKey="addressCount" stroke="#FF9A51" />
+      <Line type="natural" dataKey="numberOfAddressesWithMoreThanMeanSends" stroke="#FF0000" />
+      {/* <Line type="natural" dataKey="trailingSTD" stroke="#000" /> */}
+      {/* <Line type="monotone" dataKey="maxPerAddress" stroke="#7CC0FF" /> */}
+      {/* <Line type="monotone" dataKey="meanTxPerAddress" stroke="#56DF7C" /> */}
+      {/* <Line type="natural" dataKey="modeTxPerAddress" stroke="#FFA3EB" /> */}
+      {/* <Line type="monotone" dataKey="medianTxPerAddress" stroke="#1E002B" /> */}
+      {/* <Line type="monotone" dataKey="stdInTXPerAddress" stroke="#655947" /> */}
+      {/* <Line type="monotone" dataKey="harmonicMean" stroke="#476520" /> */}
       <Tooltip />
     </LineChart>
 
