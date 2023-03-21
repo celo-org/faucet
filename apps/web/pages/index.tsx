@@ -24,12 +24,8 @@ export default function Home({isOutOfCELO}: Props) {
       <main className={styles.main}>
         <div className={styles.top}>
           {isOutOfCELO && <header className={styles.notice}>
-            The Faucet is out of CELO for today. It will be refilled &nbsp
-            <a target="_blank" rel="noreferrer" href="https://explorer.celo.org/alfajores/epochs">
-              next Epoch
-            </a>
-          </header>
-          }
+            The Faucet is out of CELO for today. It will be refilled <a target="_blank" rel="noreferrer" href="https://explorer.celo.org/alfajores/epochs">next Epoch</a>
+          </header>}
           <div className={styles.logo}>
             <Logo />
           </div>
