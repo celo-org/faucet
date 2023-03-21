@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { inter } from './request-form'
 import { RequestRecord, RequestStatus } from 'src/faucet-interfaces'
 import subscribe from 'src/firebase-client'
 import styles from 'styles/Form.module.css'
+import { inter } from './request-form'
 
 interface StatusProps {
   faucetRequestKey: string | null

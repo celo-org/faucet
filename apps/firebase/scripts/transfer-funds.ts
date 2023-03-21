@@ -55,7 +55,7 @@ async function transferFunds(args: {
   const pk = args.pk
   const to = args.recipientAddress
   const celo = new CeloAdapter({ pk, nodeUrl: args.nodeUrl })
-
+  await celo.init()
   const printBalance = async (addr: string) => {
     console.log(`Account: ${addr}`)
     const balances = await celo.kit.celoTokens.balancesOf(addr)

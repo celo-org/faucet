@@ -1,19 +1,31 @@
 import { CeloTransactionObject } from '@celo/connect'
-import { ContractKit, newKitFromWeb3 } from '@celo/contractkit'
+import { ContractKit, newKitFromWeb3, Token } from '@celo/contractkit'
 import { StableToken, StableTokenInfo } from '@celo/contractkit/lib/celo-tokens'
 import { ensureLeading0x, privateKeyToAddress } from '@celo/utils/lib/address'
+import { Mento } from '@mento-protocol/mento-sdk'
 import BigNumber from "bignumber.js"
+import { providers, Signer, Wallet } from "ethers"
 import Web3 from 'web3'
+
+
+
 
 export class CeloAdapter {
   public readonly defaultAddress: string
   public readonly kit: ContractKit
+  private readonly etherProvider: providers.JsonRpcProvider
+  private readonly signer: Signer
   private readonly privateKey: string
+  private mento: Mento | undefined
+  private initialized: boolean = false
 
   constructor({ pk, nodeUrl }: { pk: string; nodeUrl: string }) {
+
+    this.etherProvider = new providers.JsonRpcProvider(nodeUrl)
+    this.signer = new Wallet(pk, this.etherProvider);
+
     // To add more logging:
     // Use the debug of the contractkit. Run it with DEBUG=* (or the options)
-
     this.kit = newKitFromWeb3(new Web3(nodeUrl))
     console.info(`New kit from url: ${nodeUrl}`)
     this.privateKey = ensureLeading0x(pk)
@@ -21,6 +33,15 @@ export class CeloAdapter {
     console.info(`Using address ${this.defaultAddress} to send transactions`)
     this.kit.connection.addAccount(this.privateKey)
     this.kit.connection.defaultAccount = this.defaultAddress
+  }
+
+  async init() {
+    if (this.initialized) {
+      return true
+    }
+    this.mento = await Mento.create(this.signer);
+    this.initialized = true
+    return true
   }
 
   async transferGold(to: string, amount: string): Promise<CeloTransactionObject<boolean>> {
@@ -33,9 +54,13 @@ export class CeloAdapter {
    *
    */
   async convertExtraStablesToCelo(amount: string) {
+    const mento = this.mento
+    if (!mento) {
+      throw new Error("Must call init() first")
+    }
+    const celoContractAddress = await this.kit.celoTokens.getAddress(Token.CELO)
     await this.kit.celoTokens.forStableCeloToken(async (info) => {
       try {
-        console.log('converting', info.symbol)
         const stableToken = await this.kit.celoTokens.getWrapper(info.symbol as StableToken)
         const faucetBalance = await stableToken.balanceOf(this.defaultAddress)
         const MIN_BALANCE_IN_WEI = "25000000000000000000000" // 25K
@@ -43,16 +68,30 @@ export class CeloAdapter {
           console.log('skipping', info.symbol, faucetBalance.toString())
           return
         }
-        const exchangeContract = await this.kit.contracts.getContract(info.exchangeContract)
+        console.log('converting', info.symbol)
 
-        const [quote] = await Promise.all([
-          exchangeContract.quoteStableSell(amount),
-          stableToken.increaseAllowance(exchangeContract.address, amount).sendAndWaitForReceipt()
-        ]);
+        const allowanceTxObj = await mento.increaseTradingAllowance(
+          stableToken.address,
+          amount
+        )
 
+        const allowanceTx = await this.signer.sendTransaction(allowanceTxObj);
+        await allowanceTx.wait();
 
-        const tx = await exchangeContract.sellStable(amount, quote.multipliedBy(0.99).integerValue(BigNumber.ROUND_UP))
-        await tx.sendAndWaitForReceipt()
+        const quoteAmountOut = await mento.getAmountOut(
+          stableToken.address,
+          celoContractAddress,
+          amount
+        );
+        const expectedAmountOut = quoteAmountOut.mul(0.99); // allow 1% slippage from quote
+        const swapTxObj = await mento.swapIn(
+          stableToken.address,
+          celoContractAddress,
+          amount,
+          expectedAmountOut
+        );
+        const swapTx = await this.signer.sendTransaction(swapTxObj);
+        return swapTx.wait();
       } catch (e) {
         console.info("caught", info.symbol, e)
       }
@@ -65,6 +104,13 @@ export class CeloAdapter {
    * @param alwaysTransfer -- when false amount will be cut in half than quarter then zero determined by "to" balance of that token
    */
   async transferStableTokens(to: string, amount: string, alwaysTransfer: boolean = false) {
+    const mento = this.mento
+    if (!mento) {
+      throw new Error("Must call init() first")
+    }
+    const celoToken = await this.kit.contracts.getGoldToken()
+
+
     return this.kit.celoTokens.forStableCeloToken(async (info: StableTokenInfo) => {
       const token = await this.kit.celoTokens.getWrapper(info.symbol as StableToken)
       const [faucetBalance, recipientBalance] = await Promise.all([
@@ -72,6 +118,7 @@ export class CeloAdapter {
         token.balanceOf(to)
       ])
 
+      const stableTokenAddr = token.address
 
       const realAmount = this.fadeOutAmount(recipientBalance, amount, alwaysTransfer)
 
@@ -83,32 +130,52 @@ export class CeloAdapter {
 
 
       if (faucetBalance.isLessThanOrEqualTo(realAmount)) {
-        const exchangeContract = await this.kit.contracts.getContract(info.exchangeContract)
 
-        // this surprised me but if you want to send CELO and receive an Amount of stable, quoteGoldBuy is the function to call not quoteStableBuy
-        const celoBuyquote = await exchangeContract.quoteGoldBuy(realAmount)
+        const quoteAmountIn = await mento.getAmountIn(
+          celoToken.address,
+          stableTokenAddr,
+          realAmount.toString()
+        );
+        console.info(`swap quote ${quoteAmountIn.toString()} for ${realAmount.toString()} `)
+        const maxCeloToTrade = quoteAmountIn.div(100).mul(103).toString() // 3% slippage
+        await this.increaseAllowanceIfNeeded(new BigNumber(maxCeloToTrade))
 
-        const maxCeloToTrade = celoBuyquote.multipliedBy(1.05).integerValue(BigNumber.ROUND_UP)
-        await this.increaseAllowanceIfNeeded(info, maxCeloToTrade as unknown as BigNumber)
-
-        await exchangeContract.buyStable(realAmount, maxCeloToTrade).sendAndWaitForReceipt()
+        const swapTxObj = await mento.swapOut(
+          celoToken.address,
+          stableTokenAddr,
+          realAmount.toString(),
+          maxCeloToTrade.toString()
+        );
+        console.info("swap TX", swapTxObj)
+        await this.signer.sendTransaction(swapTxObj);
       }
 
       return token.transfer(to, realAmount.toString())
     })
   }
 
-  async increaseAllowanceIfNeeded(info: StableTokenInfo, amount: BigNumber) {
+  async increaseAllowanceIfNeeded(amount: BigNumber) {
+    const mento = this.mento
+    if (!mento) {
+      throw new Error("Must call init() first")
+    }
 
     const celoERC20Wrapper = await this.kit.contracts.getGoldToken()
-    const exchangeContractAddress = await this.kit.registry.addressFor(info.exchangeContract)
+    const brokerContractAddress = "0xD3Dff18E465bCa6241A244144765b4421Ac14D09" // https://docs.mento.org/mento-protocol/developers/deployment-addresses
 
-    const allowance = await celoERC20Wrapper.allowance(this.defaultAddress, exchangeContractAddress)
+
+
+    const allowance = await celoERC20Wrapper.allowance(this.defaultAddress, brokerContractAddress)
     if (allowance.isLessThanOrEqualTo(amount)) {
       // multiply by 10 so we don't have to be setting this for every transaction
-      const transaction = await celoERC20Wrapper.increaseAllowance(exchangeContractAddress, amount.multipliedBy(10).integerValue(BigNumber.ROUND_UP))
-      const receipt = await transaction.sendAndWaitForReceipt()
-      console.log('increasedAllowance', receipt.transactionHash)
+      const allowanceTxObj = await mento.increaseTradingAllowance(
+        celoERC20Wrapper.address,
+        amount.multipliedBy(10).integerValue(BigNumber.ROUND_UP).toString()
+      );
+      const allowanceTx = await this.signer.sendTransaction(allowanceTxObj);
+      const allowanceReceipt = await allowanceTx.wait();
+
+      console.log('increasedAllowance', allowanceReceipt?.transactionHash)
     }
   }
 
@@ -154,11 +221,11 @@ export class CeloAdapter {
 
     if (useGivenAmount) {
       return nextAmount
-    } else if (recipientBalance.isGreaterThan(HUNDRED_IN_WIE.multipliedBy(1))) {
+    } else if (recipientBalance.isGreaterThan(HUNDRED_IN_WIE.multipliedBy(75).dividedBy(100))) {
       return new BigNumber(0)
-    } else if (recipientBalance.isGreaterThan(HUNDRED_IN_WIE.multipliedBy(0.75))) {
+    } else if (recipientBalance.isGreaterThan(HUNDRED_IN_WIE.multipliedBy(50).dividedBy(100))) {
       return nextAmount.dividedBy(4)
-    } else if (recipientBalance.isGreaterThan(HUNDRED_IN_WIE.multipliedBy(0.25))) {
+    } else if (recipientBalance.isGreaterThan(HUNDRED_IN_WIE.multipliedBy(25).dividedBy(100))) {
       return nextAmount.dividedBy(2)
     } else {
       return nextAmount
