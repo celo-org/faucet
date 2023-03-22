@@ -1,7 +1,7 @@
 import * as admin from 'firebase-admin'
 import * as functions from 'firebase-functions'
 import { getNetworkConfig } from './config'
-import { AccountPool, fundBigFaucet, processRequest } from './database-helper'
+import { AccountPool, fundBigFaucet, processRequest, topUpWithCEuros } from './database-helper'
 
 const PROCESSOR_RUNTIME_OPTS: functions.RuntimeOptions = {
   // When changing this, check that actionTimeoutMS is less than this number
@@ -39,6 +39,20 @@ export const bigFaucetFunder = functions.pubsub.schedule('every sunday 02:00').o
 
     console.log(`Big drip running on ${context.resource.name} with ${config.bigFaucetSafeAmount} CELO + ${config.bigFaucetSafeStablesAmount} cStables for ${config.bigFaucetSafeAddress}`)
     await fundBigFaucet(pool, config)
+})
+
+export const topUp = functions.pubsub.schedule("every 60 minutes mon,tue,wed,thu,fri,sat").onRun(async (context) => {
+  const network = 'alfajores'
+  const config = getNetworkConfig(network)
+    const pool = new AccountPool(db, network, {
+      retryWaitMS: SECOND * 4,
+      getAccountTimeoutMS: 30 * SECOND,
+      actionTimeoutMS: 120 * SECOND,
+    })
+
+    console.log(`Top Up running on ${context.resource.name}`)
+    await topUpWithCEuros(pool, config)
+
 })
 
 // From https://firebase.googleblog.com/2019/04/schedule-cloud-functions-firebase-cron.html

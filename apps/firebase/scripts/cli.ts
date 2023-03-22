@@ -189,7 +189,7 @@ function clearAccounts(network: string) {
 }
 
 function deployFunctions() {
-  execSync(`yarn firebase deploy --only functions:faucetRequestProcessor,functions:bigFaucetFunder`, {
+  execSync(`yarn firebase deploy --only functions:faucetRequestProcessor,functions:bigFaucetFunder,functions:topUp`, {
     stdio: 'inherit',
   })
 }
