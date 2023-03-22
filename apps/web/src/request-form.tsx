@@ -85,7 +85,7 @@ export default function RequestForm({isOutOfCELO}:Props) {
   return <>
     <div className={styles.intro}>
         <p className={`${inter.className} ${styles.center}`}>
-          Enter your testnet address below. Each request gives you: ${STANDARD_AMOUNT} CELO{!skipStables && `, ${STANDARD_AMOUNT} cUSD, ${STANDARD_AMOUNT} cEUR, & ${STANDARD_AMOUNT} cREAL` }*.
+          Enter your testnet address below. Each request gives you: {STANDARD_AMOUNT} CELO{!skipStables && `, ${STANDARD_AMOUNT} cUSD, ${STANDARD_AMOUNT} cEUR, & ${STANDARD_AMOUNT} cREAL` }*.
         </p>
     </div>
     <form className={styles.center} onSubmit={onSubmit} action="api/faucet" method="post">
