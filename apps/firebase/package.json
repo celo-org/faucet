@@ -16,7 +16,6 @@
     "transfer-funds": "ts-node scripts/transfer-funds.ts",
     "cli": "ts-node scripts/cli.ts",
     "build:rules": "firebase-bolt database-rules.bolt",
-    "keys:decrypt": "bash scripts/key_placer.sh decrypt",
     "keys:encrypt": "bash scripts/key_placer.sh encrypt"
   },
   "dependencies": {
