@@ -83,7 +83,7 @@ export class CeloAdapter {
           celoContractAddress,
           amount
         );
-        const expectedAmountOut = quoteAmountOut.mul(0.99); // allow 1% slippage from quote
+        const expectedAmountOut = quoteAmountOut.mul(99).div(100); // allow 1% slippage from quote
         const swapTxObj = await mento.swapIn(
           stableToken.address,
           celoContractAddress,
