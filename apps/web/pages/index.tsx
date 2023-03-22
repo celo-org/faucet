@@ -1,10 +1,13 @@
 import { Inter } from '@next/font/google'
 import Head from 'next/head'
+import { useSession } from 'next-auth/react'
 import { isBalanceBelowPar } from 'src/balance'
 import Logo from 'src/logo'
 import RequestForm from 'src/request-form'
+import { GitHubAuth } from 'src/github-auth'
 import { SetupButton } from 'src/setup-button'
 import styles from 'styles/Home.module.css'
+
 export const inter = Inter({ subsets: ['latin'] })
 
 interface Props {
@@ -12,6 +15,7 @@ interface Props {
 }
 
 export default function Home({isOutOfCELO}: Props) {
+  const { data: session } = useSession()
 
   return (
     <>
@@ -26,8 +30,11 @@ export default function Home({isOutOfCELO}: Props) {
           {isOutOfCELO && <header className={styles.notice}>
             The Faucet is out of CELO for now. It will be topped up <a target="_blank" rel="noreferrer" href="https://explorer.celo.org/alfajores/epochs">within an hour</a>
           </header>}
-          <div className={styles.logo}>
-            <Logo />
+          <div className={styles.topBar}>
+            <div className={styles.logo}>
+              <Logo />
+            </div>
+            <GitHubAuth />
           </div>
         </div>
         <div className={styles.container}>

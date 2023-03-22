@@ -1,7 +1,8 @@
-export const NETWORK = "alfajores"
+export const NETWORK = 'alfajores'
 
 export type Address = string
 export type E164Number = string
+
 
 export enum RequestStatus {
   Pending = "Pending",
@@ -14,6 +15,11 @@ export enum RequestType {
   Faucet = "Faucet",
 }
 
+export enum AuthLevel {
+  none = "none",
+  authenticated = "authenticated"
+}
+
 export interface RequestRecord {
   beneficiary: Address
   status: RequestStatus
@@ -21,6 +27,7 @@ export interface RequestRecord {
   dollarTxHash?: string
   goldTxHash?: string
   tokens?: RequestedTokenSet
+  authLevel: AuthLevel
 }
 
 export enum RequestedTokenSet {
