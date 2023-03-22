@@ -14,6 +14,8 @@ interface Props {
   isOutOfCELO: boolean
 }
 
+const STANDARD_AMOUNT = 2.5
+
 export default function RequestForm({isOutOfCELO}:Props) {
 
   const inputRef = useRef<HTMLInputElement>(null)
@@ -83,7 +85,7 @@ export default function RequestForm({isOutOfCELO}:Props) {
   return <>
     <div className={styles.intro}>
         <p className={`${inter.className} ${styles.center}`}>
-          Enter your testnet address below. Each request gives you: 5 CELO{!skipStables && ", 5 cUSD, 5 cEUR, & 5 cREAL" }*.
+          Enter your testnet address below. Each request gives you: ${STANDARD_AMOUNT} CELO{!skipStables && `, ${STANDARD_AMOUNT} cUSD, ${STANDARD_AMOUNT} cEUR, & ${STANDARD_AMOUNT} cREAL` }*.
         </p>
     </div>
     <form className={styles.center} onSubmit={onSubmit} action="api/faucet" method="post">
