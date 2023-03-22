@@ -41,7 +41,7 @@ export const bigFaucetFunder = functions.pubsub.schedule('every sunday 02:00').o
     await fundBigFaucet(pool, config)
 })
 
-export const topUp = functions.pubsub.schedule("every 60 minutes mon,tue,wed,thu,fri,sat").onRun(async (context) => {
+export const topUp = functions.pubsub.schedule("every 60 minutes").onRun(async (context) => {
   const network = 'alfajores'
   const config = getNetworkConfig(network)
     const pool = new AccountPool(db, network, {
