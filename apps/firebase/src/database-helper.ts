@@ -107,6 +107,21 @@ export async function fundBigFaucet(pool: AccountPool, config: NetworkConfig) {
   }
 }
 
+export async function topUpWithCEuros(pool: AccountPool, config: NetworkConfig) {
+  try {
+    return await pool.doWithAccount(async (account) => {
+      const celo = new CeloAdapter({pk: account.pk, nodeUrl: config.nodeUrl})
+      await celo.init()
+      const SIXTY_IN_WEI = "60000000000000000000"
+
+      await celo.convertExtraStablesToCelo(SIXTY_IN_WEI)
+
+    })
+  } catch (error) {
+    console.error("topUP", ExecutionResult.OtherErr, error)
+  }
+}
+
 async function sendCelo(celo: CeloAdapter, to: string, amountInWei: string) {
   const goldTx = await celo.transferGold(to, amountInWei)
   const goldTxReceipt = await goldTx.sendAndWaitForReceipt()
