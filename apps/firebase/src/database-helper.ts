@@ -113,9 +113,15 @@ export async function topUpWithCEuros(pool: AccountPool, config: NetworkConfig) 
       const celo = new CeloAdapter({pk: account.pk, nodeUrl: config.nodeUrl})
       await celo.init()
       const SIXTY_IN_WEI = "60000000000000000000"
+      const HUNDRED_WEI = "100000000000000000000"
 
-      await celo.convertExtraStablesToCelo(SIXTY_IN_WEI)
+      const balance = await celo.getGoldBalance(celo.defaultAddress)
 
+      if (balance.isLessThanOrEqualTo(HUNDRED_WEI)) {
+        await celo.convertExtraStablesToCelo(SIXTY_IN_WEI)
+      } else {
+        console.log("skipping top up")
+      }
     })
   } catch (error) {
     console.error("topUP", ExecutionResult.OtherErr, error)

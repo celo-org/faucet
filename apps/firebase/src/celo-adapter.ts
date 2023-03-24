@@ -206,7 +206,7 @@ export class CeloAdapter {
   }
 
   async getGoldBalance(accountAddress: string = this.defaultAddress): Promise<BigNumber> {
-    const goldToken = await this.kit.contracts.getStableToken()
+    const goldToken = await this.kit.contracts.getGoldToken()
     return goldToken.balanceOf(accountAddress)  as unknown as Promise<BigNumber>
   }
 
