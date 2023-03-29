@@ -1,0 +1,19 @@
+.gitHubAuthContainer {
+  margin-top: 20px;
+  margin-right: 20px;
+}
+
+.authenticatedContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.signInButton {
+  display: inline-flex;
+  justify-content: space-between;
+}
+
+.signInButton img {
+  margin-left: 4px;
+}

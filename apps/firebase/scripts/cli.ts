@@ -104,6 +104,12 @@ yargs
         .option('faucetStableAmount', {
           type: 'string',
         })
+        .option('authenticatedGoldAmount', {
+          type: 'string',
+        })
+        .option('authenticatedStableAmount', {
+          type: 'string',
+        })
         .option('bigFaucetSafeAmount', {
           type: 'string',
           description: "Amount of CELO to be sent to *bigFaucetSafeAddress* each time the script runs"
@@ -119,12 +125,14 @@ yargs
 
         .option('deploy', {
           type: 'boolean',
-          description: 'Wether to deploy functions after set config',
+          description: 'Whether to deploy functions after set config',
         }),
     (args) => {
       setConfig(args.net, {
         faucetGoldAmount: args.faucetGoldAmount,
         faucetStableAmount: args.faucetStableAmount,
+        authenticatedGoldAmount: args.authenticatedGoldAmount,
+        authenticatedStableAmount: args.authenticatedStableAmount,
         bigFaucetSafeAmount: args.bigFaucetSafeAmount,
         bigFaucetSafeStablesAmount: args.bigFaucetSafeStablesAmount,
         bigFaucetSafeAddress: args.bigFaucetSafeAddress,
@@ -145,6 +153,8 @@ function setConfig(network: string, config: Partial<NetworkConfig>) {
     setIfPresent('node_url', config.nodeUrl),
     setIfPresent('faucet_gold_amount', config.faucetGoldAmount),
     setIfPresent('faucet_stable_amount', config.faucetStableAmount),
+    setIfPresent('authenticated_gold_amount', config.authenticatedGoldAmount),
+    setIfPresent('authenticated_stable_amount', config.authenticatedStableAmount),
     setIfPresent('big_faucet_safe_address', config.bigFaucetSafeAddress),
     setIfPresent('big_faucet_safe_amount', config.bigFaucetSafeAmount),
     setIfPresent('big_faucet_safe_stables_amount', config.bigFaucetSafeStablesAmount),
