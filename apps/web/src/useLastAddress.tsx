@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react'
-import { getAddresses } from 'src/history'
+import { useEffect, useState } from 'react';
+import { getAddresses } from 'src/history';
 
 export function useLastAddress() {
-  const [lastAddress, setLastAddress] = useState<string>()
+  const [lastAddress, setLastAddress] = useState<string>();
   useEffect(() => {
-    const lastUsedAddress = getAddresses().at(0)
-    setLastAddress(lastUsedAddress)
-  }, [])
+    const lastUsedAddress = getAddresses().at(0);
+    setLastAddress(lastUsedAddress);
+  }, []);
 
-  return lastAddress
+  return lastAddress;
 }

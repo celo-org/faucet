@@ -1,20 +1,19 @@
-import { Inter } from '@next/font/google'
-import Head from 'next/head'
-import { isBalanceBelowPar } from 'src/balance'
-import Logo from 'src/logo'
-import RequestForm from 'src/request-form'
-import { GitHubAuth } from 'src/github-auth'
-import { SetupButton } from 'src/setup-button'
-import styles from 'styles/Home.module.css'
+import { Inter } from 'next/font/google';
+import Head from 'next/head';
+import { isBalanceBelowPar } from 'src/balance';
+import Logo from 'src/logo';
+import RequestForm from 'src/request-form';
+import { GitHubAuth } from 'src/github-auth';
+import { SetupButton } from 'src/setup-button';
+import styles from 'styles/Home.module.css';
 
-export const inter = Inter({ subsets: ['latin'] })
+export const inter = Inter({ subsets: ['latin'] });
 
 interface Props {
-  isOutOfCELO: boolean
+  isOutOfCELO: boolean;
 }
 
-export default function Home({isOutOfCELO}: Props) {
-
+export default function Home({ isOutOfCELO }: Props) {
   return (
     <>
       <Head>
@@ -25,9 +24,18 @@ export default function Home({isOutOfCELO}: Props) {
       </Head>
       <main className={styles.main}>
         <div className={styles.top}>
-          {isOutOfCELO && <header className={styles.notice}>
-            The Faucet is out of CELO for now. It will be topped up <a target="_blank" rel="noreferrer" href="https://explorer.celo.org/alfajores/epochs">within an hour</a>
-          </header>}
+          {isOutOfCELO && (
+            <header className={styles.notice}>
+              The Faucet is out of CELO for now. It will be topped up{' '}
+              <a
+                target="_blank"
+                rel="noreferrer"
+                href="https://explorer.celo.org/alfajores/epochs"
+              >
+                within an hour
+              </a>
+            </header>
+          )}
           <div className={styles.topBar}>
             <div className={styles.logo}>
               <Logo />
@@ -37,15 +45,19 @@ export default function Home({isOutOfCELO}: Props) {
         </div>
         <div className={styles.container}>
           <header className={styles.center}>
-            <h1 className={`${inter.className} ${styles.title}`}>Alfajores Token Faucet</h1>
+            <h1 className={`${inter.className} ${styles.title}`}>
+              Alfajores Token Faucet
+            </h1>
           </header>
           <div className={styles.center}>
-            <RequestForm isOutOfCELO={isOutOfCELO}/>
+            <RequestForm isOutOfCELO={isOutOfCELO} />
           </div>
-          <small>*Accounts with large balances will received a phased down amount. Please consider sending back any tokens you wont need.</small>
+          <small>
+            *Accounts with large balances will received a phased down amount.
+            Please consider sending back any tokens you wont need.
+          </small>
         </div>
         <footer className={styles.grid}>
-
           <SetupButton />
 
           <a
@@ -95,14 +107,12 @@ export default function Home({isOutOfCELO}: Props) {
         </footer>
       </main>
     </>
-  )
+  );
 }
 
-
-export async function getServerSideProps(): Promise<{props: Props}> {
-
-  const isOutOfCELO = await isBalanceBelowPar()
+export async function getServerSideProps(): Promise<{ props: Props }> {
+  const isOutOfCELO = await isBalanceBelowPar();
   return {
-    props: {isOutOfCELO}
-  }
+    props: { isOutOfCELO },
+  };
 }

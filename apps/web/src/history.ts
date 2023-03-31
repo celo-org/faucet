@@ -1,28 +1,30 @@
-
-const HISTORY = 'fauceted-addresses'
+const HISTORY = 'fauceted-addresses';
 
 export function saveAddress(address: string) {
-  const listOfAddresses = retrieve()
+  const listOfAddresses = retrieve();
 
-  const nextList = [address, ...listOfAddresses.filter((addr) => addr !== address )]
+  const nextList = [
+    address,
+    ...listOfAddresses.filter((addr) => addr !== address),
+  ];
 
-  localStorage.setItem(HISTORY, JSON.stringify(nextList))
-  return nextList
+  localStorage.setItem(HISTORY, JSON.stringify(nextList));
+  return nextList;
 }
 
 export function getAddresses() {
-  const list = retrieve()
-  return list
+  const list = retrieve();
+  return list;
 }
 
 function retrieve() {
-  const rawList = localStorage.getItem(HISTORY)
+  const rawList = localStorage.getItem(HISTORY);
 
-  let listOfAddresses: string[] = []
+  let listOfAddresses: string[] = [];
 
   if (typeof rawList === 'string') {
-    listOfAddresses = JSON.parse(rawList) as string[]
+    listOfAddresses = JSON.parse(rawList) as string[];
   }
 
-  return listOfAddresses
+  return listOfAddresses;
 }

@@ -1,22 +1,22 @@
-import * as functions from 'firebase-functions'
+import * as functions from 'firebase-functions';
 
 export interface NetworkConfig {
-  nodeUrl: string
-  faucetGoldAmount: string
-  faucetStableAmount: string
-  authenticatedGoldAmount: string
-  authenticatedStableAmount: string
-  bigFaucetSafeAddress: string
-  bigFaucetSafeAmount: string
-  bigFaucetSafeStablesAmount: string
+  nodeUrl: string;
+  faucetGoldAmount: string;
+  faucetStableAmount: string;
+  authenticatedGoldAmount: string;
+  authenticatedStableAmount: string;
+  bigFaucetSafeAddress: string;
+  bigFaucetSafeAmount: string;
+  bigFaucetSafeStablesAmount: string;
 }
 
 export function getNetworkConfig(net: string): NetworkConfig {
-  const allconfig = functions.config()
-  const config = allconfig.faucet
+  const allconfig = functions.config();
+  const config = allconfig.faucet;
 
   if (config[net] == null) {
-    throw new Error('No Config for: ' + net)
+    throw new Error('No Config for: ' + net);
   }
 
   return {
@@ -28,5 +28,5 @@ export function getNetworkConfig(net: string): NetworkConfig {
     bigFaucetSafeAddress: config[net].big_faucet_safe_address,
     bigFaucetSafeAmount: config[net].big_faucet_safe_amount,
     bigFaucetSafeStablesAmount: config[net].big_faucet_safe_stables_amount,
-  }
+  };
 }
