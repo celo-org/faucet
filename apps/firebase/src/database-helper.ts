@@ -17,8 +17,8 @@ export interface AccountRecord {
 }
 
 export enum AuthLevel {
-  none = "none",
-  authenticated = "authenticated"
+  none = 'none',
+  authenticated = 'authenticated',
 }
 
 export enum RequestStatus {
@@ -45,10 +45,14 @@ export interface RequestRecord {
 enum RequestedTokenSet {
   All = 'All',
   Stables = 'Stables',
-  Celo = 'Celo'
+  Celo = 'Celo',
 }
 
-export async function processRequest(snap: DataSnapshot, pool: AccountPool, config: NetworkConfig) {
+export async function processRequest(
+  snap: DataSnapshot,
+  pool: AccountPool,
+  config: NetworkConfig
+) {
   const request = snap.val() as RequestRecord
   if (request.status !== RequestStatus.Pending) {
     return
@@ -93,44 +97,58 @@ export async function processRequest(snap: DataSnapshot, pool: AccountPool, conf
 export async function fundBigFaucet(pool: AccountPool, config: NetworkConfig) {
   try {
     return await pool.doWithAccount(async (account) => {
-      const celo = new CeloAdapter({pk: account.pk, nodeUrl: config.nodeUrl})
+      const celo = new CeloAdapter({ pk: account.pk, nodeUrl: config.nodeUrl })
       await celo.init()
       // convert some of the massive amount of cEUR and cREAL we have to CELO
       // this amount should be small enough so that it probably doesn't cause slippage
-      const ONE_THOUSAND_FIVE_HUNDRED_IN_WEI ="1500000000000000000000"
+      const ONE_THOUSAND_FIVE_HUNDRED_IN_WEI = '1500000000000000000000'
 
-      const snap = {key: `big-faucet:${Date.now()}`}
+      const snap = { key: `big-faucet:${Date.now()}` }
 
       await celo.convertExtraStablesToCelo(ONE_THOUSAND_FIVE_HUNDRED_IN_WEI)
 
       await Promise.all([
-        retryAsync(sendCelo, 4, [celo, config.bigFaucetSafeAddress, config.bigFaucetSafeAmount], 2500),
-        sendStableTokens(celo, config.bigFaucetSafeAddress, config.bigFaucetSafeStablesAmount, true, snap)
+        retryAsync(
+          sendCelo,
+          4,
+          [celo, config.bigFaucetSafeAddress, config.bigFaucetSafeAmount],
+          2500
+        ),
+        sendStableTokens(
+          celo,
+          config.bigFaucetSafeAddress,
+          config.bigFaucetSafeStablesAmount,
+          true,
+          snap
+        ),
       ])
     })
   } catch (error) {
-    console.error("bigFaucet", ExecutionResult.OtherErr, error)
+    console.error('bigFaucet', ExecutionResult.OtherErr, error)
   }
 }
 
-export async function topUpWithCEuros(pool: AccountPool, config: NetworkConfig) {
+export async function topUpWithCEuros(
+  pool: AccountPool,
+  config: NetworkConfig
+) {
   try {
     return await pool.doWithAccount(async (account) => {
-      const celo = new CeloAdapter({pk: account.pk, nodeUrl: config.nodeUrl})
+      const celo = new CeloAdapter({ pk: account.pk, nodeUrl: config.nodeUrl })
       await celo.init()
-      const SIXTY_IN_WEI = "60000000000000000000"
-      const HUNDRED_WEI = "100000000000000000000"
+      const SIXTY_IN_WEI = '60000000000000000000'
+      const HUNDRED_WEI = '100000000000000000000'
 
       const balance = await celo.getGoldBalance(celo.defaultAddress)
 
       if (balance.isLessThanOrEqualTo(HUNDRED_WEI)) {
         await celo.convertExtraStablesToCelo(SIXTY_IN_WEI)
       } else {
-        console.log("skipping top up")
+        console.log('skipping top up')
       }
     })
   } catch (error) {
-    console.error("topUP", ExecutionResult.OtherErr, error)
+    console.error('topUP', ExecutionResult.OtherErr, error)
   }
 }
 
@@ -140,50 +158,90 @@ async function sendCelo(celo: CeloAdapter, to: string, amountInWei: string) {
   return goldTxReceipt.transactionHash
 }
 
-function buildHandleFaucet(request: RequestRecord, snap: DataSnapshot, config: NetworkConfig) {
+function buildHandleFaucet(
+  request: RequestRecord,
+  snap: DataSnapshot,
+  config: NetworkConfig
+) {
   return async (account: AccountRecord) => {
     const { nodeUrl } = config
-    const { goldAmount, stableAmount } = getSendAmounts(request.authLevel, config)
+    const { goldAmount, stableAmount } = getSendAmounts(
+      request.authLevel,
+      config
+    )
     const celo = new CeloAdapter({ nodeUrl, pk: account.pk })
     await celo.init()
     const ops: Array<Promise<unknown>> = []
 
-    if (request.tokens === 'Celo' || request.tokens === 'All' || request.tokens === undefined) {
-      ops.push(retryAsync(sendGold, 3, [celo, request.beneficiary, goldAmount, snap], 500))
+    if (
+      request.tokens === 'Celo' ||
+      request.tokens === 'All' ||
+      request.tokens === undefined
+    ) {
+      ops.push(
+        retryAsync(
+          sendGold,
+          3,
+          [celo, request.beneficiary, goldAmount, snap],
+          500
+        )
+      )
     }
 
-    if (request.tokens === 'Stables' || request.tokens === 'All' || request.tokens === undefined) {
-      ops.push(sendStableTokens(celo, request.beneficiary, stableAmount, false, snap))
+    if (
+      request.tokens === 'Stables' ||
+      request.tokens === 'All' ||
+      request.tokens === undefined
+    ) {
+      ops.push(
+        sendStableTokens(celo, request.beneficiary, stableAmount, false, snap)
+      )
     }
 
     await Promise.all(ops)
   }
 }
 
-function getSendAmounts(authLevel: AuthLevel, config: NetworkConfig): { goldAmount: string, stableAmount: string } {
-  switch(authLevel) {
+function getSendAmounts(
+  authLevel: AuthLevel,
+  config: NetworkConfig
+): { goldAmount: string; stableAmount: string } {
+  switch (authLevel) {
     case undefined:
     case AuthLevel.none:
-      return { goldAmount: config.faucetGoldAmount, stableAmount: config.faucetStableAmount }
+      return {
+        goldAmount: config.faucetGoldAmount,
+        stableAmount: config.faucetStableAmount,
+      }
     case AuthLevel.authenticated:
-      return { goldAmount: config.authenticatedGoldAmount, stableAmount: config.authenticatedStableAmount }
+      return {
+        goldAmount: config.authenticatedGoldAmount,
+        stableAmount: config.authenticatedStableAmount,
+      }
   }
-
 }
 
-async function sendGold(celo: CeloAdapter, address: Address, amount: string, snap: DataSnapshot) {
-
+async function sendGold(
+  celo: CeloAdapter,
+  address: Address,
+  amount: string,
+  snap: DataSnapshot
+) {
   const token = await celo.kit.contracts.getGoldToken()
 
   const recipientBalance = await token.balanceOf(address)
 
   const actualAmount = celo.fadeOutAmount(recipientBalance, amount, false)
 
-  console.info(`req(${snap.key}): Sending ${actualAmount.toString()} celo to ${address} (balance ${recipientBalance.toString()})`)
+  console.info(
+    `req(${
+      snap.key
+    }): Sending ${actualAmount.toString()} celo to ${address} (balance ${recipientBalance.toString()})`
+  )
   if (actualAmount.eq(0)) {
     console.info(`req(${snap.key}): CELO Transaction SKIPPED`)
-    await snap.ref.update({goldTxHash: 'skipped'})
-    return "skipped"
+    await snap.ref.update({ goldTxHash: 'skipped' })
+    return 'skipped'
   }
   const goldTxHash = await sendCelo(celo, address, amount)
   console.info(`req(${snap.key}): CELO Transaction Sent. txhash:${goldTxHash}`)
@@ -196,14 +254,23 @@ async function sendStableTokens(
   address: Address,
   amount: string,
   alwaysUseFullAmount: boolean, // when false if the recipient already has a sizeable balance the amount will gradually be reduced to zero
-  snap: DataSnapshot | {key: string, ref?: undefined}
+  snap: DataSnapshot | { key: string; ref?: undefined }
 ) {
-  const tokenTxs = await celo.transferStableTokens(address, amount, alwaysUseFullAmount)
+  const tokenTxs = await celo.transferStableTokens(
+    address,
+    amount,
+    alwaysUseFullAmount
+  )
 
-  const sendTxHelper = async (symbol: string, tx: CeloTransactionObject<boolean>) => {
+  const sendTxHelper = async (
+    symbol: string,
+    tx: CeloTransactionObject<boolean>
+  ) => {
     const txReceipt = await tx.sendAndWaitForReceipt()
     const txHash = txReceipt.transactionHash
-    console.log(`req(${snap.key}): ${symbol} Transaction Sent.  txhash:${txHash}`)
+    console.log(
+      `req(${snap.key}): ${symbol} Transaction Sent.  txhash:${txHash}`
+    )
     if (snap.ref) {
       await snap.ref.update({ txHash })
     }
@@ -218,7 +285,9 @@ async function sendStableTokens(
         }
       } catch (e) {
         // Log that one transfer failed. if error is not caught it looks like all failed
-        console.log(`req(${snap.key}): tx=>${tx} ${symbol} Transaction Failed. ${e}`)
+        console.log(
+          `req(${snap.key}): tx=>${tx} ${symbol} Transaction Failed. ${e}`
+        )
       }
     })
   )
@@ -279,7 +348,7 @@ export class AccountPool {
       actionTimeoutMS: 50 * SECOND,
     }
   ) {
-     // is empty.
+    // is empty.
   }
 
   get accountsRef() {
@@ -298,7 +367,9 @@ export class AccountPool {
     return this.accountsRef.once('value').then((snap) => snap.val())
   }
 
-  async doWithAccount(action: (account: AccountRecord) => Promise<any>): Promise<ActionResult> {
+  async doWithAccount(
+    action: (account: AccountRecord) => Promise<any>
+  ): Promise<ActionResult> {
     const accountSnap = await this.tryLockAccountWithRetries()
     if (!accountSnap) {
       return ActionResult.NoFreeAccount
@@ -340,10 +411,16 @@ export class AccountPool {
       return null
     }
 
-    const account = await withTimeout(this.options.getAccountTimeoutMS, loop, onTimeout)
+    const account = await withTimeout(
+      this.options.getAccountTimeoutMS,
+      loop,
+      onTimeout
+    )
 
     if (account) {
-      console.info(`LockAccount: ${account.val().address} (after ${retries - 1} retries)`)
+      console.info(
+        `LockAccount: ${account.val().address} (after ${retries - 1} retries)`
+      )
     } else {
       console.warn(`LockAccount: Failed`)
     }

@@ -112,15 +112,18 @@ yargs
         })
         .option('bigFaucetSafeAmount', {
           type: 'string',
-          description: "Amount of CELO to be sent to *bigFaucetSafeAddress* each time the script runs"
+          description:
+            'Amount of CELO to be sent to *bigFaucetSafeAddress* each time the script runs',
         })
         .option('bigFaucetSafeStablesAmount', {
           type: 'string',
-          description: "Amount of Stables to be sent to *bigFaucetSafeAddress* each time the script runs"
+          description:
+            'Amount of Stables to be sent to *bigFaucetSafeAddress* each time the script runs',
         })
         .option('bigFaucetSafeAddress', {
           type: 'string',
-          description: "Address for the Celo Safe used for distributing large amounts of CELO to developers by request"
+          description:
+            'Address for the Celo Safe used for distributing large amounts of CELO to developers by request',
         })
 
         .option('deploy', {
@@ -144,8 +147,6 @@ yargs
     }
   ).argv
 
-
-
 function setConfig(network: string, config: Partial<NetworkConfig>) {
   const setIfPresent = (name: string, value?: string | number | null) =>
     value ? `faucet.${network}.${name}="${value}"` : ''
@@ -154,24 +155,36 @@ function setConfig(network: string, config: Partial<NetworkConfig>) {
     setIfPresent('faucet_gold_amount', config.faucetGoldAmount),
     setIfPresent('faucet_stable_amount', config.faucetStableAmount),
     setIfPresent('authenticated_gold_amount', config.authenticatedGoldAmount),
-    setIfPresent('authenticated_stable_amount', config.authenticatedStableAmount),
+    setIfPresent(
+      'authenticated_stable_amount',
+      config.authenticatedStableAmount
+    ),
     setIfPresent('big_faucet_safe_address', config.bigFaucetSafeAddress),
     setIfPresent('big_faucet_safe_amount', config.bigFaucetSafeAmount),
-    setIfPresent('big_faucet_safe_stables_amount', config.bigFaucetSafeStablesAmount),
+    setIfPresent(
+      'big_faucet_safe_stables_amount',
+      config.bigFaucetSafeStablesAmount
+    ),
   ].join(' ')
-  execSync(`yarn firebase functions:config:set ${variables}`, { stdio: 'inherit' })
+  execSync(`yarn firebase functions:config:set ${variables}`, {
+    stdio: 'inherit',
+  })
 }
 
 function printConfig(network?: string) {
   if (network != null) {
-    execSync(`yarn firebase functions:config:get faucet.${network}`, { stdio: 'inherit' })
+    execSync(`yarn firebase functions:config:get faucet.${network}`, {
+      stdio: 'inherit',
+    })
   } else {
     execSync(`yarn firebase functions:config:get faucet`, { stdio: 'inherit' })
   }
 }
 
 function printAccounts(network: string) {
-  execSync(`yarn firebase database:get --pretty /${network}/accounts`, { stdio: 'inherit' })
+  execSync(`yarn firebase database:get --pretty /${network}/accounts`, {
+    stdio: 'inherit',
+  })
 }
 
 function enqueueFundRequest(network: string, address: string) {
@@ -181,7 +194,9 @@ function enqueueFundRequest(network: string, address: string) {
     type: 'Faucet',
   }
   const data = JSON.stringify(request)
-  execSync(`yarn firebase database:push  -d '${data}' /${network}/requests`, { stdio: 'inherit' })
+  execSync(`yarn firebase database:push  -d '${data}' /${network}/requests`, {
+    stdio: 'inherit',
+  })
 }
 
 function addAccount(network: string, pk: string, address: string) {
@@ -191,15 +206,22 @@ function addAccount(network: string, pk: string, address: string) {
     locked: false,
   }
   const data = JSON.stringify(account)
-  execSync(`yarn firebase database:push  -d '${data}' /${network}/accounts`, { stdio: 'inherit' })
+  execSync(`yarn firebase database:push  -d '${data}' /${network}/accounts`, {
+    stdio: 'inherit',
+  })
 }
 
 function clearAccounts(network: string) {
-  execSync(`yarn firebase database:remove  /${network}/accounts`, { stdio: 'inherit' })
+  execSync(`yarn firebase database:remove  /${network}/accounts`, {
+    stdio: 'inherit',
+  })
 }
 
 function deployFunctions() {
-  execSync(`yarn firebase deploy --only functions:faucetRequestProcessor,functions:bigFaucetFunder,functions:topUp`, {
-    stdio: 'inherit',
-  })
+  execSync(
+    `yarn firebase deploy --only functions:faucetRequestProcessor,functions:bigFaucetFunder,functions:topUp`,
+    {
+      stdio: 'inherit',
+    }
+  )
 }
