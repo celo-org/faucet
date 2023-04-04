@@ -16,6 +16,11 @@ export interface AccountRecord {
   locked: boolean
 }
 
+export enum AuthLevel {
+  none = "none",
+  authenticated = "authenticated"
+}
+
 export enum RequestStatus {
   Pending = 'Pending',
   Working = 'Working',
@@ -34,6 +39,7 @@ export interface RequestRecord {
   dollarTxHash?: string
   goldTxHash?: string
   tokens?: RequestedTokenSet
+  authLevel: AuthLevel
 }
 
 enum RequestedTokenSet {
@@ -136,21 +142,33 @@ async function sendCelo(celo: CeloAdapter, to: string, amountInWei: string) {
 
 function buildHandleFaucet(request: RequestRecord, snap: DataSnapshot, config: NetworkConfig) {
   return async (account: AccountRecord) => {
-    const { nodeUrl, faucetGoldAmount, faucetStableAmount } = config
+    const { nodeUrl } = config
+    const { goldAmount, stableAmount } = getSendAmounts(request.authLevel, config)
     const celo = new CeloAdapter({ nodeUrl, pk: account.pk })
     await celo.init()
     const ops: Array<Promise<unknown>> = []
 
     if (request.tokens === 'Celo' || request.tokens === 'All' || request.tokens === undefined) {
-      ops.push(retryAsync(sendGold, 3, [celo, request.beneficiary, faucetGoldAmount, snap], 500))
+      ops.push(retryAsync(sendGold, 3, [celo, request.beneficiary, goldAmount, snap], 500))
     }
 
     if (request.tokens === 'Stables' || request.tokens === 'All' || request.tokens === undefined) {
-      ops.push(sendStableTokens(celo, request.beneficiary, faucetStableAmount, false, snap))
+      ops.push(sendStableTokens(celo, request.beneficiary, stableAmount, false, snap))
     }
 
     await Promise.all(ops)
   }
+}
+
+function getSendAmounts(authLevel: AuthLevel, config: NetworkConfig): { goldAmount: string, stableAmount: string } {
+  switch(authLevel) {
+    case undefined:
+    case AuthLevel.none:
+      return { goldAmount: config.faucetGoldAmount, stableAmount: config.faucetStableAmount }
+    case AuthLevel.authenticated:
+      return { goldAmount: config.authenticatedGoldAmount, stableAmount: config.authenticatedStableAmount }
+  }
+
 }
 
 async function sendGold(celo: CeloAdapter, address: Address, amount: string, snap: DataSnapshot) {
@@ -254,7 +272,7 @@ enum ActionResult {
 export class AccountPool {
   constructor(
     private db: database.Database,
-    private network: string,
+    public network: string,
     private options: PoolOptions = {
       getAccountTimeoutMS: 10 * SECOND,
       retryWaitMS: 3000,

@@ -10,6 +10,7 @@ type Request {
   status: RequestStatus,          // Request Status enum
   type: RequestType,               // Request Type enum
   tokens: RequestedTokenSet,
+  authLevel: AuthLevel | Null,
 }
 
 type Account {
@@ -43,6 +44,13 @@ type RequestType extends String {
   validate() {
     this == 'Faucet' ||
     this == 'Invite'
+  }
+}
+
+type AuthLevel extends String {
+  validate() {
+    this === 'none' ||
+    this === 'authenticated'
   }
 }
 

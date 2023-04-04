@@ -3,11 +3,12 @@ import "firebase/compat/auth"
 import "firebase/compat/database"
 import {
   Address,
-  NETWORK,
+  AuthLevel,
   RequestedTokenSet,
   RequestRecord,
   RequestStatus,
-  RequestType
+  RequestType,
+  Network,
 } from "./faucet-interfaces"
 import firebaseConfig from "./firebase-config"
 
@@ -37,18 +38,21 @@ async function getDB(): Promise<firebase.database.Database> {
 
 export async function sendRequest(
   beneficiary: Address,
-  skipStables: boolean
+  skipStables: boolean,
+  network: Network,
+  authLevel: AuthLevel
 ) {
   const newRequest: RequestRecord = {
     beneficiary,
     status: RequestStatus.Pending,
     type: RequestType.Faucet,
-    tokens: skipStables ? RequestedTokenSet.Celo : RequestedTokenSet.Stables
+    tokens: skipStables ? RequestedTokenSet.Celo : RequestedTokenSet.Stables,
+    authLevel,
   }
 
   try {
     const db = await getDB()
-    const ref: firebase.database.Reference = await db.ref(`${NETWORK}/requests`).push(newRequest)
+    const ref: firebase.database.Reference = await db.ref(`${network}/requests`).push(newRequest)
     return ref.key
   } catch (e) {
     console.error(`Error while sendRequest: ${e}`)

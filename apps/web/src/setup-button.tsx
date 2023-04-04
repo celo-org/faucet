@@ -1,5 +1,6 @@
 import detectEthereumProvider from '@metamask/detect-provider'
 import { useAsyncCallback } from 'react-use-async-callback'
+import Image from 'next/image'
 import { inter } from '../pages/index'
 import styles from 'styles/Home.module.css'
 
@@ -86,7 +87,7 @@ export function SetupButton() {
     disabled={isExecuting}
   >
     <h3 className={inter.className}>
-      <img alt="Metamask" height={24} width={24} src="/meta-mask-fox.svg"/> Add Celo Testnet <span>&gt;</span>
+      <Image alt="Metamask" height={24} width={24} src="/meta-mask-fox.svg"/> Add Celo Testnet <span>&gt;</span>
     </h3>
     <p className={inter.className}>
       Enable Alfajores and Register Mento tokens in Metamask

@@ -7,6 +7,7 @@ import { FaucetAPIResponse } from 'src/faucet-interfaces'
 import { saveAddress } from 'src/history'
 import { useLastAddress } from 'src/useLastAddress'
 import styles from 'styles/Form.module.css'
+
 const FaucetStatus = dynamic(() => import('src/faucet-status'), {})
 export const inter = Inter({ subsets: ['latin'] })
 
@@ -14,10 +15,7 @@ interface Props {
   isOutOfCELO: boolean
 }
 
-const STANDARD_AMOUNT = 2.5
-
 export default function RequestForm({isOutOfCELO}:Props) {
-
   const inputRef = useRef<HTMLInputElement>(null)
 
   const { executeRecaptcha } = useGoogleReCaptcha();
@@ -46,12 +44,13 @@ export default function RequestForm({isOutOfCELO}:Props) {
 
     const captchaToken = await executeRecaptcha('faucet');
     console.info("received captcha token...posting faucet request")
+    const network = 'alfajores'
     const response = await fetch("api/faucet", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({beneficiary, captchaToken, skipStables}),
+        body: JSON.stringify({beneficiary, captchaToken, skipStables, network }),
     })
     // TODO get key from result and set
     const result = await response.json() as FaucetAPIResponse
@@ -80,12 +79,13 @@ export default function RequestForm({isOutOfCELO}:Props) {
   }, [])
 
   const previousAddress = useLastAddress()
+  const buttonDisabled = !executeRecaptcha || !!faucetRequestKey || disableCELOWhenOut
 
 
   return <>
     <div className={styles.intro}>
         <p className={`${inter.className} ${styles.center}`}>
-          Enter your testnet address below. Each request gives you: {STANDARD_AMOUNT} CELO{!skipStables && `, ${STANDARD_AMOUNT} cUSD, ${STANDARD_AMOUNT} cEUR, & ${STANDARD_AMOUNT} cREAL` }*.
+          Enter your testnet address below. Authenticate with GitHub to receive more tokens.
         </p>
     </div>
     <form className={styles.center} onSubmit={onSubmit} action="api/faucet" method="post">
@@ -95,7 +95,7 @@ export default function RequestForm({isOutOfCELO}:Props) {
         </span>
         <input defaultValue={previousAddress}  onInvalid={onInvalid} minLength={40} ref={inputRef} pattern="^0x[a-fA-F0-9]{40}"  type="text" placeholder="0x01F10..." className={styles.address} />
       </label>
-      <button disabled={!executeRecaptcha || !!faucetRequestKey || disableCELOWhenOut} className={styles.button} type="submit">{"Faucet"}</button>
+      <button disabled={buttonDisabled} className={styles.button} type="submit">{"Faucet"}</button>
       <label>
         <input onChange={toggleStables} name="token-request" value={"skip-stables"} type={"checkbox"} defaultChecked={skipStables}/>
         <small> CELO Only</small>
