@@ -1,4 +1,4 @@
-import { Inter } from '@next/font/google'
+import { Inter } from 'next/font/google'
 import Head from 'next/head'
 import { isBalanceBelowPar } from 'src/balance'
 import Logo from 'src/logo'
@@ -13,8 +13,7 @@ interface Props {
   isOutOfCELO: boolean
 }
 
-export default function Home({isOutOfCELO}: Props) {
-
+export default function Home({ isOutOfCELO }: Props) {
   return (
     <>
       <Head>
@@ -25,9 +24,18 @@ export default function Home({isOutOfCELO}: Props) {
       </Head>
       <main className={styles.main}>
         <div className={styles.top}>
-          {isOutOfCELO && <header className={styles.notice}>
-            The Faucet is out of CELO for now. It will be topped up <a target="_blank" rel="noreferrer" href="https://explorer.celo.org/alfajores/epochs">within an hour</a>
-          </header>}
+          {isOutOfCELO && (
+            <header className={styles.notice}>
+              The Faucet is out of CELO for now. It will be topped up{' '}
+              <a
+                target="_blank"
+                rel="noreferrer"
+                href="https://explorer.celo.org/alfajores/epochs"
+              >
+                within an hour
+              </a>
+            </header>
+          )}
           <div className={styles.topBar}>
             <div className={styles.logo}>
               <Logo />
@@ -37,15 +45,19 @@ export default function Home({isOutOfCELO}: Props) {
         </div>
         <div className={styles.container}>
           <header className={styles.center}>
-            <h1 className={`${inter.className} ${styles.title}`}>Alfajores Token Faucet</h1>
+            <h1 className={`${inter.className} ${styles.title}`}>
+              Alfajores Token Faucet
+            </h1>
           </header>
           <div className={styles.center}>
-            <RequestForm isOutOfCELO={isOutOfCELO}/>
+            <RequestForm isOutOfCELO={isOutOfCELO} />
           </div>
-          <small>*Accounts with large balances will received a phased down amount. Please consider sending back any tokens you wont need.</small>
+          <small>
+            *Accounts with large balances will received a phased down amount.
+            Please consider sending back any tokens you wont need.
+          </small>
         </div>
         <footer className={styles.grid}>
-
           <SetupButton />
 
           <a
@@ -98,11 +110,9 @@ export default function Home({isOutOfCELO}: Props) {
   )
 }
 
-
-export async function getServerSideProps(): Promise<{props: Props}> {
-
+export async function getServerSideProps(): Promise<{ props: Props }> {
   const isOutOfCELO = await isBalanceBelowPar()
   return {
-    props: {isOutOfCELO}
+    props: { isOutOfCELO },
   }
 }
