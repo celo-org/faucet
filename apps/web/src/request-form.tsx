@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic'
 import { FormEvent, useCallback, useRef, useState } from 'react'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useAsyncCallback } from 'react-use-async-callback'
-import { FaucetAPIResponse } from 'src/faucet-interfaces'
+import { FaucetAPIResponse, Network } from 'src/faucet-interfaces'
 import { saveAddress } from 'src/history'
 import { useLastAddress } from 'src/useLastAddress'
 import styles from 'styles/Form.module.css'
@@ -13,9 +13,10 @@ export const inter = Inter({ subsets: ['latin'] })
 
 interface Props {
   isOutOfCELO: boolean
+  network: Network
 }
 
-export default function RequestForm({ isOutOfCELO }: Props) {
+export default function RequestForm({ isOutOfCELO, network }: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const { executeRecaptcha } = useGoogleReCaptcha()
@@ -45,7 +46,6 @@ export default function RequestForm({ isOutOfCELO }: Props) {
 
       const captchaToken = await executeRecaptcha('faucet')
       console.info('received captcha token...posting faucet request')
-      const network = 'alfajores'
       const response = await fetch('api/faucet', {
         method: 'POST',
         headers: {
@@ -134,6 +134,7 @@ export default function RequestForm({ isOutOfCELO }: Props) {
           <small> CELO Only</small>
         </label>
         <FaucetStatus
+          network={network}
           reset={reset}
           failureStatus={failureStatus}
           faucetRequestKey={faucetRequestKey}

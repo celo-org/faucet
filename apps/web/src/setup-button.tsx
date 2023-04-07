@@ -1,7 +1,7 @@
 import detectEthereumProvider from '@metamask/detect-provider'
 import { useAsyncCallback } from 'react-use-async-callback'
 import Image from 'next/image'
-import { inter } from '../pages/index'
+import { inter } from 'src/inter'
 import styles from 'styles/Home.module.css'
 
 const tokens = [

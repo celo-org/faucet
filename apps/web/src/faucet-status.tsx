@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { inter } from './request-form'
-import { RequestRecord, RequestStatus } from 'src/faucet-interfaces'
+import { RequestRecord, RequestStatus, Network } from 'src/faucet-interfaces'
 import subscribe from 'src/firebase-client'
 import styles from 'styles/Form.module.css'
 
@@ -10,6 +10,7 @@ interface StatusProps {
   failureStatus: string | null
   errors: any[]
   reset: () => void
+  network: Network
 }
 export default function FaucetStatus({
   reset,
@@ -17,6 +18,7 @@ export default function FaucetStatus({
   isExecuting,
   errors,
   failureStatus,
+  network,
 }: StatusProps) {
   const [faucetRecord, setFaucetRecord] = useState<Partial<RequestRecord>>()
 
@@ -38,12 +40,12 @@ export default function FaucetStatus({
     const run = async function () {
       if (faucetRequestKey) {
         console.info('subscribing to events...')
-        await subscribe(faucetRequestKey, onFirebaseUpdate)
+        await subscribe(faucetRequestKey, onFirebaseUpdate, network)
       }
     }
     // eslint-disable-next-line
     run().catch(console.error)
-  }, [faucetRequestKey, onFirebaseUpdate])
+  }, [faucetRequestKey, onFirebaseUpdate, network])
 
   if (!faucetRecord && !isExecuting) {
     return null
@@ -61,23 +63,7 @@ export default function FaucetStatus({
           ? 'Error'
           : faucetRecord?.status ?? 'Initializing'}
       </h3>
-      {faucetRecord?.goldTxHash ? (
-        faucetRecord.goldTxHash === 'skipped' ? (
-          <span className={inter.className}>
-            No celo was transferred as the account already has a large celo
-            balance.
-          </span>
-        ) : (
-          <a
-            className={inter.className}
-            target="_blank"
-            rel="noreferrer"
-            href={`https://alfajores.celoscan.io/tx/${faucetRecord.goldTxHash}`}
-          >
-            View on CeloScan
-          </a>
-        )
-      ) : null}
+      <TxMessage txHash={faucetRecord?.goldTxHash} network={network} />
       {failureStatus ? (
         <span className={inter.className} aria-live="polite">
           {failureStatus}
@@ -85,4 +71,36 @@ export default function FaucetStatus({
       ) : null}
     </div>
   )
+}
+
+const TxMessage = ({
+  txHash,
+  network,
+}: {
+  txHash?: string
+  network: Network
+}) => {
+  if (!txHash) {
+    return null
+  }
+  if (txHash === 'skipped') {
+    return (
+      <span className={inter.className}>
+        No celo was transferred as the account already has a large celo balance.
+      </span>
+    )
+  }
+  if (network === 'alfajores') {
+    return (
+      <a
+        className={inter.className}
+        target="_blank"
+        rel="noreferrer"
+        href={`https://alfajores.celoscan.io/tx/${txHash}`}
+      >
+        View on CeloScan
+      </a>
+    )
+  }
+  return null
 }

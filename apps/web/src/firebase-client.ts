@@ -1,7 +1,7 @@
 import { getAnalytics } from 'firebase/analytics'
 import firebase from 'firebase/compat/app'
 import 'firebase/compat/database'
-import { NETWORK, RequestRecord, RequestStatus } from './faucet-interfaces'
+import { Network, RequestRecord, RequestStatus } from './faucet-interfaces'
 import firebaseConfig from './firebase-config'
 // Code in this file is sent to the browser.
 // Code in FirebaseServerSide.ts is not sent to the browser.
@@ -23,10 +23,11 @@ async function getDB(): Promise<firebase.database.Database> {
 
 export default async function subscribeRequest(
   key: string,
-  onChange: (record: RequestRecord) => void
+  onChange: (record: RequestRecord) => void,
+  network: Network
 ) {
   const ref: firebase.database.Reference = (await getDB()).ref(
-    `${NETWORK}/requests/${key}`
+    `${network}/requests/${key}`
   )
 
   const listener = ref.on('value', (snap) => {
