@@ -15,6 +15,7 @@ export class CeloAdapter {
   private readonly privateKey: string
   private mento: Mento | undefined
   private initialized: boolean = false
+  private useMento: boolean = true
 
   constructor({ pk, nodeUrl }: { pk: string; nodeUrl: string }) {
     this.etherProvider = new providers.JsonRpcProvider(nodeUrl)
@@ -35,7 +36,13 @@ export class CeloAdapter {
     if (this.initialized) {
       return true
     }
-    this.mento = await Mento.create(this.signer)
+    try {
+      this.mento = await Mento.create(this.signer)
+    } catch (e) {
+      // Remove block once Broker contract issues are sorted out
+      console.info('Failed to initialize Mento, using backup methods.')
+      this.useMento = false
+    }
     this.initialized = true
     return true
   }
@@ -54,7 +61,7 @@ export class CeloAdapter {
    */
   async convertExtraStablesToCelo(amount: string) {
     const mento = this.mento
-    if (!mento) {
+    if (!mento && this.useMento) {
       throw new Error('Must call init() first')
     }
     const celoContractAddress = await this.kit.celoTokens.getAddress(Token.CELO)
@@ -71,28 +78,49 @@ export class CeloAdapter {
         }
         console.log('converting', info.symbol)
 
-        const allowanceTxObj = await mento.increaseTradingAllowance(
-          stableToken.address,
-          amount
-        )
+        if (mento) {
+          const allowanceTxObj = await mento.increaseTradingAllowance(
+            stableToken.address,
+            amount
+          )
 
-        const allowanceTx = await this.signer.sendTransaction(allowanceTxObj)
-        await allowanceTx.wait()
+          const allowanceTx = await this.signer.sendTransaction(allowanceTxObj)
+          await allowanceTx.wait()
 
-        const quoteAmountOut = await mento.getAmountOut(
-          stableToken.address,
-          celoContractAddress,
-          amount
-        )
-        const expectedAmountOut = quoteAmountOut.mul(99).div(100) // allow 1% slippage from quote
-        const swapTxObj = await mento.swapIn(
-          stableToken.address,
-          celoContractAddress,
-          amount,
-          expectedAmountOut
-        )
-        const swapTx = await this.signer.sendTransaction(swapTxObj)
-        return swapTx.wait()
+          const quoteAmountOut = await mento.getAmountOut(
+            stableToken.address,
+            celoContractAddress,
+            amount
+          )
+          const expectedAmountOut = quoteAmountOut.mul(99).div(100) // allow 1% slippage from quote
+          const swapTxObj = await mento.swapIn(
+            stableToken.address,
+            celoContractAddress,
+            amount,
+            expectedAmountOut
+          )
+          const swapTx = await this.signer.sendTransaction(swapTxObj)
+          return swapTx.wait()
+        } else {
+          // Remove block once Broker contract issues are sorted out
+          console.info('Using exchange contract for extra stables conversion')
+          const exchangeContract = await this.kit.contracts.getContract(
+            info.exchangeContract
+          )
+
+          const [quote] = await Promise.all([
+            exchangeContract.quoteStableSell(amount),
+            stableToken
+              .increaseAllowance(exchangeContract.address, amount)
+              .sendAndWaitForReceipt(),
+          ])
+
+          const tx = exchangeContract.sellStable(
+            amount,
+            quote.multipliedBy(0.99).integerValue(BigNumber.ROUND_UP)
+          )
+          return tx.sendAndWaitForReceipt()
+        }
       } catch (e) {
         console.info('caught', info.symbol, e)
       }
@@ -110,7 +138,7 @@ export class CeloAdapter {
     alwaysTransfer: boolean = false
   ) {
     const mento = this.mento
-    if (!mento) {
+    if (!mento && this.useMento) {
       throw new Error('Must call init() first')
     }
     const celoToken = await this.kit.contracts.getGoldToken()
@@ -148,25 +176,51 @@ export class CeloAdapter {
         )
 
         if (faucetBalance.isLessThanOrEqualTo(realAmount)) {
-          const quoteAmountIn = await mento.getAmountIn(
-            celoToken.address,
-            stableTokenAddr,
-            realAmount.toString()
-          )
-          console.info(
-            `swap quote ${quoteAmountIn.toString()} for ${realAmount.toString()} `
-          )
-          const maxCeloToTrade = quoteAmountIn.div(100).mul(103).toString() // 3% slippage
-          await this.increaseAllowanceIfNeeded(new BigNumber(maxCeloToTrade))
+          if (mento) {
+            const quoteAmountIn = await mento.getAmountIn(
+              celoToken.address,
+              stableTokenAddr,
+              realAmount.toString()
+            )
+            console.info(
+              `swap quote ${quoteAmountIn.toString()} for ${realAmount.toString()} `
+            )
+            const maxCeloToTrade = quoteAmountIn.div(100).mul(103).toString() // 3% slippage
+            await this.increaseAllowanceIfNeeded(
+              new BigNumber(maxCeloToTrade),
+              info
+            )
 
-          const swapTxObj = await mento.swapOut(
-            celoToken.address,
-            stableTokenAddr,
-            realAmount.toString(),
-            maxCeloToTrade.toString()
-          )
-          console.info('swap TX', swapTxObj)
-          await this.signer.sendTransaction(swapTxObj)
+            const swapTxObj = await mento.swapOut(
+              celoToken.address,
+              stableTokenAddr,
+              realAmount.toString(),
+              maxCeloToTrade.toString()
+            )
+            console.info('swap TX', swapTxObj)
+            await this.signer.sendTransaction(swapTxObj)
+          } else {
+            // Remove block once Broker contract issues are sorted out
+            console.info('Using exchange contract for token swaps')
+            const exchangeContract = await this.kit.contracts.getContract(
+              info.exchangeContract
+            )
+
+            // this surprised me but if you want to send CELO and receive an Amount of stable, quoteGoldBuy is the function to call not quoteStableBuy
+            const celoBuyquote = await exchangeContract.quoteGoldBuy(realAmount)
+
+            const maxCeloToTrade = celoBuyquote
+              .multipliedBy(1.05)
+              .integerValue(BigNumber.ROUND_UP)
+            await this.increaseAllowanceIfNeeded(
+              maxCeloToTrade as unknown as BigNumber,
+              info
+            )
+
+            await exchangeContract
+              .buyStable(realAmount, maxCeloToTrade)
+              .sendAndWaitForReceipt()
+          }
         }
 
         return token.transfer(to, realAmount.toString())
@@ -174,29 +228,51 @@ export class CeloAdapter {
     )
   }
 
-  async increaseAllowanceIfNeeded(amount: BigNumber) {
+  async increaseAllowanceIfNeeded(amount: BigNumber, info: StableTokenInfo) {
     const mento = this.mento
-    if (!mento) {
+    if (!mento && this.useMento) {
       throw new Error('Must call init() first')
     }
 
     const celoERC20Wrapper = await this.kit.contracts.getGoldToken()
-    const brokerContractAddress = '0xD3Dff18E465bCa6241A244144765b4421Ac14D09' // https://docs.mento.org/mento-protocol/developers/deployment-addresses
+    if (mento) {
+      const brokerContractAddress = mento.getBroker().address
 
-    const allowance = await celoERC20Wrapper.allowance(
-      this.defaultAddress,
-      brokerContractAddress
-    )
-    if (allowance.isLessThanOrEqualTo(amount)) {
-      // multiply by 10 so we don't have to be setting this for every transaction
-      const allowanceTxObj = await mento.increaseTradingAllowance(
-        celoERC20Wrapper.address,
-        amount.multipliedBy(10).integerValue(BigNumber.ROUND_UP).toString()
+      const allowance = await celoERC20Wrapper.allowance(
+        this.defaultAddress,
+        brokerContractAddress
       )
-      const allowanceTx = await this.signer.sendTransaction(allowanceTxObj)
-      const allowanceReceipt = await allowanceTx.wait()
+      if (allowance.isLessThanOrEqualTo(amount)) {
+        // multiply by 10 so we don't have to be setting this for every transaction
+        const allowanceTxObj = await mento.increaseTradingAllowance(
+          celoERC20Wrapper.address,
+          amount.multipliedBy(10).integerValue(BigNumber.ROUND_UP).toString()
+        )
+        const allowanceTx = await this.signer.sendTransaction(allowanceTxObj)
+        const allowanceReceipt = await allowanceTx.wait()
 
-      console.log('increasedAllowance', allowanceReceipt?.transactionHash)
+        console.log('increasedAllowance', allowanceReceipt?.transactionHash)
+      }
+    } else {
+      // Remove block once Broker contract issues are sorted out
+      console.info('Increasing allowance with exchance contract')
+      const exchangeContractAddress = await this.kit.registry.addressFor(
+        info.exchangeContract
+      )
+
+      const allowance = await celoERC20Wrapper.allowance(
+        this.defaultAddress,
+        exchangeContractAddress
+      )
+      if (allowance.isLessThanOrEqualTo(amount)) {
+        // multiply by 10 so we don't have to be setting this for every transaction
+        const transaction = celoERC20Wrapper.increaseAllowance(
+          exchangeContractAddress,
+          amount.multipliedBy(10).integerValue(BigNumber.ROUND_UP)
+        )
+        const receipt = await transaction.sendAndWaitForReceipt()
+        console.log('increasedAllowance', receipt.transactionHash)
+      }
     }
   }
 
