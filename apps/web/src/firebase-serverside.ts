@@ -52,7 +52,7 @@ export async function sendRequest(
     beneficiary,
     status: RequestStatus.Pending,
     type: RequestType.Faucet,
-    tokens: skipStables ? RequestedTokenSet.Celo : RequestedTokenSet.Stables,
+    tokens: skipStables ? RequestedTokenSet.Celo : RequestedTokenSet.All,
     authLevel,
   }
 
