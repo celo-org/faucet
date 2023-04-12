@@ -1,10 +1,12 @@
-
 const HISTORY = 'fauceted-addresses'
 
 export function saveAddress(address: string) {
   const listOfAddresses = retrieve()
 
-  const nextList = [address, ...listOfAddresses.filter((addr) => addr !== address )]
+  const nextList = [
+    address,
+    ...listOfAddresses.filter((addr) => addr !== address),
+  ]
 
   localStorage.setItem(HISTORY, JSON.stringify(nextList))
   return nextList

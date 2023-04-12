@@ -11,20 +11,19 @@
   "dependencies": {
     "@firebase/app-types": "^0.9.0",
     "@metamask/detect-provider": "^2.0.0",
-    "@next/font": "13.1.1",
-    "@types/node": "18.11.18",
-    "@types/react": "18.0.26",
-    "@types/react-dom": "18.0.10",
-    "@vercel/analytics": "^0.1.8",
-    "eslint": "8.31.0",
-    "eslint-config-next": "13.1.1",
-    "firebase": "~9.16.0",
-    "next": "13.1.1",
+    "@types/node": "18.15.11",
+    "@types/react": "18.0.31",
+    "@types/react-dom": "18.0.11",
+    "@vercel/analytics": "^0.1.11",
+    "eslint": "8.37.0",
+    "eslint-config-next": "13.2.4",
+    "firebase": "~9.19.0",
+    "next": "13.2.4",
     "next-auth": "^4.20.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-google-recaptcha-v3": "^1.10.1",
     "react-use-async-callback": "^2.1.2",
-    "typescript": "4.9.4"
+    "typescript": "5.0.3"
   }
 }

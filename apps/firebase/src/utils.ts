@@ -1,5 +1,7 @@
-
-export function withTimeLog<A>(name: string, f: (...args: any[]) => Promise<A>) {
+export function withTimeLog<A>(
+  name: string,
+  f: (...args: any[]) => Promise<A>
+) {
   return async (...args: Parameters<typeof f>): Promise<A> => {
     try {
       console.time(name)
@@ -10,7 +12,10 @@ export function withTimeLog<A>(name: string, f: (...args: any[]) => Promise<A>) 
   }
 }
 
-export async function runWithTimeLog<A>(name: string, f: () => Promise<A>): Promise<A> {
+export async function runWithTimeLog<A>(
+  name: string,
+  f: () => Promise<A>
+): Promise<A> {
   try {
     console.time(name)
     return await f()
