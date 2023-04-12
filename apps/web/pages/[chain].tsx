@@ -31,16 +31,22 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
       </Head>
       <main className={styles.main}>
         <div className={styles.top}>
-          {isOutOfCELO && network === 'alfajores' && (
+          {isOutOfCELO && (
             <header className={styles.notice}>
-              The Faucet is out of CELO for now. It will be topped up{' '}
-              <a
-                target="_blank"
-                rel="noreferrer"
-                href="https://explorer.celo.org/alfajores/epochs"
-              >
-                within an hour
-              </a>
+              <span>The Faucet is out of CELO for now.</span>
+              {network === 'alfajores' && (
+                <>
+                  {' '}
+                  It will be topped up{' '}
+                  <a
+                    target="_blank"
+                    rel="noreferrer"
+                    href="https://explorer.celo.org/alfajores/epochs"
+                  >
+                    within an hour
+                  </a>
+                </>
+              )}
             </header>
           )}
           <div className={styles.topBar}>
