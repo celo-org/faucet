@@ -16,7 +16,7 @@ interface RecaptchaResponse {
   'error-codes'?: Errors[] // optional
 }
 
-export default async function captchaVerify(
+export async function captchaVerify(
   captchaToken: string
 ): Promise<RecaptchaResponse> {
   const result = await fetch(CAPTCHA_URL, {

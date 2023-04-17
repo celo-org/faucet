@@ -1,14 +1,17 @@
 import { Inter } from 'next/font/google'
 import dynamic from 'next/dynamic'
-import { FormEvent, useCallback, useRef, useState } from 'react'
+import { FC, FormEvent, useCallback, useRef, useState } from 'react'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useAsyncCallback } from 'react-use-async-callback'
-import { FaucetAPIResponse, Network } from 'src/faucet-interfaces'
-import { saveAddress } from 'src/history'
-import { useLastAddress } from 'src/useLastAddress'
+import { FaucetAPIResponse, Network } from 'types'
+import { saveAddress } from 'utils/history'
+import { useLastAddress } from 'utils/useLastAddress'
 import styles from 'styles/Form.module.css'
 
-const FaucetStatus = dynamic(() => import('src/faucet-status'), {})
+const FaucetStatus = dynamic(async () => {
+  const imported = await import('components/faucet-status')
+  return imported.FaucetStatus
+}, {})
 export const inter = Inter({ subsets: ['latin'] })
 
 interface Props {
@@ -16,7 +19,7 @@ interface Props {
   network: Network
 }
 
-export default function RequestForm({ isOutOfCELO, network }: Props) {
+export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const { executeRecaptcha } = useGoogleReCaptcha()
