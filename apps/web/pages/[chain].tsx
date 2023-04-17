@@ -1,13 +1,13 @@
 import { NextPage, GetServerSideProps } from 'next'
 import Head from 'next/head'
-import { isBalanceBelowPar } from 'src/balance'
-import Logo from 'src/logo'
-import RequestForm from 'src/request-form'
-import { GitHubAuth } from 'src/github-auth'
-import { SetupButton } from 'src/setup-button'
+import { isBalanceBelowPar } from 'utils/balance'
+import { Logo } from 'components/logo'
+import { RequestForm } from 'components/request-form'
+import { GitHubAuth } from 'components/github-auth'
+import { SetupButton } from 'components/setup-button'
 import styles from 'styles/Home.module.css'
-import { networks, Network } from 'src/faucet-interfaces'
-import { inter } from 'src/inter'
+import { networks, Network } from 'types'
+import { inter } from 'utils/inter'
 
 interface Props {
   isOutOfCELO: boolean

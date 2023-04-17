@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getAddresses } from 'src/history'
+import { getAddresses } from 'utils/history'
 
 export function useLastAddress() {
   const [lastAddress, setLastAddress] = useState<string>()

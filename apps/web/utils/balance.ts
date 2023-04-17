@@ -1,4 +1,4 @@
-import { Network, FaucetAddress } from 'src/faucet-interfaces'
+import { Network, FaucetAddress } from 'types'
 const MINIMUM_BALANCE = BigInt('5100000000000000000') // IN WEI
 
 function getApiPath(network: Network) {

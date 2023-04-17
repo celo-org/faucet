@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, FC } from 'react'
 import { inter } from './request-form'
-import { RequestRecord, RequestStatus, Network } from 'src/faucet-interfaces'
-import subscribe from 'src/firebase-client'
+import { RequestRecord, RequestStatus, Network } from 'types'
+import { subscribeRequest } from 'utils/firebase-client'
 import styles from 'styles/Form.module.css'
 
 interface StatusProps {
@@ -12,14 +12,14 @@ interface StatusProps {
   reset: () => void
   network: Network
 }
-export default function FaucetStatus({
+export const FaucetStatus: FC<StatusProps> = ({
   reset,
   faucetRequestKey,
   isExecuting,
   errors,
   failureStatus,
   network,
-}: StatusProps) {
+}: StatusProps) => {
   const [faucetRecord, setFaucetRecord] = useState<Partial<RequestRecord>>()
 
   const onFirebaseUpdate = useCallback(
@@ -40,7 +40,7 @@ export default function FaucetStatus({
     const run = async function () {
       if (faucetRequestKey) {
         console.info('subscribing to events...')
-        await subscribe(faucetRequestKey, onFirebaseUpdate, network)
+        await subscribeRequest(faucetRequestKey, onFirebaseUpdate, network)
       }
     }
     // eslint-disable-next-line

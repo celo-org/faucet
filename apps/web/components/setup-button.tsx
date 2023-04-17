@@ -2,9 +2,9 @@ import { FC } from 'react'
 import detectEthereumProvider from '@metamask/detect-provider'
 import { useAsyncCallback } from 'react-use-async-callback'
 import Image from 'next/image'
-import { inter } from 'src/inter'
+import { inter } from 'utils/inter'
 import styles from 'styles/Home.module.css'
-import { Network, ChainId } from 'src/faucet-interfaces'
+import { Network, ChainId } from 'types'
 
 interface Props {
   network: Network

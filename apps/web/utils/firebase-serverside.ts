@@ -9,12 +9,12 @@ import {
   RequestStatus,
   RequestType,
   Network,
-} from './faucet-interfaces'
-import firebaseConfig from './firebase-config'
+} from 'types'
+import { config } from './firebase-config'
 
 async function getFirebase() {
   if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig)
+    firebase.initializeApp(config)
     const loginUsername = process.env.FIREBASE_LOGIN_USERNAME
     const loginPassword = process.env.FIREBASE_LOGIN_PASSWORD
     if (
