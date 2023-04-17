@@ -1,9 +1,8 @@
 import { NextPage, GetServerSideProps } from 'next'
 import Head from 'next/head'
 import { isBalanceBelowPar } from 'utils/balance'
-import { Logo } from 'components/logo'
+import { FaucetHeader } from 'components/faucet-header'
 import { RequestForm } from 'components/request-form'
-import { GitHubAuth } from 'components/github-auth'
 import { SetupButton } from 'components/setup-button'
 import styles from 'styles/Home.module.css'
 import { networks, Network } from 'types'
@@ -30,32 +29,7 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <div className={styles.top}>
-          {isOutOfCELO && (
-            <header className={styles.notice}>
-              <span>The Faucet is out of CELO for now.</span>
-              {network === 'alfajores' && (
-                <>
-                  {' '}
-                  It will be topped up{' '}
-                  <a
-                    target="_blank"
-                    rel="noreferrer"
-                    href="https://explorer.celo.org/alfajores/epochs"
-                  >
-                    within an hour
-                  </a>
-                </>
-              )}
-            </header>
-          )}
-          <div className={styles.topBar}>
-            <div className={styles.logo}>
-              <Logo />
-            </div>
-            <GitHubAuth />
-          </div>
-        </div>
+        <FaucetHeader network={network} isOutOfCELO={isOutOfCELO} />
         <div className={styles.container}>
           <header className={styles.center}>
             <h1 className={`${inter.className} ${styles.title}`}>
@@ -65,9 +39,9 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
           <div className={styles.center}>
             <RequestForm network={network} isOutOfCELO={isOutOfCELO} />
           </div>
-          <small>
-            *Accounts with large balances will received a phased down amount.
-            Please consider sending back any tokens you wont need.
+          <small className={`${styles.phaseDown} ${inter.className}`}>
+            *Accounts with large balances will receive a phased down amount.
+            Please consider sending back any tokens you won&#39;t need.
           </small>
         </div>
         <footer className={styles.grid}>

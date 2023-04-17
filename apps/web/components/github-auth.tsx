@@ -2,25 +2,31 @@ import { Inter } from 'next/font/google'
 import { FC } from 'react'
 import { useSession, signIn, signOut } from 'next-auth/react'
 import styles from 'styles/Github.module.css'
+import { useMediaQuery } from 'utils/use-media-query'
 
 export const inter = Inter({ subsets: ['latin'] })
 
 export const GitHubAuth: FC = () => {
   const { data: session } = useSession()
+  const isMobile = useMediaQuery('(max-width: 700px)')
 
   return (
     <div className={styles.gitHubAuthContainer}>
       {session?.user ? (
         <div className={styles.authenticatedContainer}>
-          <span className={inter.className}>Authenticated with GitHub</span>
-          <button onClick={() => signOut()}>Sign out of GitHub</button>
+          <span className={inter.className}>
+            Authenticated{!isMobile && ' with GitHub'}
+          </span>
+          <button onClick={() => signOut()}>
+            Sign out{!isMobile && ' of GitHub'}
+          </button>
         </div>
       ) : (
         <button
           className={styles.signInButton}
           onClick={() => signIn('github')}
         >
-          Sign in with GitHub
+          Sign in{!isMobile && ' with GitHub'}
           <GitHubIcon />
         </button>
       )}

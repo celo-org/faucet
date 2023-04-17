@@ -144,7 +144,7 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
             type={'checkbox'}
             defaultChecked={skipStables}
           />
-          <small> CELO Only</small>
+          <small className={inter.className}> CELO Only</small>
         </label>
         <FaucetStatus
           network={network}
