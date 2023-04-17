@@ -65,7 +65,7 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
           </small>
         </div>
         <footer className={styles.grid}>
-          <SetupButton />
+          <SetupButton network={network} />
 
           <a
             href="https://docs.celo.org"
