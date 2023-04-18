@@ -14,16 +14,17 @@ export const GitHubAuth: FC = () => {
     <div className={styles.gitHubAuthContainer}>
       {session?.user ? (
         <div className={styles.authenticatedContainer}>
-          <span className={inter.className}>
-            Authenticated{!isMobile && ' with GitHub'}
-          </span>
-          <button onClick={() => signOut()}>
+          {!isMobile && (
+            <span className={inter.className}>Authenticated with GitHub</span>
+          )}
+          <button onClick={() => signOut()} className={styles.githubButton}>
             Sign out{!isMobile && ' of GitHub'}
+            <GitHubIcon />
           </button>
         </div>
       ) : (
         <button
-          className={styles.signInButton}
+          className={styles.githubButton}
           onClick={() => signIn('github')}
         >
           Sign in{!isMobile && ' with GitHub'}
