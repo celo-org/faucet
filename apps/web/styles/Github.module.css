@@ -9,12 +9,12 @@
   align-items: center;
 }
 
-.signInButton {
+.githubButton {
   display: inline-flex;
   justify-content: space-between;
 }
 
-.signInButton svg {
+.githubButton svg {
   margin-left: 4px;
 }
 
