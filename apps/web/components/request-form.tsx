@@ -1,6 +1,8 @@
+import { FC, FormEvent, useCallback, useRef, useState } from 'react'
 import { Inter } from 'next/font/google'
 import dynamic from 'next/dynamic'
-import { FC, FormEvent, useCallback, useRef, useState } from 'react'
+import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useAsyncCallback } from 'react-use-async-callback'
 import { FaucetAPIResponse, Network } from 'types'
@@ -21,6 +23,7 @@ interface Props {
 
 export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
   const inputRef = useRef<HTMLInputElement>(null)
+  const { data: session } = useSession()
 
   const { executeRecaptcha } = useGoogleReCaptcha()
   const [skipStables, setSkipStables] = useState(true)
@@ -96,8 +99,15 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
     <>
       <div className={styles.intro}>
         <p className={`${inter.className} ${styles.center}`}>
-          Enter your testnet address below. Authenticate with GitHub to receive
-          more tokens.
+          Enter your testnet address below.
+          {!session && (
+            <Link
+              className={styles.githubAuthenticate}
+              href="/api/auth/signin/github"
+            >
+              Authenticate with GitHub to receive more tokens.
+            </Link>
+          )}
         </p>
       </div>
       <form
@@ -134,7 +144,7 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
             type={'checkbox'}
             defaultChecked={skipStables}
           />
-          <small> CELO Only</small>
+          <small className={inter.className}> CELO Only</small>
         </label>
         <FaucetStatus
           network={network}

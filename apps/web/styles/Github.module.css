@@ -24,7 +24,12 @@
 
 @media (prefers-color-scheme: dark) {
   .githubIcon {
-    fill: #FFF;
+    fill: #fff;
   }
+}
 
+@media (max-width: 700px) {
+  .gitHubAuthContainer {
+    margin-top: 0;
+  }
 }

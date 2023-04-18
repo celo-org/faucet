@@ -49,8 +49,8 @@
 }
 
 .card h3 span {
-    margin-left: 4px;
-  }
+  margin-left: 4px;
+}
 
 .center {
   display: flex;
@@ -61,51 +61,23 @@
 }
 
 .container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-self: center;
-    justify-content: center;
-    max-width: 100%;
-    width: 400px;
-  }
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  justify-content: center;
+  max-width: 100%;
+  width: 400px;
+}
 
 .container small {
   margin-top: 2rem;
   text-align: center;
 }
 
-.top {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  top: 0;
+.phaseDown {
+  font-style: italic;
 }
-
-.topBar {
-  display: flex;
-  justify-content: space-between;
-}
-
-.logo {
-  margin-top: 20px;
-  margin-left: 20px;
-  opacity: 90%;
-}
-
-.notice {
-  position: relative;
-  left: 0;
-  right: 0;
-  background-color: #1E002B;
-  font-family: "Inter", Arial, Helvetica, sans-serif;
-  text-align: center;
-  color: white;
-  padding: 0.5rem;
-  border-bottom: 2px solid #FCFF52;
-}
-
 
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
@@ -133,12 +105,18 @@
 @media (max-width: 700px) {
   .main {
     padding: 1rem;
+    justify-content: unset;
   }
   .grid {
     grid-template-columns: 1fr;
     margin-top: 40px;
     margin-bottom: 40px;
     max-width: 320px;
+    text-align: center;
+  }
+
+  .grid a,
+  .grid button {
     text-align: center;
   }
 
@@ -154,15 +132,13 @@
     margin-bottom: 0.5rem;
   }
 
+  .container {
+    flex: none;
+    margin-top: 85px;
+  }
 
-
-  .logo {
-    position: static;
-    display: flex;
-    align-self: center;
-    margin-left: -5%;
-    margin-bottom: 10px;
-    margin-top: 10px;
+  .phaseDown {
+    margin: 2rem 3rem 0 3rem;
   }
 }
 
@@ -178,7 +154,6 @@
     filter: invert(1);
   }
 
-  .logo,
   .thirteen img {
     filter: invert(1) drop-shadow(0 0 0.3rem #ffffff70);
   }
