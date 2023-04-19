@@ -3,8 +3,9 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  padding: 4rem;
+  padding: 0;
   min-height: 100vh;
+  row-gap: 2rem;
 }
 
 .grid {
@@ -134,7 +135,6 @@
 
   .container {
     flex: none;
-    margin-top: 85px;
   }
 
   .phaseDown {
@@ -146,6 +146,7 @@
 @media (min-width: 701px) and (max-width: 1120px) {
   .grid {
     grid-template-columns: repeat(2, 50%);
+    justify-items: center;
   }
 }
 
