@@ -9,6 +9,11 @@ export enum FaucetAddress {
   cannoli = '0x29954EC661f0c829587ac4527825B7E8C663d0b6',
 }
 
+export enum ChainId {
+  alfajores = 44787,
+  cannoli = 17323,
+}
+
 export enum RequestStatus {
   Pending = 'Pending',
   Working = 'Working',

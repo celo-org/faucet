@@ -9,12 +9,12 @@
   align-items: center;
 }
 
-.signInButton {
+.githubButton {
   display: inline-flex;
   justify-content: space-between;
 }
 
-.signInButton svg {
+.githubButton svg {
   margin-left: 4px;
 }
 
@@ -24,7 +24,12 @@
 
 @media (prefers-color-scheme: dark) {
   .githubIcon {
-    fill: #FFF;
+    fill: #fff;
   }
+}
 
+@media (max-width: 700px) {
+  .gitHubAuthContainer {
+    margin-top: 0;
+  }
 }

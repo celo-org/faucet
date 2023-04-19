@@ -1,14 +1,14 @@
 import { getAnalytics } from 'firebase/analytics'
 import firebase from 'firebase/compat/app'
 import 'firebase/compat/database'
-import { Network, RequestRecord, RequestStatus } from './faucet-interfaces'
-import firebaseConfig from './firebase-config'
+import { Network, RequestRecord, RequestStatus } from 'types'
+import { config } from './firebase-config'
 // Code in this file is sent to the browser.
 // Code in FirebaseServerSide.ts is not sent to the browser.
 
 async function getFirebase() {
   if (!firebase.apps.length) {
-    const app = firebase.initializeApp(firebaseConfig)
+    const app = firebase.initializeApp(config)
     getAnalytics(app)
   }
   return firebase
@@ -21,7 +21,7 @@ async function getDB(): Promise<firebase.database.Database> {
 // Don't do this. It hangs next.js build process: https://github.com/zeit/next.js/issues/6824
 // const db = firebase.database()
 
-export default async function subscribeRequest(
+export async function subscribeRequest(
   key: string,
   onChange: (record: RequestRecord) => void,
   network: Network

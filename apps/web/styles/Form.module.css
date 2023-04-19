@@ -1,4 +1,3 @@
-
 .center {
   display: flex;
   flex-direction: column;
@@ -14,13 +13,13 @@
 
 .label {
   margin: 0.25rem;
-  font-family: "Inter", Arial, Helvetica, sans-serif;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
 }
 
 .address {
   width: 385px;
   font-size: 0.9rem;
-  font-family: "Inter", Arial, Helvetica, sans-serif;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
 }
 
 .address:focus-visible {
@@ -29,7 +28,7 @@
 
 .status {
   margin-top: 0.67rem;
-  margin-bottom: 1rem
+  margin-bottom: 1rem;
 }
 
 .button {
@@ -37,6 +36,9 @@
   margin: 1rem;
 }
 
+.githubAuthenticate {
+  text-decoration: underline;
+}
 
 /* Mobile */
 @media (max-width: 700px) {
@@ -48,6 +50,7 @@
 
   .intro {
     text-align: center;
+    margin-top: 1.4rem;
+    margin-bottom: 1.4rem;
   }
-
 }

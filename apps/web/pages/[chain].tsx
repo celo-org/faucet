@@ -1,13 +1,12 @@
 import { NextPage, GetServerSideProps } from 'next'
 import Head from 'next/head'
-import { isBalanceBelowPar } from 'src/balance'
-import Logo from 'src/logo'
-import RequestForm from 'src/request-form'
-import { GitHubAuth } from 'src/github-auth'
-import { SetupButton } from 'src/setup-button'
+import { isBalanceBelowPar } from 'utils/balance'
+import { FaucetHeader } from 'components/faucet-header'
+import { RequestForm } from 'components/request-form'
+import { SetupButton } from 'components/setup-button'
 import styles from 'styles/Home.module.css'
-import { networks, Network } from 'src/faucet-interfaces'
-import { inter } from 'src/inter'
+import { networks, Network } from 'types'
+import { inter } from 'utils/inter'
 
 interface Props {
   isOutOfCELO: boolean
@@ -30,26 +29,7 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <div className={styles.top}>
-          {isOutOfCELO && network === 'alfajores' && (
-            <header className={styles.notice}>
-              The Faucet is out of CELO for now. It will be topped up{' '}
-              <a
-                target="_blank"
-                rel="noreferrer"
-                href="https://explorer.celo.org/alfajores/epochs"
-              >
-                within an hour
-              </a>
-            </header>
-          )}
-          <div className={styles.topBar}>
-            <div className={styles.logo}>
-              <Logo />
-            </div>
-            <GitHubAuth />
-          </div>
-        </div>
+        <FaucetHeader network={network} isOutOfCELO={isOutOfCELO} />
         <div className={styles.container}>
           <header className={styles.center}>
             <h1 className={`${inter.className} ${styles.title}`}>
@@ -59,13 +39,13 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
           <div className={styles.center}>
             <RequestForm network={network} isOutOfCELO={isOutOfCELO} />
           </div>
-          <small>
-            *Accounts with large balances will received a phased down amount.
-            Please consider sending back any tokens you wont need.
+          <small className={`${styles.phaseDown} ${inter.className}`}>
+            *Accounts with large balances will receive a phased down amount.
+            Please consider sending back any tokens you won&#39;t need.
           </small>
         </div>
         <footer className={styles.grid}>
-          <SetupButton />
+          <SetupButton network={network} />
 
           <a
             href="https://docs.celo.org"
