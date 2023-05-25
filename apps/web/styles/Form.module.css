@@ -7,11 +7,12 @@
 .intro {
   max-width: 420px;
   font-size: 1rem;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .label {
+  font-weight: 500;
   margin: 0.25rem;
   font-family: 'Inter', Arial, Helvetica, sans-serif;
 }
