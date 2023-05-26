@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState, FC } from 'react'
-import { inter } from './request-form'
-import { RequestRecord, RequestStatus, Network } from 'types'
-import { subscribeRequest } from 'utils/firebase-client'
+import { FC, useCallback, useEffect, useState } from 'react'
+import { inter } from 'components/request-form'
 import styles from 'styles/Form.module.css'
+import { Network, RequestRecord, RequestStatus } from 'types'
+import { subscribeRequest } from 'utils/firebase-client'
 
 interface StatusProps {
   faucetRequestKey: string | null
@@ -90,17 +90,14 @@ const TxMessage = ({
       </span>
     )
   }
-  if (network === 'alfajores') {
-    return (
-      <a
-        className={inter.className}
-        target="_blank"
-        rel="noreferrer"
-        href={`https://alfajores.celoscan.io/tx/${txHash}`}
-      >
-        View on CeloScan
-      </a>
-    )
-  }
-  return null
+  return (
+    <a
+      className={inter.className}
+      target="_blank"
+      rel="noreferrer"
+      href={`https://explorer.celo.org/${network}/tx/${txHash}`}
+    >
+      View on Celo Explorer
+    </a>
+  )
 }

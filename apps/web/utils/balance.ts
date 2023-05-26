@@ -19,12 +19,15 @@ async function getFaucetBalance(network: Network) {
 
 // returns true if faucet has less than 5 CELO
 export async function isBalanceBelowPar(network: Network) {
-  const balance = await getFaucetBalance(network)
-  if (balance === null) {
-    // if for some reason the Celo Explore returns an error, just let faucet work as if it had balance
-    return false
-  }
-  const balanceInt = BigInt(balance)
+  try {
+    const balance = await getFaucetBalance(network)
+    if (balance === null) {
+      // if for some reason the Celo Explore returns an error, just let faucet work as if it had balance
+      return false
+    }
+    const balanceInt = BigInt(balance)
 
-  return balanceInt <= MINIMUM_BALANCE
+    return balanceInt <= MINIMUM_BALANCE
+  } catch (error) {}
+  return false
 }

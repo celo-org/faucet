@@ -1,11 +1,12 @@
-import { NextPage, GetServerSideProps } from 'next'
+import { GetServerSideProps, NextPage } from 'next'
 import Head from 'next/head'
-import { isBalanceBelowPar } from 'utils/balance'
+import Link from 'next/link'
 import { FaucetHeader } from 'components/faucet-header'
 import { RequestForm } from 'components/request-form'
 import { SetupButton } from 'components/setup-button'
 import styles from 'styles/Home.module.css'
-import { networks, Network } from 'types'
+import { Network, networks } from 'types'
+import { isBalanceBelowPar } from 'utils/balance'
 import { inter } from 'utils/inter'
 
 interface Props {
@@ -14,9 +15,9 @@ interface Props {
 }
 
 const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
-  const networkCapitalized = `${network[0].toUpperCase()}${network
-    .slice(1)
-    .toLowerCase()}`
+  const networkCapitalized = capitalize(network)
+
+  const otherNetwork = network === 'alfajores' ? 'cannoli' : 'alfajores'
   return (
     <>
       <Head>
@@ -31,17 +32,20 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
       <main className={styles.main}>
         <FaucetHeader network={network} isOutOfCELO={isOutOfCELO} />
         <div className={styles.container}>
-          <header className={styles.center}>
+          <header className={`${inter.className} ${styles.center}`}>
             <h1 className={`${inter.className} ${styles.title}`}>
               {networkCapitalized} Token Faucet
             </h1>
+            <Link className={styles.switchNetwork} href={`/${otherNetwork}`}>
+              Switch to {capitalize(otherNetwork)}
+            </Link>
           </header>
           <div className={styles.center}>
             <RequestForm network={network} isOutOfCELO={isOutOfCELO} />
           </div>
           <small className={`${styles.phaseDown} ${inter.className}`}>
             *Accounts with large balances will receive a phased down amount.
-            Please consider sending back any tokens you won&#39;t need.
+            Please consider returning any tokens you won&#39;t need.
           </small>
         </div>
         <footer className={styles.grid}>
@@ -95,6 +99,10 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
       </main>
     </>
   )
+}
+
+function capitalize(word: string) {
+  return `${word[0].toUpperCase()}${word.slice(1).toLowerCase()}`
 }
 
 export default Home

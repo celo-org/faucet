@@ -1,14 +1,14 @@
-import { FC, FormEvent, useCallback, useRef, useState } from 'react'
-import { Inter } from 'next/font/google'
-import dynamic from 'next/dynamic'
-import Link from 'next/link'
 import { useSession } from 'next-auth/react'
+import dynamic from 'next/dynamic'
+import { Inter } from 'next/font/google'
+import Link from 'next/link'
+import { FC, FormEvent, useCallback, useRef, useState } from 'react'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useAsyncCallback } from 'react-use-async-callback'
+import styles from 'styles/Form.module.css'
 import { FaucetAPIResponse, Network } from 'types'
 import { saveAddress } from 'utils/history'
 import { useLastAddress } from 'utils/useLastAddress'
-import styles from 'styles/Form.module.css'
 
 const FaucetStatus = dynamic(async () => {
   const imported = await import('components/faucet-status')
@@ -99,14 +99,16 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
     <>
       <div className={styles.intro}>
         <p className={`${inter.className} ${styles.center}`}>
-          Enter your testnet address below.
           {!session && (
-            <Link
-              className={styles.githubAuthenticate}
-              href="/api/auth/signin/github"
-            >
-              Authenticate with GitHub to receive more tokens.
-            </Link>
+            <em>
+              <Link
+                className={styles.githubAuthenticate}
+                href="/api/auth/signin/github"
+              >
+                Authenticate with GitHub
+              </Link>{' '}
+              to receive 10x the tokens.
+            </em>
           )}
         </p>
       </div>
