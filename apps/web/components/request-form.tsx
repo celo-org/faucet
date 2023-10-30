@@ -148,6 +148,7 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
           />
           <small className={inter.className}> CELO Only</small>
         </label>
+        {/* @ts-ignore */}
         <FaucetStatus
           network={network}
           reset={reset}
