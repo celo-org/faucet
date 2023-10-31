@@ -2,7 +2,7 @@ import detectEthereumProvider from '@metamask/detect-provider'
 import Image from 'next/image'
 import { FC } from 'react'
 import { useAsyncCallback } from 'react-use-async-callback'
-import { CHAIN_PARAMS } from '../config/chains'
+import { CHAIN_PARAMS, tokens } from '../config/chains'
 import styles from 'styles/Home.module.css'
 import { ChainId, Network } from 'types'
 import { inter } from 'utils/inter'
@@ -68,23 +68,6 @@ export const SetupButton: FC<Props> = ({ network }) => {
 
 function delay(time: number) {
   return new Promise((resolve) => setTimeout(resolve, time))
-}
-
-const tokens = {
-  alfajores: [
-    {
-      symbol: 'cEUR',
-      address: '0x10c892A6EC43a53E45D0B916B4b7D383B1b78C0F',
-    },
-    {
-      symbol: 'cREAL',
-      address: '0xE4D517785D091D3c54818832dB6094bcc2744545',
-    },
-    {
-      symbol: 'cUSD',
-      address: '0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1',
-    },
-  ],
 }
 
 interface TokenParams {
