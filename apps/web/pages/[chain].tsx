@@ -17,7 +17,8 @@ interface Props {
 const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
   const networkCapitalized = capitalize(network)
 
-  const otherNetwork = network === 'alfajores' ? 'cannoli' : 'alfajores'
+  const otherNetwork =
+    networks.indexOf(network) === 0 ? networks[1] : networks[0]
   return (
     <>
       <Head>
@@ -36,9 +37,11 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
             <h1 className={`${inter.className} ${styles.title}`}>
               {networkCapitalized} Token Faucet
             </h1>
-            <Link className={styles.switchNetwork} href={`/${otherNetwork}`}>
-              Switch to {capitalize(otherNetwork)}
-            </Link>
+            {networks.length > 1 && (
+              <Link className={styles.switchNetwork} href={`/${otherNetwork}`}>
+                Switch to {capitalize(otherNetwork)}
+              </Link>
+            )}
           </header>
           <div className={styles.center}>
             <RequestForm network={network} isOutOfCELO={isOutOfCELO} />
