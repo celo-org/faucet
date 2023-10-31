@@ -39,9 +39,10 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 ### Web
 
-Add the chain config to config/chains.ts
-Add chain name and chain id and faucetAddress to enums in types/index.ts
+Add the chain config to `config/chains.ts`.
+
+Add chain name, `ChainId`, and `FaucetAddress` to enums in `types/index.ts`.
 
 ### Firebase
 
-In the apps/firebase project run `yarn cli config:set` with the relevent params
+In the `apps/firebase` project run `yarn cli config:set` with the relevent params.
