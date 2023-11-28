@@ -6,6 +6,18 @@
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["patch", "minor"],
       "groupName": "devDependencies (non-major)"
+    },
+    {
+      "matchPackageNames": ["@celo"],
+      "groupName": "celo"
+    },
+    {
+      "matchPackageNames": ["@firebase"],
+      "groupName": "firebase"
+    },
+    {
+      "matchPackageNames": ["eslint"],
+      "groupName": "eslint"
     }
   ]
 }
