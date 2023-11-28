@@ -1140,17 +1140,17 @@
   resolved "https://registry.yarnpkg.com/@jsdevtools/ono/-/ono-7.1.3.tgz#9df03bbd7c696a5c58885c34aa06da41c8543796"
   integrity sha512-4JQNk+3mVzK3xh2rqd6RB4J46qUR19azEHBneZyTZM+c456qOrbbM/5xcR8huNCCcbVt7+UmizG6GuUvPvKUYg==
 
-"@mento-protocol/mento-core-ts@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@mento-protocol/mento-core-ts/-/mento-core-ts-0.1.0.tgz#c17458597daa783c7907dd7fe4df202bb1188739"
-  integrity sha512-kREPdwLiM6JGTuNISyuZYWmdnq74CfljgNZWRqXsghO3dIf0B6bByFmtMet52DdJBkr2wGNWQ4OE0ePiZJPSZA==
+"@mento-protocol/mento-core-ts@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@mento-protocol/mento-core-ts/-/mento-core-ts-0.1.1.tgz#a775db1eadd8ccf895b9b33f5a7e490628566193"
+  integrity sha512-3kQUqwi19sZlCFInROqSNqwaTDN5K3ZZ2K1W1BVuoNpTqhPEs26n5CWYQQPMZaEA8hAybQyQsGlQbGXpYNeinw==
 
 "@mento-protocol/mento-sdk@^0.1.4":
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/@mento-protocol/mento-sdk/-/mento-sdk-0.1.4.tgz#9d24821fef9be418264c4398d4f5061ec3a90439"
-  integrity sha512-HkDleJRwS6OIM8M27Dj5VCgAn5Jk+gBC3mc44rTW2+assKGALCNPLMqCa9Jee51rcoxydVixcQVQ2XH4PL0IeA==
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/@mento-protocol/mento-sdk/-/mento-sdk-0.1.5.tgz#8704ada987a8f3e98601a613f81f5f9090560ab2"
+  integrity sha512-YEYHNMMp0wtCE1UN+83nGYoyELfdgA2URlG+CFOtHPfPS8yc/zAgnNkCI4R7ehRnX1RDRQgf9s/w0kGKsi7M9w==
   dependencies:
-    "@mento-protocol/mento-core-ts" "^0.1.0"
+    "@mento-protocol/mento-core-ts" "^0.1.1"
 
 "@metamask/detect-provider@^2.0.0":
   version "2.0.0"
