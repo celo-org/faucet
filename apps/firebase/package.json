@@ -19,7 +19,7 @@
     "keys:encrypt": "bash scripts/key_placer.sh encrypt"
   },
   "dependencies": {
-    "@celo/connect": "^4.0.0",
+    "@celo/connect": "^5.0.0",
     "@celo/contractkit": "^4.0.0",
     "@celo/utils": "^4.0.0",
     "@firebase/app": "^0.9.6",
