@@ -8,15 +8,15 @@
       "groupName": "devDependencies (non-major)"
     },
     {
-      "matchPackageNames": ["@celo"],
+      "matchPackagePatterns": ["@celo"],
       "groupName": "celo"
     },
     {
-      "matchPackageNames": ["@firebase"],
+      "matchPackagePatterns": ["firebase"],
       "groupName": "firebase"
     },
     {
-      "matchPackageNames": ["eslint"],
+      "matchPackagePatterns": ["eslint"],
       "groupName": "eslint"
     }
   ],

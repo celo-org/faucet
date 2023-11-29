@@ -79,6 +79,7 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
 
   const onInvalid = useCallback((event: FormEvent<HTMLInputElement>) => {
     const { validity } = event.currentTarget
+    console.debug('validity input', JSON.stringify(validity))
     if (validity.patternMismatch || validity.badInput || !validity.valid) {
       event.currentTarget.setCustomValidity('enter an 0x address')
     } else {
