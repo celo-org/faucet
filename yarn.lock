@@ -85,9 +85,9 @@
     web3-eth-contract "1.10.0"
 
 "@celo/contractkit@^5.0.0":
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/@celo/contractkit/-/contractkit-5.2.0.tgz#f8b853560b4d87f82b562da1f3aedfbfdd106993"
-  integrity sha512-QetwAOilHQJ5u1xJooFN4ZfJCfomw+kIky8huoWFkgIEKCZOo4+FxGxn2Gq9xFeMW4BALuWvdDUTAR3DxZ7FOQ==
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/@celo/contractkit/-/contractkit-5.2.1.tgz#55c98e0498c3f0b1a16abe0ebd0a7947931c7a9f"
+  integrity sha512-cqLZdJtstZNnZcD6yUzhAvLgwGJ1XNNT6gu+9ZG740Pda3maFtXzfSo1Sbg2aQ6U5ESCX3FqyWgWXg5EXr9TlA==
   dependencies:
     "@celo/base" "^6.0.0"
     "@celo/connect" "^5.1.1"
