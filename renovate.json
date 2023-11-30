@@ -31,5 +31,5 @@
   "patch": {
     "minimumReleaseAge": "4 days"
   },
-  "schedule": ["every other thursday"]
+  "schedule": ["on tuesday and thursday", "every weekend"]
 }
