@@ -19,8 +19,8 @@ defaults:
     shell: bash --login -eo pipefail {0}
 
 jobs:
-  install-dependencies:
-    name: Install dependencies
+  run-checks:
+    name: Run Checks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -30,14 +30,9 @@ jobs:
         with:
           node-version: 18.x
           cache: 'yarn'
-      # - name: 'Setup yarn'
-      #   shell: bash
-      #   run: |
-      #     npm install --global yarn
-      #     source ~/.bashrc
       - name: Install Dependencies
-        shell: bash
         run: yarn
-      - name: Install Lint
-        shell: bash
+      - name: Run Lint
         run: yarn lint
+      - name: Validate Renovate Config
+        run: npx renovate-config-validator
