@@ -20,5 +20,16 @@
       "groupName": "eslint"
     }
   ],
-  "prConcurrentLimit": 8
+  "ignoreDeps": ["web3", "ethers"],
+  "prConcurrentLimit": 8,
+  "major": {
+    "minimumReleaseAge": "12 days"
+  },
+  "minor": {
+    "minimumReleaseAge": "6 days"
+  },
+  "patch": {
+    "minimumReleaseAge": "4 days"
+  },
+  "schedule": ["every other thursday"]
 }
