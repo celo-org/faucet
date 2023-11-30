@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - master
-      - aaronmgdr/setup-ci
   pull_request:
     branches:
       - master
@@ -34,6 +33,16 @@ jobs:
         run: yarn
       - name: Run Lint
         run: yarn lint
+  validate-renovate-config:
+    name: Validate Renovate Config
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      - name: Setup Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
       - name: Validate Renovate Config
         run: |
           npm install --global renovate
