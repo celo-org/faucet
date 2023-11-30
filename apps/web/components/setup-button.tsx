@@ -37,8 +37,8 @@ export const SetupButton: FC<Props> = ({ network }) => {
             provider.request({
               method: 'wallet_watchAsset',
               params,
-            })
-          )
+            }),
+          ),
         )
       } catch (e: any) {
         console.error(e)
@@ -81,20 +81,23 @@ interface TokenParams {
 }
 const chainTokenParams = Object.keys(tokens).reduce<
   Record<Network, TokenParams[]>
->((params, network) => {
-  params[network as Network] = tokens[network as Network].map(
-    ({ symbol, address }) => ({
-      type: 'ERC20',
-      options: {
-        address,
-        symbol,
-        decimals: 18,
-        image: `https://reserve.mento.org/assets/tokens/${symbol}.svg`, // A string url of the token logo
-      },
-    })
-  )
-  return params
-}, {} as Record<Network, TokenParams[]>)
+>(
+  (params, network) => {
+    params[network as Network] = tokens[network as Network].map(
+      ({ symbol, address }) => ({
+        type: 'ERC20',
+        options: {
+          address,
+          symbol,
+          decimals: 18,
+          image: `https://reserve.mento.org/assets/tokens/${symbol}.svg`, // A string url of the token logo
+        },
+      }),
+    )
+    return params
+  },
+  {} as Record<Network, TokenParams[]>,
+)
 
 interface EthProvider {
   request: (a: { method: string; params?: unknown }) => Promise<void>
@@ -105,11 +108,11 @@ interface EthProvider {
   off(eventName: string | symbol, listener: (...args: any[]) => void): this
   addListener(
     eventName: string | symbol,
-    listener: (...args: any[]) => void
+    listener: (...args: any[]) => void,
   ): this
   removeListener(
     eventName: string | symbol,
-    listener: (...args: any[]) => void
+    listener: (...args: any[]) => void,
   ): this
   removeAllListeners(event?: string | symbol): this
 }

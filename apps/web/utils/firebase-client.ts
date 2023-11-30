@@ -24,10 +24,10 @@ async function getDB(): Promise<firebase.database.Database> {
 export async function subscribeRequest(
   key: string,
   onChange: (record: RequestRecord) => void,
-  network: Network
+  network: Network,
 ) {
   const ref: firebase.database.Reference = (await getDB()).ref(
-    `${network}/requests/${key}`
+    `${network}/requests/${key}`,
   )
 
   const listener = ref.on('value', (snap) => {

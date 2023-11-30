@@ -46,7 +46,7 @@ export async function sendRequest(
   beneficiary: Address,
   skipStables: boolean,
   network: Network,
-  authLevel: AuthLevel
+  authLevel: AuthLevel,
 ) {
   const newRequest: RequestRecord = {
     beneficiary,

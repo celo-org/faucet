@@ -45,7 +45,7 @@ export const bigFaucetFunder = functions.pubsub
     })
 
     console.log(
-      `Big drip running on ${context.resource.name} with ${config.bigFaucetSafeAmount} CELO + ${config.bigFaucetSafeStablesAmount} cStables for ${config.bigFaucetSafeAddress}`
+      `Big drip running on ${context.resource.name} with ${config.bigFaucetSafeAmount} CELO + ${config.bigFaucetSafeStablesAmount} cStables for ${config.bigFaucetSafeAddress}`,
     )
     await fundBigFaucet(pool, config)
   })
