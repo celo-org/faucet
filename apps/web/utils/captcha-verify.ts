@@ -17,7 +17,7 @@ interface RecaptchaResponse {
 }
 
 export async function captchaVerify(
-  captchaToken: string
+  captchaToken: string,
 ): Promise<RecaptchaResponse> {
   const result = await fetch(CAPTCHA_URL, {
     method: 'POST',
@@ -25,7 +25,7 @@ export async function captchaVerify(
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: `secret=${encodeURIComponent(
-      process.env.RECAPTCHA_SECRET as string
+      process.env.RECAPTCHA_SECRET as string,
     )}&response=${encodeURIComponent(captchaToken)}`,
   })
 

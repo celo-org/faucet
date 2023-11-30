@@ -41,7 +41,7 @@ yargs
         console.error('Failed')
         console.error(err)
       }
-    }
+    },
   ).argv
 
 async function transferFunds(args: {
@@ -91,7 +91,7 @@ async function transferFunds(args: {
           console.log('receipt', await tx?.sendAndWaitForReceipt())
         }
         await retryAsync(transferHelper, 3, [], 500)
-      })
+      }),
     )
   }
 

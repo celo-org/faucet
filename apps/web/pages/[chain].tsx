@@ -111,7 +111,7 @@ function capitalize(word: string) {
 export default Home
 
 export const getServerSideProps: GetServerSideProps<Props> = async (
-  context
+  context,
 ) => {
   const network = context.query.chain
   if (typeof network !== 'string' || !networks.includes(network)) {

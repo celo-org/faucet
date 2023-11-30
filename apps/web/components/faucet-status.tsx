@@ -33,7 +33,7 @@ export const FaucetStatus: FC<StatusProps> = ({
         setTimeout(reset, 2_000)
       }
     },
-    [reset]
+    [reset],
   )
 
   useEffect(() => {

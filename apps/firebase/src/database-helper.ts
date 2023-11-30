@@ -51,7 +51,7 @@ enum RequestedTokenSet {
 export async function processRequest(
   snap: DataSnapshot,
   pool: AccountPool,
-  config: NetworkConfig
+  config: NetworkConfig,
 ) {
   const request = snap.val() as RequestRecord
   if (request.status !== RequestStatus.Pending) {
@@ -60,7 +60,7 @@ export async function processRequest(
 
   await snap.ref.update({ status: RequestStatus.Working })
   console.info(
-    `req(${snap.key}): Started working on ${request.type} request for:${request.beneficiary}`
+    `req(${snap.key}): Started working on ${request.type} request for:${request.beneficiary}`,
   )
 
   try {
@@ -112,14 +112,14 @@ export async function fundBigFaucet(pool: AccountPool, config: NetworkConfig) {
           sendCelo,
           4,
           [celo, config.bigFaucetSafeAddress, config.bigFaucetSafeAmount],
-          2500
+          2500,
         ),
         sendStableTokens(
           celo,
           config.bigFaucetSafeAddress,
           config.bigFaucetSafeStablesAmount,
           true,
-          snap
+          snap,
         ),
       ])
     })
@@ -130,7 +130,7 @@ export async function fundBigFaucet(pool: AccountPool, config: NetworkConfig) {
 
 export async function topUpWithCEuros(
   pool: AccountPool,
-  config: NetworkConfig
+  config: NetworkConfig,
 ) {
   try {
     return await pool.doWithAccount(async (account) => {
@@ -161,13 +161,13 @@ async function sendCelo(celo: CeloAdapter, to: string, amountInWei: string) {
 function buildHandleFaucet(
   request: RequestRecord,
   snap: DataSnapshot,
-  config: NetworkConfig
+  config: NetworkConfig,
 ) {
   return async (account: AccountRecord) => {
     const { nodeUrl } = config
     const { goldAmount, stableAmount } = getSendAmounts(
       request.authLevel,
-      config
+      config,
     )
     const celo = new CeloAdapter({ nodeUrl, pk: account.pk })
     await celo.init()
@@ -183,8 +183,8 @@ function buildHandleFaucet(
           sendGold,
           3,
           [celo, request.beneficiary, goldAmount, snap],
-          500
-        )
+          500,
+        ),
       )
     }
 
@@ -194,7 +194,7 @@ function buildHandleFaucet(
       request.tokens === undefined
     ) {
       ops.push(
-        sendStableTokens(celo, request.beneficiary, stableAmount, false, snap)
+        sendStableTokens(celo, request.beneficiary, stableAmount, false, snap),
       )
     }
 
@@ -204,7 +204,7 @@ function buildHandleFaucet(
 
 function getSendAmounts(
   authLevel: AuthLevel,
-  config: NetworkConfig
+  config: NetworkConfig,
 ): { goldAmount: string; stableAmount: string } {
   switch (authLevel) {
     case undefined:
@@ -225,7 +225,7 @@ async function sendGold(
   celo: CeloAdapter,
   address: Address,
   amount: string,
-  snap: DataSnapshot
+  snap: DataSnapshot,
 ) {
   const token = await celo.kit.contracts.getGoldToken()
 
@@ -236,7 +236,7 @@ async function sendGold(
   console.info(
     `req(${
       snap.key
-    }): Sending ${actualAmount.toString()} celo to ${address} (balance ${recipientBalance.toString()})`
+    }): Sending ${actualAmount.toString()} celo to ${address} (balance ${recipientBalance.toString()})`,
   )
   if (actualAmount.eq(0)) {
     console.info(`req(${snap.key}): CELO Transaction SKIPPED`)
@@ -254,22 +254,22 @@ async function sendStableTokens(
   address: Address,
   amount: string,
   alwaysUseFullAmount: boolean, // when false if the recipient already has a sizeable balance the amount will gradually be reduced to zero
-  snap: DataSnapshot | { key: string; ref?: undefined }
+  snap: DataSnapshot | { key: string; ref?: undefined },
 ) {
   const tokenTxs = await celo.transferStableTokens(
     address,
     amount,
-    alwaysUseFullAmount
+    alwaysUseFullAmount,
   )
 
   const sendTxHelper = async (
     symbol: string,
-    tx: CeloTransactionObject<boolean>
+    tx: CeloTransactionObject<boolean>,
   ) => {
     const txReceipt = await tx.sendAndWaitForReceipt()
     const txHash = txReceipt.transactionHash
     console.log(
-      `req(${snap.key}): ${symbol} Transaction Sent.  txhash:${txHash}`
+      `req(${snap.key}): ${symbol} Transaction Sent.  txhash:${txHash}`,
     )
     if (snap.ref) {
       await snap.ref.update({ txHash })
@@ -286,17 +286,17 @@ async function sendStableTokens(
       } catch (e) {
         // Log that one transfer failed. if error is not caught it looks like all failed
         console.log(
-          `req(${snap.key}): tx=>${tx} ${symbol} Transaction Failed. ${e}`
+          `req(${snap.key}): tx=>${tx} ${symbol} Transaction Failed. ${e}`,
         )
       }
-    })
+    }),
   )
 }
 
 function withTimeout<A>(
   timeout: number,
   fn: () => Promise<A>,
-  onTimeout?: () => A | Promise<A>
+  onTimeout?: () => A | Promise<A>,
 ): Promise<A> {
   return new Promise((resolve, reject) => {
     let timeoutHandler: NodeJS.Timeout | null = setTimeout(() => {
@@ -346,7 +346,7 @@ export class AccountPool {
       getAccountTimeoutMS: 10 * SECOND,
       retryWaitMS: 3000,
       actionTimeoutMS: 50 * SECOND,
-    }
+    },
   ) {
     // is empty.
   }
@@ -368,7 +368,7 @@ export class AccountPool {
   }
 
   async doWithAccount(
-    action: (account: AccountRecord) => Promise<any>
+    action: (account: AccountRecord) => Promise<any>,
   ): Promise<ActionResult> {
     const accountSnap = await this.tryLockAccountWithRetries()
     if (!accountSnap) {
@@ -382,7 +382,7 @@ export class AccountPool {
           await action(accountSnap.val())
           return ActionResult.Ok
         },
-        () => ActionResult.ActionTimeout
+        () => ActionResult.ActionTimeout,
       )
     } finally {
       await accountSnap.child('locked').ref.set(false)
@@ -414,12 +414,12 @@ export class AccountPool {
     const account = await withTimeout(
       this.options.getAccountTimeoutMS,
       loop,
-      onTimeout
+      onTimeout,
     )
 
     if (account) {
       console.info(
-        `LockAccount: ${account.val().address} (after ${retries - 1} retries)`
+        `LockAccount: ${account.val().address} (after ${retries - 1} retries)`,
       )
     } else {
       console.warn(`LockAccount: Failed`)

@@ -13,7 +13,7 @@ import { sendRequest } from 'utils/firebase-serverside'
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<FaucetAPIResponse>
+  res: NextApiResponse<FaucetAPIResponse>,
 ) {
   let authLevel = AuthLevel.none
   try {
@@ -42,7 +42,7 @@ export default async function handler(
         beneficiary,
         skipStables,
         network,
-        authLevel
+        authLevel,
       )
       res.status(200).json({ status: RequestStatus.Pending, key })
     } catch (error) {
@@ -55,7 +55,7 @@ export default async function handler(
   } else {
     console.error(
       'Faucet Failed due to Recaptcha',
-      captchaResponse['error-codes']
+      captchaResponse['error-codes'],
     )
     res.status(401).json({
       status: RequestStatus.Failed,

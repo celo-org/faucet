@@ -74,7 +74,7 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
         setKey(result.key)
       }
     },
-    [inputRef, executeRecaptcha, skipStables]
+    [inputRef, executeRecaptcha, skipStables],
   )
 
   const onInvalid = useCallback((event: FormEvent<HTMLInputElement>) => {

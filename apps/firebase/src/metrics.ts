@@ -43,7 +43,7 @@ function noBlockingSendEntry(entryData: Record<string, any>) {
 
 export function logExecutionResult(
   snapKey: string | null,
-  result: ExecutionResult
+  result: ExecutionResult,
 ) {
   noBlockingSendEntry({
     event: 'celo/faucet/result',

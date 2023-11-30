@@ -13,7 +13,7 @@ yargs
     'deploy:functions',
     'Deploy Project firebase functions',
     (x) => x,
-    () => deployFunctions()
+    () => deployFunctions(),
   )
   .command(
     'accounts:get',
@@ -24,7 +24,7 @@ yargs
         description: 'Name of network',
         demandOption: true,
       }),
-    (args) => printAccounts(args.net)
+    (args) => printAccounts(args.net),
   )
   .command(
     'accounts:clear',
@@ -35,7 +35,7 @@ yargs
         description: 'Name of network',
         demandOption: true,
       }),
-    (args) => clearAccounts(args.net)
+    (args) => clearAccounts(args.net),
   )
   .command(
     'accounts:add <pk> <address>',
@@ -56,7 +56,7 @@ yargs
           description: 'Address. Format 0x...',
         })
         .demand(['pk', 'address']),
-    (args) => addAccount(args.net, args.pk, args.address)
+    (args) => addAccount(args.net, args.pk, args.address),
   )
   .command(
     'faucet:request <to>',
@@ -73,7 +73,7 @@ yargs
           description: 'Address',
           demand: true,
         }),
-    (args) => enqueueFundRequest(args.net, args.to)
+    (args) => enqueueFundRequest(args.net, args.to),
   )
   .command(
     'config:get',
@@ -83,7 +83,7 @@ yargs
         type: 'string',
         description: 'Name of network',
       }),
-    (args) => printConfig(args.net)
+    (args) => printConfig(args.net),
   )
   .command(
     'config:set',
@@ -144,7 +144,7 @@ yargs
       if (args.deploy) {
         deployFunctions()
       }
-    }
+    },
   ).argv
 
 function setConfig(network: string, config: Partial<NetworkConfig>) {
@@ -157,13 +157,13 @@ function setConfig(network: string, config: Partial<NetworkConfig>) {
     setIfPresent('authenticated_gold_amount', config.authenticatedGoldAmount),
     setIfPresent(
       'authenticated_stable_amount',
-      config.authenticatedStableAmount
+      config.authenticatedStableAmount,
     ),
     setIfPresent('big_faucet_safe_address', config.bigFaucetSafeAddress),
     setIfPresent('big_faucet_safe_amount', config.bigFaucetSafeAmount),
     setIfPresent(
       'big_faucet_safe_stables_amount',
-      config.bigFaucetSafeStablesAmount
+      config.bigFaucetSafeStablesAmount,
     ),
   ].join(' ')
   execSync(`yarn firebase functions:config:set ${variables}`, {
@@ -222,6 +222,6 @@ function deployFunctions() {
     `yarn firebase deploy --only functions:faucetRequestProcessor,functions:bigFaucetFunder,functions:topUp`,
     {
       stdio: 'inherit',
-    }
+    },
   )
 }
