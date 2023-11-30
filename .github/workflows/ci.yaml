@@ -31,8 +31,10 @@ jobs:
           cache: 'yarn'
       - name: Install Dependencies
         run: yarn
-      - name: Run Lint
+      - name: Run Lint Globally
         run: yarn lint
+      - name: Build Firebase
+        run: yarn --cwd=apps/firebase run build
   validate-renovate-config:
     name: Validate Renovate Config
     runs-on: ubuntu-latest
