@@ -1,6 +1,9 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
+  "extends": [
+    "config:recommended",
+    ":gitSignOff"
+  ],
   "packageRules": [
     {
       "matchDepTypes": ["devDependencies"],
@@ -17,7 +20,9 @@
     },
     {
       "matchPackagePatterns": ["eslint"],
-      "groupName": "eslint"
+      "groupName": "eslint",
+      "enabled": false
+
     }
   ],
   "ignoreDeps": ["web3", "ethers"],
@@ -30,6 +35,12 @@
   },
   "patch": {
     "minimumReleaseAge": "4 days"
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": [
+      "type:security"
+    ]
   },
   "schedule": ["on tuesday and thursday", "every weekend"]
 }
