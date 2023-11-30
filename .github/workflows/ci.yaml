@@ -35,4 +35,6 @@ jobs:
       - name: Run Lint
         run: yarn lint
       - name: Validate Renovate Config
-        run: npx renovate-config-validator
+        run: |
+          npm install --global renovate
+          renovate-config-validator
