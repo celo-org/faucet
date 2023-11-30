@@ -1,0 +1,43 @@
+name: Faucet CI
+run-name: 'Faucet CI: ${{ github.head_ref || github.ref_name }}'
+
+on:
+  push:
+    branches:
+      - master
+      - aaronmgdr/setup-ci
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: faucet-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash --login -eo pipefail {0}
+
+jobs:
+  install-dependencies:
+    name: Install dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      - name: Setup Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'yarn'
+      # - name: 'Setup yarn'
+      #   shell: bash
+      #   run: |
+      #     npm install --global yarn
+      #     source ~/.bashrc
+      - name: Install Dependencies
+        shell: bash
+        run: yarn
+      - name: Install Lint
+        shell: bash
+        run: yarn lint
