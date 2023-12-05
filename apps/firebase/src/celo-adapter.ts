@@ -23,6 +23,7 @@ export class CeloAdapter {
 
     // To add more logging:
     // Use the debug of the contractkit. Run it with DEBUG=* (or the options)
+    // @ts-ignore
     this.kit = newKitFromWeb3(new Web3(nodeUrl))
     console.info(`New kit from url: ${nodeUrl}`)
     this.privateKey = ensureLeading0x(pk)
