@@ -1,10 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended",
-    ":rebaseStalePrs",
-    ":gitSignOff"
-  ],
+  "extends": ["local>celo-org/.github:renovate-config"],
   "packageRules": [
     {
       "matchDepTypes": ["devDependencies"],
@@ -36,12 +32,6 @@
   },
   "patch": {
     "minimumReleaseAge": "4 days"
-  },
-  "vulnerabilityAlerts": {
-    "enabled": true,
-    "labels": [
-      "type:security"
-    ]
   },
   "schedule": ["on tuesday and thursday", "every weekend"]
 }
