@@ -25,5 +25,8 @@
   },
   "resolutions": {
     "vm2": "^3.9.17"
+  },
+  "engines": {
+    "node": "18"
   }
 }
