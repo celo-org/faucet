@@ -143,7 +143,13 @@ module.exports = {
     indent: 'off',
     'jsdoc/check-alignment': 'error',
     'jsdoc/check-indentation': 'error',
-    'jsdoc/tag-lines': 'error',
+    'jsdoc/tag-lines': [
+      'error',
+      'any',
+      {
+        startLines: 1,
+      },
+    ],
     'linebreak-style': 'off',
     'max-classes-per-file': ['error', 1],
     'max-len': 'off',
