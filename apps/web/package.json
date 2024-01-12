@@ -18,7 +18,7 @@
     "@vercel/analytics": "^1.0.0",
     "eslint": "8.54.0",
     "eslint-config-next": "13.2.4",
-    "firebase": "~9.19.0",
+    "firebase": "^10.7.0",
     "next": "13.2.4",
     "next-auth": "^4.20.1",
     "react": "18.2.0",
