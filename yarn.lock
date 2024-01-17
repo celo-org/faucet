@@ -1776,9 +1776,9 @@
     undici-types "~5.26.4"
 
 "@types/node@^20.0.0":
-  version "20.10.5"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.10.5.tgz#47ad460b514096b7ed63a1dae26fad0914ed3ab2"
-  integrity sha512-nNPsNE65wjMxEKI93yOP+NPGGBJz/PoN3kZsVLee0XMiJolxSekEVD8wRwBUBqkwc7UWop0edW50yrCQW4CyRw==
+  version "20.11.5"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.11.5.tgz#be10c622ca7fcaa3cf226cf80166abc31389d86e"
+  integrity sha512-g557vgQjUUfN76MZAN/dt1z3dzcUsimuysco0KeluHgrPdJXkP/XdAURgyO2W9fZWHRtRBiVKzKn8vyOAwlG+w==
   dependencies:
     undici-types "~5.26.4"
 
@@ -7697,9 +7697,9 @@ prelude-ls@~1.1.2:
   integrity sha512-ESF23V4SKG6lVSGZgYNpbsiaAkdab6ZgOxe52p7+Kid3W3u3bxR4Vfd/o21dmN7jSt0IwgZ4v5MUd26FEtXE9w==
 
 prettier@^3.0.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.1.0.tgz#c6d16474a5f764ea1a4a373c593b779697744d5e"
-  integrity sha512-TQLvXjq5IAibjh8EpBIkNKxO749UEWABoiIZehEPiY4GNpVdhaFKqSTu+QrlU6D2dPAfubRmtJTi4K4YkQ5eXw==
+  version "3.2.4"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.2.4.tgz#4723cadeac2ce7c9227de758e5ff9b14e075f283"
+  integrity sha512-FWu1oLHKCrtpO1ypU6J0SbK2d9Ckwysq6bHj/uaCP26DxrPpppCLQRGVuqAxSTvhF00AcvDRyYrLNW7ocBhFFQ==
 
 pretty-format@^3.8.0:
   version "3.8.0"
@@ -9077,9 +9077,9 @@ triple-beam@^1.3.0:
   integrity sha512-XrHUvV5HpdLmIj4uVMxHggLbFSZYIn7HEWsqePZcI50pco+MPqJ50wMGY794X7AOOhxOBAjbkqfAbEe/QMp2Lw==
 
 ts-node@^10.9.1:
-  version "10.9.1"
-  resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-10.9.1.tgz#e73de9102958af9e1f0b168a6ff320e25adcff4b"
-  integrity sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==
+  version "10.9.2"
+  resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-10.9.2.tgz#70f021c9e185bccdca820e26dc413805c101c71f"
+  integrity sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==
   dependencies:
     "@cspotcode/source-map-support" "^0.8.0"
     "@tsconfig/node10" "^1.0.7"
