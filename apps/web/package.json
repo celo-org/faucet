@@ -25,7 +25,7 @@
     "react-dom": "18.2.0",
     "react-google-recaptcha-v3": "^1.10.1",
     "react-use-async-callback": "^2.1.2",
-    "typescript": "5.0.3"
+    "typescript": "5.3.3"
   },
   "engines": {
     "node": "20"
