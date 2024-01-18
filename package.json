@@ -13,7 +13,6 @@
   "scripts": {
     "dev": "yarn --cwd apps/web dev",
     "lint": "yarn --cwd apps/web lint --fix && yarn --cwd apps/firebase lint --fix",
-    "setup": "yarn global add vercel@latest",
     "prepare": "husky install",
     "prettify": "yarn prettier --write \"apps/**/*.{ts,tsx}\" --ignore-path=./.gitignore"
   },
