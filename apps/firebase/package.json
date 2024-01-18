@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@celo/connect": "^5.0.0",
-    "@celo/contractkit": "^5.0.0",
+    "@celo/contractkit": "^6.0.0",
     "@celo/utils": "^5.0.0",
     "@firebase/app": "^0.9.6",
     "@google-cloud/logging": "^11.0.0",

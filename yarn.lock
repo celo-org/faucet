@@ -57,6 +57,11 @@
   dependencies:
     regenerator-runtime "^0.13.11"
 
+"@celo/abis@10.0.0":
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/@celo/abis/-/abis-10.0.0.tgz#2c1002f2e82b29ca22cec70c988bf90d26fadc68"
+  integrity sha512-DC8UAEz89+1yEQqKzkxOWLYGUv/XWaqPAOkU0lKuQzhvN25ndP3fitawQl53WYn8i3ZPfRWfLO4w75l//tDSbg==
+
 "@celo/base@^6.0.0":
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/@celo/base/-/base-6.0.0.tgz#23811b0bc8730a0d13fa90df55a7ec0e90d370cd"
@@ -79,11 +84,12 @@
     web3-eth "1.10.0"
     web3-eth-contract "1.10.0"
 
-"@celo/contractkit@^5.0.0":
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/@celo/contractkit/-/contractkit-5.2.1.tgz#55c98e0498c3f0b1a16abe0ebd0a7947931c7a9f"
-  integrity sha512-cqLZdJtstZNnZcD6yUzhAvLgwGJ1XNNT6gu+9ZG740Pda3maFtXzfSo1Sbg2aQ6U5ESCX3FqyWgWXg5EXr9TlA==
+"@celo/contractkit@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@celo/contractkit/-/contractkit-6.0.0.tgz#2e9e33a9a29d5a7f6aacc369430719205e48d98a"
+  integrity sha512-vjIWC2Csuk5wFP9DX4d4/AYN5FHa3cuKlPV3hfB3WlR7HbCXUD8nwuEJi871cId1AvlYk0YZ9X6Kkr3MSYt8rw==
   dependencies:
+    "@celo/abis" "10.0.0"
     "@celo/base" "^6.0.0"
     "@celo/connect" "^5.1.1"
     "@celo/utils" "^5.0.6"
