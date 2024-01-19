@@ -15,17 +15,18 @@ The web app deploys automatically to vercel.
 To set up the web app to run locally:
 
 1.  navigate to the `apps/web` folder
+
     ```sh
     $ cd apps/web
     ```
 
-1. link your local repository to the `faucet` project on Vercel
+1.  link your local repository to the `faucet` project on Vercel
 
     ```sh
     $ yarn dlx vercel@latest link
     ```
 
-    You'll be asked to authenticate with your Vercel account. Once you've done that, you'll be 
+    You'll be asked to authenticate with your Vercel account. Once you've done that, you'll be
     guided through a series of prompts to link your local project to the `faucet` Vercel project.
 
     ```
@@ -35,7 +36,8 @@ To set up the web app to run locally:
     ? What’s the name of your existing project? faucet
     ✅  Linked to c-labs/faucet (created .vercel)
     ```
-1. fetch environment variables from Vercel
+
+1.  fetch environment variables from Vercel
 
     ```sh
     $ yarn dlx vercel@latest env pull
@@ -49,7 +51,7 @@ To set up the web app to run locally:
     ✅  Created .env.local file  [249ms]
     ```
 
-1. run the app locally
+1.  run the app locally
 
     ```sh
     $ yarn dev
@@ -57,12 +59,39 @@ To set up the web app to run locally:
 
     You should see a message like this:
 
-    ```sh               
+    ```sh
     ready - started server on 0.0.0.0:3000, url: http://localhost:3000
     info  - Loaded env from /Users/arthur/Documents/celo-org/faucet/apps/web/.env.local
     ```
 
     You can now view the app in your browser at http://localhost:3000.
+
+## Firebase app
+
+To set up the firebase app to run locally:
+
+1.  navigate to the `apps/firebase` folder
+    ```sh
+    $ cd apps/firebase
+    ```
+1.  login to firebase
+    ```sh
+    $ yarn dlx firebase-tools@latest login
+    ```
+    You'll be asked to authenticate with your Firebase account.
+1.  build the firebase app
+    ```sh
+    $ yarn run preserve
+    ```
+1.  ensure that you are on required node version specified in `engines.node` in
+    `firebase/package.json`. Currently this is Node 20 at the time of writing.
+    ```sh
+    $ nvm use <the-required-node-version>
+    ```
+1.  run the firebase app locally
+    ```sh
+    $ yarn run serve
+    ```
 
 ## Adding chains
 
