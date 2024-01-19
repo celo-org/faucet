@@ -2373,7 +2373,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*":
+"@types/react@npm:*, @types/react@npm:18.2.48":
   version: 18.2.48
   resolution: "@types/react@npm:18.2.48"
   dependencies:
@@ -2381,17 +2381,6 @@ __metadata:
     "@types/scheduler": "npm:*"
     csstype: "npm:^3.0.2"
   checksum: 7e89f18ea2928b1638f564b156d692894dcb9352a7e0a807873c97e858abe1f23dbd165a25dd088a991344e973fdeef88ba5724bfb64504b74072cbc9c220c3a
-  languageName: node
-  linkType: hard
-
-"@types/react@npm:18.2.3":
-  version: 18.2.3
-  resolution: "@types/react@npm:18.2.3"
-  dependencies:
-    "@types/prop-types": "npm:*"
-    "@types/scheduler": "npm:*"
-    csstype: "npm:^3.0.2"
-  checksum: 4868728ce77ee3575dc22e1a820be6dda85b5c4ffe7031ed0983dd4ad7e7afe0e733fff698cbc97fcbb60223e23747bac772376e1c0479ed3cab745e2bb915f0
   languageName: node
   linkType: hard
 
@@ -12395,7 +12384,7 @@ __metadata:
     "@firebase/app-types": "npm:^0.9.0"
     "@metamask/detect-provider": "npm:^2.0.0"
     "@types/node": "npm:20.11.5"
-    "@types/react": "npm:18.2.3"
+    "@types/react": "npm:18.2.48"
     "@types/react-dom": "npm:18.2.18"
     "@vercel/analytics": "npm:^1.0.0"
     eslint: "npm:8.54.0"
