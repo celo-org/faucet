@@ -1742,7 +1742,7 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-18.11.18.tgz#8dfb97f0da23c2293e554c5a50d61ef134d7697f"
   integrity sha512-DHQpWGjyQKSHj3ebjFI/wRKcqQcdR+MoFBygntYOZytCqNfkd2ZC4ARDJ2DQqhjH5p85Nnd3jhUJIXrszFX/JA==
 
-"@types/node@20.11.5":
+"@types/node@20.11.5", "@types/node@^20.0.0":
   version "20.11.5"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-20.11.5.tgz#be10c622ca7fcaa3cf226cf80166abc31389d86e"
   integrity sha512-g557vgQjUUfN76MZAN/dt1z3dzcUsimuysco0KeluHgrPdJXkP/XdAURgyO2W9fZWHRtRBiVKzKn8vyOAwlG+w==
@@ -1758,13 +1758,6 @@
   version "18.18.13"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-18.18.13.tgz#ae0f76c0bfe79d8fad0f910b78ae3e59b333c6e8"
   integrity sha512-vXYZGRrSCreZmq1rEjMRLXJhiy8MrIeVasx+PCVlP414N7CJLHnMf+juVvjdprHyH+XRy3zKZLHeNueOpJCn0g==
-  dependencies:
-    undici-types "~5.26.4"
-
-"@types/node@^20.0.0":
-  version "20.11.5"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.11.5.tgz#be10c622ca7fcaa3cf226cf80166abc31389d86e"
-  integrity sha512-g557vgQjUUfN76MZAN/dt1z3dzcUsimuysco0KeluHgrPdJXkP/XdAURgyO2W9fZWHRtRBiVKzKn8vyOAwlG+w==
   dependencies:
     undici-types "~5.26.4"
 
@@ -2032,9 +2025,9 @@
   integrity sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==
 
 "@vercel/analytics@^1.0.0":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@vercel/analytics/-/analytics-1.1.1.tgz#2a712378a95014a548b4f9d2ae1ea0721433908d"
-  integrity sha512-+NqgNmSabg3IFfxYhrWCfB/H+RCUOCR5ExRudNG2+pcRehq628DJB5e1u1xqwpLtn4pAYii4D98w7kofORAGQA==
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@vercel/analytics/-/analytics-1.1.2.tgz#7e3a863abca5cb276a8e7783dc8a32689cb769bb"
+  integrity sha512-CodhkLCQ/EHzjX8k+Qg+OzTBY0UadykrcfolfSOJVZZY/ZJM5nbhztm9KdbYvMfqKlasAr1+OYy0ThZnDA/MYA==
   dependencies:
     server-only "^0.0.1"
 
