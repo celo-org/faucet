@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "setup": "vercel env pull",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -22,11 +21,11 @@
     "react-use-async-callback": "^2.1.2"
   },
   "devDependencies": {
+    "@types/node": "20.11.5",
+    "@types/react": "18.2.48",
+    "@types/react-dom": "18.2.18",
     "eslint": "8.54.0",
     "eslint-config-next": "13.2.4",
-    "@types/node": "20.11.5",
-    "@types/react": "18.2.3",
-    "@types/react-dom": "18.2.18",
     "typescript": "5.0.3"
   },
   "engines": {
