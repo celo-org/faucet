@@ -15,8 +15,7 @@
     "lint": "eslint -c ../../.eslintrc.js --ext .ts ./src",
     "transfer-funds": "ts-node scripts/transfer-funds.ts",
     "cli": "ts-node scripts/cli.ts",
-    "build:rules": "firebase-bolt database-rules.bolt",
-    "keys:encrypt": "bash scripts/key_placer.sh encrypt"
+    "build:rules": "firebase-bolt database-rules.bolt"
   },
   "dependencies": {
     "@celo/connect": "^5.0.0",
