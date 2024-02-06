@@ -155,7 +155,7 @@ __metadata:
     "@celo/utils": "npm:^5.0.0"
     "@firebase/app": "npm:^0.9.6"
     "@google-cloud/logging": "npm:^11.0.0"
-    "@mento-protocol/mento-sdk": "npm:^0.1.4"
+    "@mento-protocol/mento-sdk": "npm:^0.2.0"
     "@types/debug": "npm:^4.1.7"
     "@types/node": "npm:^20.0.0"
     "@types/yargs": "npm:^17.0.24"
@@ -1618,21 +1618,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mento-protocol/mento-core-ts@npm:^0.1.1":
-  version: 0.1.1
-  resolution: "@mento-protocol/mento-core-ts@npm:0.1.1"
-  checksum: 9b87ab527ca011d89fdb10136df787f6decbfed32fd5a2cdb85bf7ad61a37bd7eb600a61c6dccec5dce997682d219fb199015d85aaa5b7a1f3f72384dfacaa9c
+"@mento-protocol/mento-core-ts@npm:^0.2.0":
+  version: 0.2.1
+  resolution: "@mento-protocol/mento-core-ts@npm:0.2.1"
+  checksum: e5dc1e4486ed71ed131fae5b96ea8f98242a37aa559396e9c2c72e09703076ddbd7aed9c4de46ded63734d55815994b49ee19533e13dfd7e65469bc27e1f603e
   languageName: node
   linkType: hard
 
-"@mento-protocol/mento-sdk@npm:^0.1.4":
-  version: 0.1.5
-  resolution: "@mento-protocol/mento-sdk@npm:0.1.5"
+"@mento-protocol/mento-sdk@npm:^0.2.0":
+  version: 0.2.2
+  resolution: "@mento-protocol/mento-sdk@npm:0.2.2"
   dependencies:
-    "@mento-protocol/mento-core-ts": "npm:^0.1.1"
+    "@mento-protocol/mento-core-ts": "npm:^0.2.0"
   peerDependencies:
     ethers: ^5.7
-  checksum: 739b11bff71f1e07ec9a4a454395f7189cce7a9db26b750cd946626d324020fceb864e29e4efdb2ef67b9855bc03cdbeb4639dcb09b9e64af630857ba9b33939
+  checksum: c9030e0951c1840388ffdbd450894fc01621c6cef85b89ac817d6a0be7ca72f198bdf563d88d62da2a4eefcaae778991669374faf58096ee3e47b8853a5d06e2
   languageName: node
   linkType: hard
 
