@@ -46,6 +46,14 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
           <div className={styles.center}>
             <RequestForm network={network} isOutOfCELO={isOutOfCELO} />
           </div>
+
+          <small className={`${styles.phaseDown} ${inter.className}`}>
+            Need <b>USDC</b>? Get tokens at{' '}
+            <u>
+              <Link href="https://faucet.circle.com/">faucet.circle.com</Link>
+            </u>
+          </small>
+
           <small className={`${styles.phaseDown} ${inter.className}`}>
             *Accounts with large balances will receive a phased down amount.
             Please consider returning any tokens you won&#39;t need.
