@@ -243,7 +243,7 @@ async function sendGold(
     await snap.ref.update({ goldTxHash: 'skipped' })
     return 'skipped'
   }
-  const goldTxHash = await sendCelo(celo, address, amount)
+  const goldTxHash = await sendCelo(celo, address, actualAmount.toFixed())
   console.info(`req(${snap.key}): CELO Transaction Sent. txhash:${goldTxHash}`)
   await snap.ref.update({ goldTxHash })
   return goldTxHash
