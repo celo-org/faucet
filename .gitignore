@@ -50,6 +50,18 @@ dist/
 npm-debug.log
 yarn-error.log
 
+# Yarn
+# Copied from the official Yarn 4.x documentation.
+# Source: https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+
 # BUCK
 buck-out/
 \.buckd/
