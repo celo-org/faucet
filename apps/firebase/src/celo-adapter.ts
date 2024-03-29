@@ -288,19 +288,19 @@ export class CeloAdapter {
       return nextAmount
     } else if (
       recipientBalance.isGreaterThan(
-        HUNDRED_IN_WIE.multipliedBy(75).dividedBy(100),
+        HUNDRED_IN_WEI.multipliedBy(75).dividedBy(100),
       )
     ) {
       return new BigNumber(0)
     } else if (
       recipientBalance.isGreaterThan(
-        HUNDRED_IN_WIE.multipliedBy(50).dividedBy(100),
+        HUNDRED_IN_WEI.multipliedBy(50).dividedBy(100),
       )
     ) {
       return nextAmount.dividedBy(4)
     } else if (
       recipientBalance.isGreaterThan(
-        HUNDRED_IN_WIE.multipliedBy(25).dividedBy(100),
+        HUNDRED_IN_WEI.multipliedBy(25).dividedBy(100),
       )
     ) {
       return nextAmount.dividedBy(2)
@@ -310,4 +310,4 @@ export class CeloAdapter {
   }
 }
 
-const HUNDRED_IN_WIE = new BigNumber('100000000000000000000')
+const HUNDRED_IN_WEI = new BigNumber('100000000000000000000')
