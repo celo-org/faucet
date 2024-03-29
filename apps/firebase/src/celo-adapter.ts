@@ -284,23 +284,26 @@ export class CeloAdapter {
   ) {
     const nextAmount = new BigNumber(amount)
 
+    // TODO(Arthur):
+    // Replace `HUNDRED_IN_WEI` with Web3.utils.toWei('20')
+    // Use a sliding scale instead of if-else statements
     if (useGivenAmount) {
       return nextAmount
     } else if (
       recipientBalance.isGreaterThan(
-        HUNDRED_IN_WEI.multipliedBy(75).dividedBy(100),
+        HUNDRED_IN_WEI.multipliedBy(20).dividedBy(100),
       )
     ) {
       return new BigNumber(0)
     } else if (
       recipientBalance.isGreaterThan(
-        HUNDRED_IN_WEI.multipliedBy(50).dividedBy(100),
+        HUNDRED_IN_WEI.multipliedBy(10).dividedBy(100),
       )
     ) {
       return nextAmount.dividedBy(4)
     } else if (
       recipientBalance.isGreaterThan(
-        HUNDRED_IN_WEI.multipliedBy(25).dividedBy(100),
+        HUNDRED_IN_WEI.multipliedBy(5).dividedBy(100),
       )
     ) {
       return nextAmount.dividedBy(2)
