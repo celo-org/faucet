@@ -102,3 +102,4 @@ firebase-debug.log
 database-rules.json
 
 .vercel
+.env*.local

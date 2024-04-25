@@ -25,6 +25,8 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
   const inputRef = useRef<HTMLInputElement>(null)
   const { data: session } = useSession()
 
+  const stablesDeployed = network !== 'cel2'
+
   const { executeRecaptcha } = useGoogleReCaptcha()
   const [skipStables, setSkipStables] = useState(true)
 
@@ -145,6 +147,7 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
             value={'skip-stables'}
             type={'checkbox'}
             defaultChecked={skipStables}
+            disabled={!stablesDeployed}
           />
           <small className={inter.className}> CELO Only</small>
         </label>

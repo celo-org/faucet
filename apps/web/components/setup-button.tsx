@@ -161,4 +161,12 @@ const CHAIN_PARAMS = {
     blockExplorerUrls: ['https://explorer.celo.org/cannoli'],
     iconUrls: ['future'],
   },
+  cel2: {
+    chainId: '0x15363ac', // 22242220
+    chainName: 'Cel2 Testnet',
+    nativeCurrency: { name: 'Cel2 Celo', symbol: 'C2-CELO', decimals: 18 },
+    rpcUrls: ['http://cel2.celo-networks-dev.org:9545'],
+    blockExplorerUrls: ['https://blockscout.cel2.celo-networks-dev.org'],
+    iconUrls: ['future'],
+  },
 }
