@@ -171,20 +171,17 @@ function buildHandleFaucet(
     )
     const celo = new CeloAdapter({ nodeUrl, pk: account.pk })
     await celo.init()
-    const ops: Array<Promise<unknown>> = []
 
     if (
       request.tokens === 'Celo' ||
       request.tokens === 'All' ||
       request.tokens === undefined
     ) {
-      ops.push(
-        retryAsync(
-          sendGold,
-          3,
-          [celo, request.beneficiary, goldAmount, snap],
-          500,
-        ),
+      await retryAsync(
+        sendGold,
+        3,
+        [celo, request.beneficiary, goldAmount, snap],
+        500,
       )
     }
 
@@ -193,12 +190,14 @@ function buildHandleFaucet(
       request.tokens === 'All' ||
       request.tokens === undefined
     ) {
-      ops.push(
-        sendStableTokens(celo, request.beneficiary, stableAmount, false, snap),
+      await sendStableTokens(
+        celo,
+        request.beneficiary,
+        stableAmount,
+        false,
+        snap,
       )
     }
-
-    await Promise.all(ops)
   }
 }
 
@@ -277,20 +276,18 @@ async function sendStableTokens(
     return txHash
   }
 
-  return Promise.all(
-    Object.entries(tokenTxs).map(async ([symbol, tx]) => {
-      try {
-        if (tx) {
-          await retryAsync(sendTxHelper, 3, [symbol, tx!], 500)
-        }
-      } catch (e) {
-        // Log that one transfer failed. if error is not caught it looks like all failed
-        console.log(
-          `req(${snap.key}): tx=>${tx} ${symbol} Transaction Failed. ${e}`,
-        )
+  for (const [symbol, tx] of Object.entries(tokenTxs)) {
+    try {
+      if (tx) {
+        await retryAsync(sendTxHelper, 3, [symbol, tx!], 500)
       }
-    }),
-  )
+    } catch (e) {
+      // Log that one transfer failed. if error is not caught it looks like all failed
+      console.log(
+        `req(${snap.key}): tx=>${tx} ${symbol} Transaction Failed. ${e}`,
+      )
+    }
+  }
 }
 
 function withTimeout<A>(
@@ -352,7 +349,14 @@ export class AccountPool {
   }
 
   get accountsRef() {
-    return this.db.ref(`/${this.network}/accounts`)
+    let network = this.network
+
+    // TODO temp as they share accounts
+    if (network === 'dango') {
+      network = 'alfajores'
+    }
+
+    return this.db.ref(`/${network}/accounts`)
   }
 
   removeAll() {
