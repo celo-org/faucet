@@ -27,7 +27,7 @@ export const CHAIN_PARAMS: Record<Network, ChainParams> = {
     chainName: 'Dango Testnet',
     nativeCurrency: { name: 'Dango Celo', symbol: 'D-CELO', decimals: 18 },
     rpcUrls: ['https://forno.dango.celo-testnet.org'],
-    blockExplorerUrls: ['https://celo-dango.blockscout.com/'],
+    blockExplorerUrls: ['https://celo-dango.blockscout.com'],
     iconUrls: ['future'],
   },
 }
