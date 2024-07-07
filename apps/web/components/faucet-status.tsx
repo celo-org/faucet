@@ -1,5 +1,5 @@
-import { FC, useCallback, useEffect, useState } from 'react'
 import { inter } from 'components/request-form'
+import { FC, useCallback, useEffect, useState } from 'react'
 import styles from 'styles/Form.module.css'
 import { Network, RequestRecord, RequestStatus } from 'types'
 import { subscribeRequest } from 'utils/firebase-client'
@@ -95,7 +95,7 @@ const TxMessage = ({
       className={inter.className}
       target="_blank"
       rel="noreferrer"
-      href={`https://explorer.celo.org/${network}/tx/${txHash}`}
+      href={network == 'dango' ? `https://celo-dango.blockscout.com/tx/${txHash}` : `https://explorer.celo.org/${network}/tx/${txHash}`}
     >
       View on Celo Explorer
     </a>
