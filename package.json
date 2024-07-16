@@ -18,8 +18,8 @@
   },
   "devDependencies": {
     "eslint": "^8.37.0",
-    "husky": "^8.0.0",
-    "prettier": "^3.0.0"
+    "husky": "^8.0.3",
+    "prettier": "^3.3.2"
   },
   "resolutions": {
     "vm2": "^3.9.17"
