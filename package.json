@@ -12,14 +12,15 @@
   ],
   "scripts": {
     "dev": "yarn --cwd apps/web dev",
+    "build": "yarn workspaces foreach --all --parallel run build",
     "lint": "yarn --cwd apps/web lint --fix && yarn --cwd apps/firebase lint --fix",
     "postinstall": "husky install",
     "prettify": "yarn prettier --write \"apps/**/*.{ts,tsx}\" --ignore-path=./.gitignore"
   },
   "devDependencies": {
     "eslint": "^8.37.0",
-    "husky": "^8.0.0",
-    "prettier": "^3.0.0"
+    "husky": "^8.0.3",
+    "prettier": "^3.3.2"
   },
   "resolutions": {
     "vm2": "^3.9.17"

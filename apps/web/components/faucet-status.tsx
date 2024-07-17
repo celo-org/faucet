@@ -61,7 +61,7 @@ export const FaucetStatus: FC<StatusProps> = ({
         Status:{' '}
         {errors?.length || failureStatus?.length
           ? 'Error'
-          : faucetRecord?.status ?? 'Initializing'}
+          : (faucetRecord?.status ?? 'Initializing')}
       </h3>
       <TxMessage txHash={faucetRecord?.goldTxHash} network={network} />
       {failureStatus ? (
