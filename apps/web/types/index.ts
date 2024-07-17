@@ -1,15 +1,17 @@
 export type Address = string
 export type E164Number = string
 
-export const networks = ['alfajores']
-export type Network = 'alfajores'
+export const networks = ['alfajores', 'dango']
+export type Network = 'alfajores' | 'dango'
 
 export enum FaucetAddress {
   alfajores = '0x22579CA45eE22E2E16dDF72D955D6cf4c767B0eF',
+  dango = '0x22579CA45eE22E2E16dDF72D955D6cf4c767B0eF',
 }
 
 export enum ChainId {
   alfajores = 44787,
+  dango = 44787,
 }
 
 export enum RequestStatus {

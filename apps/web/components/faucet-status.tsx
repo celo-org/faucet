@@ -61,7 +61,7 @@ export const FaucetStatus: FC<StatusProps> = ({
         Status:{' '}
         {errors?.length || failureStatus?.length
           ? 'Error'
-          : faucetRecord?.status ?? 'Initializing'}
+          : (faucetRecord?.status ?? 'Initializing')}
       </h3>
       <TxMessage txHash={faucetRecord?.goldTxHash} network={network} />
       {failureStatus ? (
@@ -95,7 +95,11 @@ const TxMessage = ({
       className={inter.className}
       target="_blank"
       rel="noreferrer"
-      href={`https://explorer.celo.org/${network}/tx/${txHash}`}
+      href={
+        network === 'dango'
+          ? `https://celo-dango.blockscout.com/tx/${txHash}`
+          : `https://explorer.celo.org/${network}/tx/${txHash}`
+      }
     >
       View on Celo Explorer
     </a>
