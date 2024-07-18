@@ -26,7 +26,7 @@
     "@mento-protocol/mento-sdk": "^0.1.5",
     "bignumber.js": "^9.1.2",
     "debug": "^4.3.5",
-    "ethers": "^6.13.1",
+    "ethers": "^5.7.2",
     "firebase": "^10.12.3",
     "firebase-admin": "^12.2.0",
     "firebase-functions": "^4.9.0",
