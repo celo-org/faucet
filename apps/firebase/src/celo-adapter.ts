@@ -8,7 +8,7 @@ import { providers, Signer, Wallet } from 'ethers'
 import Web3 from 'web3'
 
 export class CeloAdapter {
-  public readonly defaultAddress: string
+  public readonly defaultAddress: `0x${string}`
   public readonly kit: ContractKit
   private readonly etherProvider: providers.JsonRpcProvider
   private readonly signer: Signer
@@ -61,7 +61,7 @@ export class CeloAdapter {
    *
    */
   async convertExtraStablesToCelo(amount: string) {
-    const mento = this.mento
+    const mento = this.mento!
     if (!mento && this.useMento) {
       throw new Error('Must call init() first')
     }
@@ -79,49 +79,28 @@ export class CeloAdapter {
         }
         console.log('converting', info.symbol)
 
-        if (mento) {
-          const allowanceTxObj = await mento.increaseTradingAllowance(
-            stableToken.address,
-            amount,
-          )
+        const allowanceTxObj = await mento.increaseTradingAllowance(
+          stableToken.address,
+          amount,
+        )
 
-          const allowanceTx = await this.signer.sendTransaction(allowanceTxObj)
-          await allowanceTx.wait()
+        const allowanceTx = await this.signer.sendTransaction(allowanceTxObj)
+        await allowanceTx.wait()
 
-          const quoteAmountOut = await mento.getAmountOut(
-            stableToken.address,
-            celoContractAddress,
-            amount,
-          )
-          const expectedAmountOut = quoteAmountOut.mul(99).div(100) // allow 1% slippage from quote
-          const swapTxObj = await mento.swapIn(
-            stableToken.address,
-            celoContractAddress,
-            amount,
-            expectedAmountOut,
-          )
-          const swapTx = await this.signer.sendTransaction(swapTxObj)
-          return swapTx.wait()
-        } else {
-          // Remove block once Broker contract issues are sorted out
-          console.info('Using exchange contract for extra stables conversion')
-          const exchangeContract = await this.kit.contracts.getContract(
-            info.exchangeContract,
-          )
-
-          const [quote] = await Promise.all([
-            exchangeContract.quoteStableSell(amount),
-            stableToken
-              .increaseAllowance(exchangeContract.address, amount)
-              .sendAndWaitForReceipt(),
-          ])
-
-          const tx = exchangeContract.sellStable(
-            amount,
-            quote.multipliedBy(0.99).integerValue(BigNumber.ROUND_UP),
-          )
-          return tx.sendAndWaitForReceipt()
-        }
+        const quoteAmountOut = await mento.getAmountOut(
+          stableToken.address,
+          celoContractAddress,
+          amount,
+        )
+        const expectedAmountOut = quoteAmountOut.mul(99).div(100) // allow 1% slippage from quote
+        const swapTxObj = await mento.swapIn(
+          stableToken.address,
+          celoContractAddress,
+          amount,
+          expectedAmountOut,
+        )
+        const swapTx = await this.signer.sendTransaction(swapTxObj)
+        return swapTx.wait()
       } catch (e) {
         console.info('caught', info.symbol, e)
       }
