@@ -38,8 +38,8 @@ export async function subscribeRequest(
     }
 
     if (
-      record.status === RequestStatus.Done ||
-      record.status === RequestStatus.Failed
+      record?.status === RequestStatus.Done ||
+      record?.status === RequestStatus.Failed
     ) {
       ref.off('value', listener)
     }
