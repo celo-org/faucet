@@ -35,6 +35,8 @@ export async function subscribeRequest(
 
     if (record) {
       onChange(record)
+    } else {
+      console.debug(snap.key, 'exists?', snap.exists())
     }
 
     if (
