@@ -4,11 +4,11 @@ import 'firebase/compat/database'
 import {
   Address,
   AuthLevel,
+  Network,
   RequestedTokenSet,
   RequestRecord,
   RequestStatus,
   RequestType,
-  Network,
 } from 'types'
 import { config } from './firebase-config'
 
@@ -26,6 +26,7 @@ async function getFirebase() {
       throw new Error('Login username or password is empty')
     }
     try {
+      debugger
       // Source: https://firebase.google.com/docs/auth
       await firebase
         .auth()

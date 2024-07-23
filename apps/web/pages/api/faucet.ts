@@ -2,14 +2,8 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from './auth/[...nextauth]'
 import { captchaVerify } from 'utils/captcha-verify'
-import {
-  FaucetAPIResponse,
-  RequestStatus,
-  AuthLevel,
-  Network,
-  networks,
-} from 'types'
-import { sendRequest } from 'utils/firebase-serverside'
+import { FaucetAPIResponse, RequestStatus, AuthLevel, networks } from 'types'
+import { sendRequest } from 'utils/firebase.serverside'
 
 export default async function handler(
   req: NextApiRequest,
