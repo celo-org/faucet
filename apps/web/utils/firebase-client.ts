@@ -35,11 +35,13 @@ export async function subscribeRequest(
 
     if (record) {
       onChange(record)
+    } else {
+      console.debug(snap.key, 'exists?', snap.exists())
     }
 
     if (
-      record.status === RequestStatus.Done ||
-      record.status === RequestStatus.Failed
+      record?.status === RequestStatus.Done ||
+      record?.status === RequestStatus.Failed
     ) {
       ref.off('value', listener)
     }
