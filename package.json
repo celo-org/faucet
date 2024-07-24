@@ -18,15 +18,12 @@
     "prettify": "yarn prettier --write \"apps/**/*.{ts,tsx}\" --ignore-path=./.gitignore"
   },
   "devDependencies": {
-    "eslint": "^8.37.0",
-    "husky": "^8.0.3",
+    "eslint": "^8.57.0",
+    "husky": "9.0.11",
     "prettier": "^3.3.3"
-  },
-  "resolutions": {
-    "vm2": "^3.9.17"
   },
   "engines": {
     "node": "20"
   },
-  "packageManager": "yarn@4.0.2"
+  "packageManager": "yarn@4.3.1"
 }
