@@ -6,7 +6,6 @@ import { RequestForm } from 'components/request-form'
 import { SetupButton } from 'components/setup-button'
 import styles from 'styles/Home.module.css'
 import { Network, networks } from 'types'
-import { isBalanceBelowPar } from 'utils/balance'
 import { inter } from 'utils/inter'
 
 interface Props {
@@ -128,8 +127,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
     }
   }
 
-  const isOutOfCELO = await isBalanceBelowPar(network as Network)
+  // const isOutOfCELO = await isBalanceBelowPar(network as Network)
   return {
-    props: { isOutOfCELO, network: network as Network },
+    props: { isOutOfCELO: false, network: network as Network },
   }
 }
