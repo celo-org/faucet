@@ -1,9 +1,9 @@
-import { Network, FaucetAddress } from 'types'
+import { FaucetAddress, Network } from 'types'
 const MINIMUM_BALANCE = BigInt('5100000000000000000') // IN WEI
 
 function getApiPath(network: Network) {
   const faucetAddress = FaucetAddress[network]
-  const root = `https://explorer.celo.org/${network}/api`
+  const root = `https://celo-${network}.blockscout.com/api`
   const apiPath = `${root}?module=account&action=balance&address=${faucetAddress}`
   return apiPath
 }
