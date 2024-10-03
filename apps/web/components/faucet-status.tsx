@@ -95,11 +95,7 @@ const TxMessage = ({
       className={inter.className}
       target="_blank"
       rel="noreferrer"
-      href={
-        network === 'dango'
-          ? `https://celo-dango.blockscout.com/tx/${txHash}`
-          : `https://explorer.celo.org/${network}/tx/${txHash}`
-      }
+      href={`https://celo-${network}.blockscout.com/tx/${txHash}`}
     >
       View on Celo Explorer
     </a>
