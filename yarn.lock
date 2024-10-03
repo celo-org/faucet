@@ -148,7 +148,7 @@ __metadata:
     firebase: "npm:^10.7.0"
     firebase-admin: "npm:^12.0.0"
     firebase-bolt: "npm:^0.8.4"
-    firebase-functions: "npm:^4.6.0"
+    firebase-functions: "npm:^6.0.1"
     firebase-tools: "npm:^13.0.2"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^5.5.3"
@@ -6266,9 +6266,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"firebase-functions@npm:^4.6.0":
-  version: 4.9.0
-  resolution: "firebase-functions@npm:4.9.0"
+"firebase-functions@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "firebase-functions@npm:6.0.1"
   dependencies:
     "@types/cors": "npm:^2.8.5"
     "@types/express": "npm:4.17.3"
@@ -6276,10 +6276,10 @@ __metadata:
     express: "npm:^4.17.1"
     protobufjs: "npm:^7.2.2"
   peerDependencies:
-    firebase-admin: ^10.0.0 || ^11.0.0 || ^12.0.0
+    firebase-admin: ^11.10.0 || ^12.0.0
   bin:
     firebase-functions: lib/bin/firebase-functions.js
-  checksum: 10c0/c430f5b2eaacdc5e5795eaa957b64ff1fa42eb0cb3a176090902c60f87a0568dca95d5e68f9aa21fad69ad3afa1a9ca3fb8a955cc2d3dbe73f8f0384964fe3a3
+  checksum: 10c0/afe8c190c0e49094ec15d86fe5e2e10e68cc26f95f7845b94c20af4976d49f530f07a90a79e8f5d1c199df6c0e78bda16acab49d9aca6254ffccf097a3403029
   languageName: node
   linkType: hard
 
