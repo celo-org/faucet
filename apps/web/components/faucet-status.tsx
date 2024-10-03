@@ -1,5 +1,5 @@
-import { inter } from 'components/request-form'
 import { FC, useCallback, useEffect, useState } from 'react'
+import { inter } from 'components/request-form'
 import styles from 'styles/Form.module.css'
 import { Network, RequestRecord, RequestStatus } from 'types'
 import { subscribeRequest } from 'utils/firebase.client'
