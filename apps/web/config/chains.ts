@@ -19,7 +19,7 @@ export const CHAIN_PARAMS: Record<Network, ChainParams> = {
     chainName: 'Alfajores Testnet',
     nativeCurrency: { name: 'Alfajores Celo', symbol: 'A-CELO', decimals: 18 },
     rpcUrls: ['https://alfajores-forno.celo-testnet.org'],
-    blockExplorerUrls: ['https://explorer.celo.org/alfajores'],
+    blockExplorerUrls: ['https://celo-alfajores.blockscout.com/'],
     iconUrls: ['future'],
   },
 }
