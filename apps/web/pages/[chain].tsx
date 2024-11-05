@@ -58,6 +58,14 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
             *Accounts with large balances will receive a phased down amount.
             Please consider returning any tokens you won&#39;t need.
           </small>
+          <small className={`${styles.phaseDown} ${inter.className}`}>
+            Swap CELO for cUSD, cEUR, or cREAL on{' '}
+            <u>
+              <Link href="https://app.mento.org/">mento</Link>
+            </u>{' '}
+            . For other tokens like USDT or USDC, swap CELO to cUSD first, then
+            exchange to your desired token.
+          </small>
         </div>
         <footer className={styles.grid}>
           <SetupButton network={network} />
