@@ -19,7 +19,8 @@ export default async function handler(
     console.error('Authentication check failed', e)
   }
 
-  const { captchaToken, beneficiary, skipStables, network } = req.body
+  const { captchaToken, beneficiary, network } = req.body
+  const skipStables = true
 
   if (!networks.includes(network)) {
     res.status(400).json({
