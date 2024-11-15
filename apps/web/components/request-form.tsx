@@ -28,10 +28,6 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
   const { executeRecaptcha } = useGoogleReCaptcha()
   const [skipStables, setSkipStables] = useState(true)
 
-  const toggleStables = useCallback(() => {
-    setSkipStables(!skipStables)
-  }, [skipStables])
-
   const [faucetRequestKey, setKey] = useState<string | null>(null)
   const [failureStatus, setFailureStatus] = useState<string | null>(null)
 
@@ -137,18 +133,9 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
           className={styles.button}
           type="submit"
         >
-          {'Faucet'}
+          {'Claim CELO'}
         </button>
-        <label>
-          <input
-            onChange={toggleStables}
-            name="token-request"
-            value={'skip-stables'}
-            type={'checkbox'}
-            defaultChecked={skipStables}
-          />
-          <small className={inter.className}> CELO Only</small>
-        </label>
+
         {/* @ts-ignore */}
         <FaucetStatus
           network={network}
