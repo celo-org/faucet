@@ -47,5 +47,6 @@ jobs:
           node-version: 20.x
       - name: Validate Renovate Config
         run: |
+          echo "test"
           npm install --global renovate
           renovate-config-validator
