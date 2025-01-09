@@ -35,8 +35,8 @@
   },
   "devDependencies": {
     "@types/debug": "^4.1.12",
-    "@types/node": "^20.14.11",
-    "@types/yargs": "^17.0.32",
+    "@types/node": "^20.17.11",
+    "@types/yargs": "^17.0.33",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/eslint-plugin-tslint": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
@@ -49,7 +49,7 @@
     "eslint-plugin-unicorn": "^46.0.1",
     "firebase-bolt": "^0.8.4",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.3",
+    "typescript": "^5.7.2",
     "yargs": "17.7.2"
   },
   "engines": {
