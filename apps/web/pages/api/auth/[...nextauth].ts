@@ -39,6 +39,9 @@ export const authOptions: AuthOptions = {
       return session
     },
   },
+  session: {
+    maxAge: 10 * 60, // 10 minutes in seconds
+  }
 }
 
 export default NextAuth(authOptions)
