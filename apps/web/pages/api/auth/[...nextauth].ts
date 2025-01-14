@@ -40,7 +40,10 @@ export const authOptions: AuthOptions = {
     },
   },
   session: {
-    maxAge: 10 * 60, // 10 minutes in seconds
+    maxAge: 2 * 60, // 2 minutes in seconds
+  },
+  jwt: {
+    maxAge: 60 // seconds
   }
 }
 
