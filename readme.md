@@ -10,7 +10,7 @@ The web app deploys automatically to vercel.
 
 ## Setup
 
-### Wep app
+### Web app
 
 To set up the web app to run locally:
 
