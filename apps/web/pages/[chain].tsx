@@ -53,6 +53,13 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
               <Link href="https://faucet.circle.com/">faucet.circle.com</Link>
             </u>
           </small>
+          {/* Need Mento Stable like cUSD call-to-action */}
+          <small className={`${styles.phaseDown} ${inter.className}`}>
+            Need Mento Stables like <b>cUSD</b>? Get tokens at{' '}
+            <u>
+              <Link href="http://app.mento.org/">app.mento.org</Link>
+            </u>
+          </small>
 
           <small className={`${styles.phaseDown} ${inter.className}`}>
             *Accounts with large balances will receive a phased down amount.
