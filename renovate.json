@@ -11,17 +11,17 @@
       "groupName": "devDependencies (non-major)"
     },
     {
-      "matchPackagePatterns": ["@celo"],
-      "groupName": "celo"
+      "groupName": "celo",
+      "matchPackageNames": ["/@celo/"]
     },
     {
-      "matchPackagePatterns": ["firebase"],
-      "groupName": "firebase"
+      "groupName": "firebase",
+      "matchPackageNames": ["/firebase/"]
     },
     {
-      "matchPackagePatterns": ["eslint"],
       "groupName": "eslint",
-      "enabled": false
+      "enabled": false,
+      "matchPackageNames": ["/eslint/"]
     }
   ],
   "ignoreDeps": ["web3", "ethers"],
