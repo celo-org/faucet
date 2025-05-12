@@ -133,7 +133,7 @@ Go to [https://dev.celo.org/developers/faucet](https://dev.celo.org/developers/f
 
 Feel free to jump on the Celo 🚂🚋🚋🚋. Improvements and contributions are highly encouraged! 🙏👊
 
-See the [contributing guide](https://docs.celo.org/community/contributing) for details on how to participate.
+See the [contributing guide](https://docs.celo.org/what-is-celo/joining-celo/contributors/overview) for details on how to participate.
 [![GitHub issues by-label](https://img.shields.io/github/issues/celo-org/celo-monorepo/1%20hour%20tasks)](https://github.com/celo-org/celo-monorepo/issues?q=is%3Aopen+is%3Aissue+label%3A%221+hour+tasks%22)
 
 All communication and contributions to the Celo project are subject to the [Celo Code of Conduct](https://celo.org/code-of-conduct).
