@@ -57,7 +57,7 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
           <small className={`${styles.phaseDown} ${inter.className}`}>
             Need Mento Stables like <b>cUSD</b>? Get tokens at{' '}
             <u>
-              <Link href="http://app.mento.org/">app.mento.org</Link>
+              <Link href="https://app.mento.org/">app.mento.org</Link>
             </u>
           </small>
 
