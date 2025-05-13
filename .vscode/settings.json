@@ -25,19 +25,19 @@
   "[javascriptreact]": {
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-      "source.organizeImports": "explicit"
+      "source.organizeImports": true
     }
   },
   "[typescript]": {
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-      "source.organizeImports": "explicit"
+      "source.organizeImports": true
     }
   },
   "[typescriptreact]": {
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-      "source.organizeImports": "explicit"
+      "source.organizeImports": true
     }
   },
   "javascript.format.enable": false,
@@ -47,5 +47,5 @@
     "editor.codeActionsOnSave": {
       "source.organizeImports": "explicit"
     }
-  }
+  },
 }
