@@ -1,39 +1,17 @@
-import React, { FC } from 'react'
-import { Network } from 'types'
-import styles from 'styles/FaucetHeader.module.css'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { FC } from 'react'
 import { Logo } from 'components/logo'
-import { GitHubAuth } from 'components/github-auth'
+import styles from 'styles/FaucetHeader.module.css'
 
-interface Props {
-  network: Network
-  isOutOfCELO: boolean
-}
-
-export const FaucetHeader: FC<Props> = ({ network, isOutOfCELO }) => (
+export const FaucetHeader: FC = ({}) => (
   <div className={styles.top}>
-    {isOutOfCELO && (
-      <header className={styles.notice}>
-        <span>The Faucet is out of CELO for now.</span>
-        {network === 'alfajores' && (
-          <>
-            {' '}
-            It will be topped up{' '}
-            <a
-              target="_blank"
-              rel="noreferrer"
-              href="https://explorer.celo.org/alfajores/epochs"
-            >
-              within an hour
-            </a>
-          </>
-        )}
-      </header>
-    )}
     <div className={styles.topBar}>
       <div className={styles.logo}>
         <Logo />
       </div>
-      <GitHubAuth />
+      <div className={styles.connectButton}>
+        <ConnectButton />
+      </div>
     </div>
   </div>
 )

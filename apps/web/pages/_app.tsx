@@ -1,8 +1,25 @@
+import {
+  getDefaultConfig,
+  midnightTheme,
+  RainbowKitProvider,
+} from '@rainbow-me/rainbowkit'
+import '@rainbow-me/rainbowkit/styles.css'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { AppProps } from 'next/app'
-import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
-import 'styles/globals.css'
+import { WagmiProvider } from 'wagmi'
+import { celoAlfajores } from 'wagmi/chains'
+
 import { Analytics } from '@vercel/analytics/react'
-import { SessionProvider } from 'next-auth/react'
+import 'styles/globals.css'
+
+const config = getDefaultConfig({
+  appName: 'Celo Faucet',
+  projectId: 'YOUR_PROJECT_ID',
+  chains: [celoAlfajores],
+  ssr: true, // If your dApp uses server side rendering (SSR)
+})
+
+const queryClient = new QueryClient()
 
 export default function App({
   Component,
@@ -10,13 +27,17 @@ export default function App({
 }: AppProps) {
   return (
     <>
-      <GoogleReCaptchaProvider
-        reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_KEY as string}
-      >
-        <SessionProvider session={session}>
-          <Component {...pageProps} />
-        </SessionProvider>
-      </GoogleReCaptchaProvider>
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <RainbowKitProvider
+            theme={midnightTheme({
+              accentColor: '#1E002B',
+            })}
+          >
+            <Component {...pageProps} />
+          </RainbowKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
       <Analytics />
     </>
   )

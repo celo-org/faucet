@@ -25,6 +25,10 @@
   border-bottom: 2px solid #fcff52;
 }
 
+.connectButton {
+  margin: 18px;
+}
+
 @media (prefers-color-scheme: dark) {
   .top {
     background-color: var(--fig);

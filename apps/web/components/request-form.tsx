@@ -1,37 +1,43 @@
-import { useSession } from 'next-auth/react'
-import dynamic from 'next/dynamic'
 import { Inter } from 'next/font/google'
-import Link from 'next/link'
 import { FC, FormEvent, useCallback, useRef, useState } from 'react'
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useAsyncCallback } from 'react-use-async-callback'
+import { Hex, isAddress } from 'viem'
+import { celoAlfajores } from 'viem/chains'
+import {
+  useAccount,
+  useChainId,
+  usePublicClient,
+  useSignTypedData,
+  useWaitForTransactionReceipt,
+  useWatchBlocks,
+} from 'wagmi'
+import {
+  EIP712Domain,
+  FaucetRequest,
+  FaucetRequest712Type,
+} from 'utils/simple-faucet'
 import styles from 'styles/Form.module.css'
-import { FaucetAPIResponse, Network } from 'types'
-import { saveAddress } from 'utils/history'
-import { useLastAddress } from 'utils/useLastAddress'
+import type { FaucetResponce } from 'pages/api/request2'
 
-const FaucetStatus = dynamic(async () => {
-  const imported = await import('components/faucet-status')
-  return imported.FaucetStatus
-}, {})
 export const inter = Inter({ subsets: ['latin'] })
 
-interface Props {
-  isOutOfCELO: boolean
-  network: Network
-}
-
-export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
+export const RequestForm: FC = () => {
   const inputRef = useRef<HTMLInputElement>(null)
-  const { data: session } = useSession()
 
-  const { executeRecaptcha } = useGoogleReCaptcha()
-  const [skipStables, setSkipStables] = useState(true)
+  const { signTypedDataAsync } = useSignTypedData()
+  const chainId = useChainId()
+  const account = useAccount()
+  const client = usePublicClient()
+  const [latestKnownBlockHash, setBlockHash] = useState<Hex>('0x')
+  const [txHash, setTXhash] = useState<Hex | undefined>()
 
-  const [faucetRequestKey, setKey] = useState<string | null>(null)
-  const [failureStatus, setFailureStatus] = useState<string | null>(null)
+  const receipt = useWaitForTransactionReceipt({ hash: txHash })
 
-  const disableCELOWhenOut = isOutOfCELO
+  useWatchBlocks({
+    onBlock: (block) => {
+      setBlockHash(block.hash)
+    },
+  })
 
   const [onSubmit, { isExecuting, errors }] = useAsyncCallback(
     async (event: FormEvent<HTMLFormElement>) => {
@@ -39,38 +45,60 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
 
       const beneficiary = inputRef.current?.value
       console.info('begin faucet sequence')
-      if (!beneficiary?.length || !executeRecaptcha) {
+      if (
+        !beneficiary?.length ||
+        !isAddress(beneficiary) ||
+        !account.address ||
+        !client
+      ) {
         console.info('aborting')
         return
       }
-      // save to local storage
-      saveAddress(beneficiary)
 
-      const captchaToken = await executeRecaptcha('faucet')
-      console.info('received captcha token...posting faucet request')
-      const response = await fetch('api/faucet', {
+      const message: FaucetRequest['message'] = {
+        beneficiary,
+        verification: 'none', // TODO: make this dynamic
+        blockHash: latestKnownBlockHash,
+      }
+
+      const signature = await signTypedDataAsync({
+        domain: EIP712Domain(chainId as typeof celoAlfajores.id),
+        types: FaucetRequest712Type.types,
+        primaryType: FaucetRequest712Type.primaryType,
+        message,
+      })
+
+      const request: FaucetRequest = {
+        signer: account.address,
+        signature,
+        domain: EIP712Domain(chainId as typeof celoAlfajores.id),
+        message,
+      }
+
+      const response = await fetch('api/request2', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          beneficiary,
-          captchaToken,
-          skipStables,
-          network,
-        }),
+        body: JSON.stringify(request),
       })
       // TODO get key from result and set
-      const result = (await response.json()) as FaucetAPIResponse
-      console.info('faucet request sent...received')
-      if (result.status === 'Failed') {
-        console.warn(result.message)
-        setFailureStatus(result.message)
+      const result = (await response.json()) as FaucetResponce
+      // TODO show the tx hash and wait for it in the UI
+      if (result.ok) {
+        setTXhash(result.hash)
       } else {
-        setKey(result.key)
+        throw new Error(result.message)
       }
     },
-    [inputRef, executeRecaptcha, skipStables],
+    [
+      inputRef,
+      client,
+      latestKnownBlockHash,
+      signTypedDataAsync,
+      chainId,
+      account.address,
+    ],
   )
 
   const onInvalid = useCallback((event: FormEvent<HTMLInputElement>) => {
@@ -83,42 +111,41 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
     }
   }, [])
 
-  const reset = useCallback(() => {
-    setFailureStatus(null)
-    setKey(null)
-  }, [])
-
-  const previousAddress = useLastAddress()
   const buttonDisabled =
-    !executeRecaptcha || !!faucetRequestKey || disableCELOWhenOut
+    latestKnownBlockHash === '0x' ||
+    isExecuting ||
+    receipt.isLoading ||
+    !account.address
 
   return (
     <>
       <div className={styles.intro}>
-        <p className={`${inter.className} ${styles.center}`}>
-          {!session && (
-            <em>
-              <Link
-                className={styles.githubAuthenticate}
-                href="/api/auth/signin/github"
+        {txHash && (
+          <div className={styles.success}>
+            <p className={styles.successText}>
+              Your request has been submitted! Check the transaction{' '}
+              <a
+                className={styles.txLink}
+                href={`https://alfajores.celoscan.io/tx/${txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                Authenticate with GitHub
-              </Link>{' '}
-              to receive 10x the tokens.
-            </em>
-          )}
-        </p>
+                here
+              </a>
+            </p>
+          </div>
+        )}
       </div>
       <form
         className={styles.center}
         onSubmit={onSubmit}
-        action="api/faucet"
+        action="api/request2"
         method="post"
       >
         <label className={styles.center}>
           <span className={styles.label}>Account Address</span>
           <input
-            defaultValue={previousAddress}
+            defaultValue={account.address}
             onInvalid={onInvalid}
             minLength={40}
             ref={inputRef}
@@ -135,16 +162,6 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
         >
           {'Claim CELO'}
         </button>
-
-        {/* @ts-ignore */}
-        <FaucetStatus
-          network={network}
-          reset={reset}
-          failureStatus={failureStatus}
-          faucetRequestKey={faucetRequestKey}
-          isExecuting={isExecuting || !!faucetRequestKey}
-          errors={errors}
-        />
       </form>
     </>
   )

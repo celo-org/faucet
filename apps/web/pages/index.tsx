@@ -1,24 +1,20 @@
-import { GetServerSideProps, NextPage } from 'next'
+import { NextPage } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
+import { useChainId, useSwitchChain } from 'wagmi'
 import { FaucetHeader } from 'components/faucet-header'
 import { RequestForm } from 'components/request-form'
-import { SetupButton } from 'components/setup-button'
 import styles from 'styles/Home.module.css'
-import { Network, networks } from 'types'
-import { isBalanceBelowPar } from 'utils/balance'
 import { inter } from 'utils/inter'
 
-interface Props {
-  isOutOfCELO: boolean
-  network: Network
-}
+const Home: NextPage = () => {
+  const chainId = useChainId()
+  const { chains, switchChain } = useSwitchChain()
 
-const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
-  const networkCapitalized = capitalize(network)
+  const chain = chains.find((c) => c.id === chainId)
 
-  const otherNetwork =
-    networks.indexOf(network) === 0 ? networks[1] : networks[0]
+  const networkCapitalized = capitalize(chain?.name || 'Unknown Network')
+
   return (
     <>
       <Head>
@@ -31,20 +27,26 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <FaucetHeader network={network} isOutOfCELO={isOutOfCELO} />
+        <FaucetHeader />
         <div className={styles.container}>
           <header className={`${inter.className} ${styles.center}`}>
             <h1 className={`${inter.className} ${styles.title}`}>
               {networkCapitalized} Token Faucet
             </h1>
-            {networks.length > 1 && (
-              <Link className={styles.switchNetwork} href={`/${otherNetwork}`}>
-                Switch to {capitalize(otherNetwork)}
-              </Link>
-            )}
+            {chains.length > 1 &&
+              chains.map((c) => (
+                <Link
+                  key={c.id}
+                  className={styles.switchNetwork}
+                  href="#"
+                  onClick={() => switchChain?.({ chainId: c.id })}
+                >
+                  Switch to {capitalize(c.name)}
+                </Link>
+              ))}
           </header>
           <div className={styles.center}>
-            <RequestForm network={network} isOutOfCELO={isOutOfCELO} />
+            <RequestForm />
           </div>
 
           <small className={`${styles.phaseDown} ${inter.className}`}>
@@ -55,10 +57,6 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
           </small>
 
           <small className={`${styles.phaseDown} ${inter.className}`}>
-            *Accounts with large balances will receive a phased down amount.
-            Please consider returning any tokens you won&#39;t need.
-          </small>
-          <small className={`${styles.phaseDown} ${inter.className}`}>
             Swap CELO for cUSD, cEUR, or cREAL on{' '}
             <u>
               <Link href="https://app.mento.org/">mento</Link>
@@ -68,7 +66,7 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
           </small>
         </div>
         <footer className={styles.grid}>
-          <SetupButton network={network} />
+          {/* <SetupButton /> */}
 
           <a
             href="https://docs.celo.org"
@@ -100,7 +98,7 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
             </p>
           </a>
 
-          <a
+          {/* <a
             href="https://docs.google.com/forms/d/1n6m-nMjjDn2RpBDadMMqYpf5DzDTOeRk1dhDJrLFdO4/viewform"
             className={styles.card}
             target="_blank"
@@ -113,7 +111,7 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
             <p className={inter.className}>
               Request a larger amount of tokens for your testing needs.
             </p>
-          </a>
+          </a> */}
         </footer>
       </main>
     </>
@@ -125,19 +123,3 @@ function capitalize(word: string) {
 }
 
 export default Home
-
-export const getServerSideProps: GetServerSideProps<Props> = async (
-  context,
-) => {
-  const network = context.query.chain
-  if (typeof network !== 'string' || !networks.includes(network)) {
-    return {
-      notFound: true,
-    }
-  }
-
-  const isOutOfCELO = await isBalanceBelowPar(network as Network)
-  return {
-    props: { isOutOfCELO, network: network as Network },
-  }
-}
