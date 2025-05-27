@@ -50,7 +50,7 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
           <small className={`${styles.phaseDown} ${inter.className}`}>
             Need <b>USDC</b>? Get tokens at{' '}
             <u>
-              <Link href="https://faucet.circle.com/">faucet.circle.com</Link>
+              <a href="https://faucet.circle.com/" target="_blank" rel="noopener noreferrer">faucet.circle.com</a>
             </u>
           </small>
 
