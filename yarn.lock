@@ -130,8 +130,8 @@ __metadata:
     "@google-cloud/logging": "npm:^11.1.0"
     "@mento-protocol/mento-sdk": "npm:^0.1.5"
     "@types/debug": "npm:^4.1.12"
-    "@types/node": "npm:^20.14.11"
-    "@types/yargs": "npm:^17.0.32"
+    "@types/node": "npm:^20.17.57"
+    "@types/yargs": "npm:^17.0.33"
     "@typescript-eslint/eslint-plugin": "npm:^5.62.0"
     "@typescript-eslint/eslint-plugin-tslint": "npm:^5.62.0"
     "@typescript-eslint/parser": "npm:^5.62.0"
@@ -151,7 +151,7 @@ __metadata:
     firebase-functions: "npm:^4.6.0"
     firebase-tools: "npm:^13.0.2"
     ts-node: "npm:^10.9.2"
-    typescript: "npm:^5.5.3"
+    typescript: "npm:^5.8.3"
     web3: "npm:1.10.4"
     yargs: "npm:17.7.2"
   languageName: unknown
@@ -2395,12 +2395,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:20.14.11, @types/node@npm:^20.14.11":
-  version: 20.14.11
-  resolution: "@types/node@npm:20.14.11"
+"@types/node@npm:20.17.57":
+  version: 20.17.57
+  resolution: "@types/node@npm:20.17.57"
   dependencies:
-    undici-types: "npm:~5.26.4"
-  checksum: 10c0/5306becc0ff41d81b1e31524bd376e958d0741d1ce892dffd586b9ae0cb6553c62b0d62abd16da8bea6b9a2c17572d360450535d7c073794b0cef9cb4e39691e
+    undici-types: "npm:~6.19.2"
+  checksum: 10c0/c04f3b6c4f335ad50bd3af62cd9e64a86c355cb6b363cb0e618511db4c6801c8539781c3786076eca6f56e999d6c7fc4748e43393a107aad57e65e3ffd1f73bf
   languageName: node
   linkType: hard
 
@@ -2417,6 +2417,15 @@ __metadata:
   dependencies:
     undici-types: "npm:~5.26.4"
   checksum: 10c0/bb50ba373053869da1ec43cbcd824626262b984467992e6b2119613fc02f4c0c5aae43550ee66316dd428178727fe51c749ca030b31615332ecbac4572edae4a
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^20.17.57":
+  version: 20.19.0
+  resolution: "@types/node@npm:20.19.0"
+  dependencies:
+    undici-types: "npm:~6.21.0"
+  checksum: 10c0/11979f5c4c626555351352fe1b30846700ca018747272a7ff425f883f102805b7f07737d5b7fa3c6deb0ddaeb94e367bb9a633a3d1e1d5c517de9a6283c6f21c
   languageName: node
   linkType: hard
 
@@ -2457,33 +2466,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:18.3.0":
-  version: 18.3.0
-  resolution: "@types/react-dom@npm:18.3.0"
-  dependencies:
-    "@types/react": "npm:*"
-  checksum: 10c0/6c90d2ed72c5a0e440d2c75d99287e4b5df3e7b011838cdc03ae5cd518ab52164d86990e73246b9d812eaf02ec351d74e3b4f5bd325bf341e13bf980392fd53b
+"@types/react-dom@npm:18.3.7":
+  version: 18.3.7
+  resolution: "@types/react-dom@npm:18.3.7"
+  peerDependencies:
+    "@types/react": ^18.0.0
+  checksum: 10c0/8bd309e2c3d1604a28a736a24f96cbadf6c05d5288cfef8883b74f4054c961b6b3a5e997fd5686e492be903c8f3380dba5ec017eff3906b1256529cd2d39603e
   languageName: node
   linkType: hard
 
-"@types/react@npm:*":
-  version: 18.2.48
-  resolution: "@types/react@npm:18.2.48"
-  dependencies:
-    "@types/prop-types": "npm:*"
-    "@types/scheduler": "npm:*"
-    csstype: "npm:^3.0.2"
-  checksum: 10c0/7e89f18ea2928b1638f564b156d692894dcb9352a7e0a807873c97e858abe1f23dbd165a25dd088a991344e973fdeef88ba5724bfb64504b74072cbc9c220c3a
-  languageName: node
-  linkType: hard
-
-"@types/react@npm:18.3.3":
-  version: 18.3.3
-  resolution: "@types/react@npm:18.3.3"
+"@types/react@npm:18.3.23":
+  version: 18.3.23
+  resolution: "@types/react@npm:18.3.23"
   dependencies:
     "@types/prop-types": "npm:*"
     csstype: "npm:^3.0.2"
-  checksum: 10c0/fe455f805c5da13b89964c3d68060cebd43e73ec15001a68b34634604a78140e6fc202f3f61679b9d809dde6d7a7c2cb3ed51e0fd1462557911db09879b55114
+  checksum: 10c0/49331800b76572eb2992a5c44801dbf8c612a5f99c8f4e4200f06c7de6f3a6e9455c661784a6c5469df96fa45622cb4a9d0982c44e6a0d5719be5f2ef1f545ed
   languageName: node
   linkType: hard
 
@@ -2505,13 +2503,6 @@ __metadata:
   dependencies:
     "@types/node": "npm:*"
   checksum: 10c0/a58ba341cb9e7d74f71810a88862da7b2a6fa42e2a1fc0ce40498f6ea1d44382f0640117057da779f74c47039f7166bf48fad02dc876f94e005c7afa50f5e129
-  languageName: node
-  linkType: hard
-
-"@types/scheduler@npm:*":
-  version: 0.16.8
-  resolution: "@types/scheduler@npm:0.16.8"
-  checksum: 10c0/f86de504945b8fc41b1f391f847444d542e2e4067cf7e5d9bfeb5d2d2393d3203b1161bc0ef3b1e104d828dabfb60baf06e8d2c27e27ff7e8258e6e618d8c4ec
   languageName: node
   linkType: hard
 
@@ -2580,12 +2571,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/yargs@npm:^17.0.32":
-  version: 17.0.32
-  resolution: "@types/yargs@npm:17.0.32"
+"@types/yargs@npm:^17.0.33":
+  version: 17.0.33
+  resolution: "@types/yargs@npm:17.0.33"
   dependencies:
     "@types/yargs-parser": "npm:*"
-  checksum: 10c0/2095e8aad8a4e66b86147415364266b8d607a3b95b4239623423efd7e29df93ba81bb862784a6e08664f645cc1981b25fd598f532019174cd3e5e1e689e1cccf
+  checksum: 10c0/d16937d7ac30dff697801c3d6f235be2166df42e4a88bf730fa6dc09201de3727c0a9500c59a672122313341de5f24e45ee0ff579c08ce91928e519090b7906b
   languageName: node
   linkType: hard
 
@@ -7375,12 +7366,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"husky@npm:9.1.1":
-  version: 9.1.1
-  resolution: "husky@npm:9.1.1"
+"husky@npm:9.1.7":
+  version: 9.1.7
+  resolution: "husky@npm:9.1.7"
   bin:
     husky: bin.js
-  checksum: 10c0/56394f5a08201badece23a8599bd76fe8c41e4510a956022fe54897645900c5c5a96a740ffb0604e99e808dffc3714bae982f1cbda4a069082cc713414f17ad3
+  checksum: 10c0/35bb110a71086c48906aa7cd3ed4913fb913823715359d65e32e0b964cb1e255593b0ae8014a5005c66a68e6fa66c38dcfa8056dbbdfb8b0187c0ffe7ee3a58f
   languageName: node
   linkType: hard
 
@@ -9193,8 +9184,8 @@ __metadata:
   resolution: "mono-faucet@workspace:."
   dependencies:
     eslint: "npm:^8.57.0"
-    husky: "npm:9.1.1"
-    prettier: "npm:^3.3.3"
+    husky: "npm:9.1.7"
+    prettier: "npm:^3.5.3"
   languageName: unknown
   linkType: soft
 
@@ -10324,12 +10315,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^3.3.3":
-  version: 3.3.3
-  resolution: "prettier@npm:3.3.3"
+"prettier@npm:^3.5.3":
+  version: 3.5.3
+  resolution: "prettier@npm:3.5.3"
   bin:
     prettier: bin/prettier.cjs
-  checksum: 10c0/b85828b08e7505716324e4245549b9205c0cacb25342a030ba8885aba2039a115dbcf75a0b7ca3b37bc9d101ee61fab8113fc69ca3359f2a226f1ecc07ad2e26
+  checksum: 10c0/3880cb90b9dc0635819ab52ff571518c35bd7f15a6e80a2054c05dbc8a3aa6e74f135519e91197de63705bcb38388ded7e7230e2178432a1468005406238b877
   languageName: node
   linkType: hard
 
@@ -12644,23 +12635,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:5.5.3, typescript@npm:^5.5.3":
-  version: 5.5.3
-  resolution: "typescript@npm:5.5.3"
+"typescript@npm:5.8.3, typescript@npm:^5.8.3":
+  version: 5.8.3
+  resolution: "typescript@npm:5.8.3"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 10c0/f52c71ccbc7080b034b9d3b72051d563601a4815bf3e39ded188e6ce60813f75dbedf11ad15dd4d32a12996a9ed8c7155b46c93a9b9c9bad1049766fe614bbdd
+  checksum: 10c0/5f8bb01196e542e64d44db3d16ee0e4063ce4f3e3966df6005f2588e86d91c03e1fb131c2581baf0fb65ee79669eea6e161cd448178986587e9f6844446dbb48
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A5.5.3#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.5.3#optional!builtin<compat/typescript>":
-  version: 5.5.3
-  resolution: "typescript@patch:typescript@npm%3A5.5.3#optional!builtin<compat/typescript>::version=5.5.3&hash=379a07"
+"typescript@patch:typescript@npm%3A5.8.3#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.8.3#optional!builtin<compat/typescript>":
+  version: 5.8.3
+  resolution: "typescript@patch:typescript@npm%3A5.8.3#optional!builtin<compat/typescript>::version=5.8.3&hash=379a07"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 10c0/911c7811d61f57f07df79c4a35f56a0f426a65426a020e5fcd792f66559f399017205f5f10255329ab5a3d8c2d1f1d19530aeceffda70758a521fae1d469432e
+  checksum: 10c0/92ea03509e06598948559ddcdd8a4ae5a7ab475766d5589f1b796f5731b3d631a4c7ddfb86a3bd44d58d10102b132cd4b4994dda9b63e6273c66d77d6a271dbd
   languageName: node
   linkType: hard
 
@@ -12687,6 +12678,20 @@ __metadata:
   version: 5.26.5
   resolution: "undici-types@npm:5.26.5"
   checksum: 10c0/bb673d7876c2d411b6eb6c560e0c571eef4a01c1c19925175d16e3a30c4c428181fb8d7ae802a261f283e4166a0ac435e2f505743aa9e45d893f9a3df017b501
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~6.19.2":
+  version: 6.19.8
+  resolution: "undici-types@npm:6.19.8"
+  checksum: 10c0/078afa5990fba110f6824823ace86073b4638f1d5112ee26e790155f481f2a868cc3e0615505b6f4282bdf74a3d8caad715fd809e870c2bb0704e3ea6082f344
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~6.21.0":
+  version: 6.21.0
+  resolution: "undici-types@npm:6.21.0"
+  checksum: 10c0/c01ed51829b10aa72fc3ce64b747f8e74ae9b60eafa19a7b46ef624403508a54c526ffab06a14a26b3120d055e1104d7abe7c9017e83ced038ea5cf52f8d5e04
   languageName: node
   linkType: hard
 
@@ -13227,9 +13232,9 @@ __metadata:
   dependencies:
     "@firebase/app-types": "npm:^0.9.0"
     "@metamask/detect-provider": "npm:^2.0.0"
-    "@types/node": "npm:20.14.11"
-    "@types/react": "npm:18.3.3"
-    "@types/react-dom": "npm:18.3.0"
+    "@types/node": "npm:20.17.57"
+    "@types/react": "npm:18.3.23"
+    "@types/react-dom": "npm:18.3.7"
     "@vercel/analytics": "npm:^1.3.1"
     eslint: "npm:8.57.0"
     eslint-config-next: "npm:13.5.6"
@@ -13240,7 +13245,7 @@ __metadata:
     react-dom: "npm:18.3.1"
     react-google-recaptcha-v3: "npm:^1.10.1"
     react-use-async-callback: "npm:^2.1.2"
-    typescript: "npm:5.5.3"
+    typescript: "npm:5.8.3"
   languageName: unknown
   linkType: soft
 
