@@ -9,16 +9,23 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@farcaster/frame-sdk": "latest",
+    "@farcaster/frame-wagmi-connector": "latest",
     "@firebase/app-types": "^0.9.0",
     "@metamask/detect-provider": "^2.0.0",
+    "@tanstack/react-query": "5.45.1",
+    "@upstash/redis": "latest",
     "@vercel/analytics": "^1.3.1",
+    "@wagmi/core": "^2.17.3",
     "firebase": "^10.7.0",
     "next": "14.2.21",
     "next-auth": "^4.24.11",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-google-recaptcha-v3": "^1.10.1",
-    "react-use-async-callback": "^2.1.2"
+    "react-use-async-callback": "^2.1.2",
+    "viem": "latest",
+    "wagmi": "latest"
   },
   "devDependencies": {
     "@types/node": "20.14.11",

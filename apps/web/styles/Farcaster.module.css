@@ -1,0 +1,13 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 1rem;
+  min-height: 100vh;
+  row-gap: 1rem;
+}
+
+ .title {
+    font-size: 1.5rem;
+  }

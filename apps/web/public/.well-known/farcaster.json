@@ -1,0 +1,19 @@
+{
+  "frame": {
+    "version": "1",
+    "name": "CeloTap!",
+    "iconUrl": "https://faucet.celo.org/logo.png",
+    "homeUrl": "https://faucet.celo.org/mini/",
+    "imageUrl": "https://faucet.celo.org/opengraph-image.png",
+    "buttonTitle": "Tap!",
+    "splashImageUrl": "https://faucet.celo.org/logo.png",
+    "splashBackgroundColor": "#f5f0ec",
+    "requiredChains": [
+      "eip155:42220"
+    ],
+    "requiredCapabilities": [
+      "actions.signIn",
+      "wallet.getEthereumProvider"
+    ]
+  }
+}
