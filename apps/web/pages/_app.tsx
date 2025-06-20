@@ -1,8 +1,8 @@
+import { Analytics } from '@vercel/analytics/react'
+import { SessionProvider } from 'next-auth/react'
 import type { AppProps } from 'next/app'
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
 import 'styles/globals.css'
-import { Analytics } from '@vercel/analytics/react'
-import { SessionProvider } from 'next-auth/react'
 
 export default function App({
   Component,
