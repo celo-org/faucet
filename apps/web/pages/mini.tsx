@@ -6,6 +6,7 @@ import { Hex, isAddress } from 'viem'
 import { celoAlfajores } from 'viem/chains'
 import {
   useAccount,
+  useChainId,
   useConnect,
   usePublicClient,
   useSignTypedData,
@@ -82,6 +83,7 @@ export const MiniFaucet: FC = () => {
 
   const { signTypedDataAsync } = useSignTypedData()
   const account = useAccount()
+  const connectedChainID = useChainId()
   const client = usePublicClient()
   const [txHash, setTXhash] = useState<Hex | undefined>()
 
@@ -111,7 +113,7 @@ export const MiniFaucet: FC = () => {
       }
 
       const signature = await signTypedDataAsync({
-        domain: EIP712Domain(celoAlfajores.id),
+        domain: EIP712Domain(connectedChainID),
         types: FaucetRequest712Type.types,
         primaryType: FaucetRequest712Type.primaryType,
         message,
@@ -120,7 +122,7 @@ export const MiniFaucet: FC = () => {
       const request: FaucetRequest = {
         signer: account.address,
         signature,
-        domain: EIP712Domain(celoAlfajores.id),
+        domain: EIP712Domain(connectedChainID),
         message,
       }
 
@@ -207,7 +209,7 @@ export const MiniFaucet: FC = () => {
           className={styles.button}
           type="submit"
         >
-          {'Tap CELO'}
+          {'Tap for tCELO'}
         </button>
       </form>
     </>

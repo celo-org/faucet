@@ -75,7 +75,7 @@ export const FaucetRequest712Type: Pick<
   primaryType: 'FaucetRequest',
 } as const
 
-export const EIP712Domain = (chainID: (typeof FAUCET_CHAIN_IDS)[number]) =>
+export const EIP712Domain = (chainID: number) =>
   ({
     name: 'CeloFaucet',
     version: '1',
