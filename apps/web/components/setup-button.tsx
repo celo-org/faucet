@@ -59,7 +59,7 @@ export const SetupButton: FC<Props> = ({ network }) => {
         Add Celo Testnet <span>&gt;</span>
       </h3>
       <p className={inter.className}>
-        Enable {networkCapitalized} and Add Mentos Stablecoins to your Wallet
+        Enable {networkCapitalized} and Add CELO to your Wallet
       </p>
     </button>
   )
