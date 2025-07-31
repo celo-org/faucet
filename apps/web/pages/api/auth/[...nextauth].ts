@@ -43,8 +43,8 @@ export const authOptions: AuthOptions = {
     maxAge: 2 * 60, // 2 minutes in seconds
   },
   jwt: {
-    maxAge: 60 // seconds
-  }
+    maxAge: 60, // seconds
+  },
 }
 
 export default NextAuth(authOptions)
