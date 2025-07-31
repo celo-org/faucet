@@ -1,0 +1,46 @@
+name: Deploy Chain
+
+on:
+  workflow_dispatch:
+    inputs:
+      CHAIN_NAME:
+        description: 'Chain Name (kebab-case)'
+        required: true
+      RPC_URL:
+        description: 'RPC URL'
+        required: true
+      PROD:
+        type: boolean
+        description: 'Is this a production deployment?'
+        default: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Authenticate with Akeyless
+        run: |
+          echo "Authenticating with Akeyless..."
+          # Replace this with your actual authentication command for Akeyless
+          akeyless login --token ${{ secrets.AKEYLESS_TOKEN }}
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build project
+        working-directory: apps/firebase
+        run: yarn build
+      - name: Authenticate with Firebase
+        run: |
+          echo "Authenticating with Firebase..."
+          yarn firebase login:ci --token ${{ secrets.FIREBASE_TOKEN }}
+        working-directory: apps/firebase
+      - name: Set Firebase project
+        working-directory: apps/firebase
+        run: yarn firebase use ${{github.event.inputs.PROD == 'true' && 'celo-faucet' || 'celo-faucet-staging'}}
+      - name: Deploy Firebase Function
+        working-directory: apps/firebase
+        run: yarn cli config:set --net ${{ github.event.inputs.CHAIN_NAME }} --nodeUrl ${{ github.event.inputs.RPC_URL }} --deploy
