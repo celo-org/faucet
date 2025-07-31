@@ -34,7 +34,7 @@ export default async function handler(
   }
 
   const captchaResponse = await captchaVerify(captchaToken)
-  if (captchaResponse.success) {
+  if (process.env.VERCEL_ENV === 'preview' || captchaResponse.success) {
     try {
 
       const { value, chain } = await prepareTransfer(to, chainId, authLevel)
