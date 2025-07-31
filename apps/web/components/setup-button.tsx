@@ -2,11 +2,11 @@ import detectEthereumProvider from '@metamask/detect-provider'
 import Image from 'next/image'
 import { FC } from 'react'
 import { useAsyncCallback } from 'react-use-async-callback'
+import { CHAIN_PARAMS, tokens } from '../config/chains'
 import styles from 'styles/Home.module.css'
 import { ChainId, Network } from 'types'
 import { capitalize } from 'utils/capitalize'
 import { inter } from 'utils/inter'
-import { CHAIN_PARAMS, tokens } from '../config/chains'
 
 interface Props {
   network: Network

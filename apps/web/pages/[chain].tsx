@@ -1,9 +1,9 @@
-import { FaucetHeader } from 'components/faucet-header'
-import { RequestForm } from 'components/request-form'
-import { SetupButton } from 'components/setup-button'
 import { GetServerSideProps, NextPage } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
+import { FaucetHeader } from 'components/faucet-header'
+import { RequestForm } from 'components/request-form'
+import { SetupButton } from 'components/setup-button'
 import styles from 'styles/Home.module.css'
 import { Network, networks } from 'types'
 import { isBalanceBelowPar } from 'utils/balance'
@@ -51,7 +51,13 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
           <small className={`${styles.phaseDown} ${inter.className}`}>
             Need <b>USDC</b>? Get tokens at{' '}
             <u>
-              <a href="https://faucet.circle.com/" target="_blank" rel="noopener noreferrer">faucet.circle.com</a>
+              <a
+                href="https://faucet.circle.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                faucet.circle.com
+              </a>
             </u>
           </small>
 
