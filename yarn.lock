@@ -75,6 +75,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@celo/abis@npm:13.0.0-canary.13":
+  version: 13.0.0-canary.13
+  resolution: "@celo/abis@npm:13.0.0-canary.13"
+  checksum: 10c0/5362155538cd276d1bf1053bf8bfc7fbbf6468eb3294fdb7244f31b46629559921f9bcec8a451a84b1a409e1a847c3ac080884c2434f48fadfb74e5c22ca6b6d
+  languageName: node
+  linkType: hard
+
 "@celo/base@npm:^6.0.1":
   version: 6.0.1
   resolution: "@celo/base@npm:6.0.1"
@@ -13366,6 +13373,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "web@workspace:apps/web"
   dependencies:
+    "@celo/abis": "npm:13.0.0-canary.13"
     "@firebase/app-types": "npm:^0.9.0"
     "@metamask/detect-provider": "npm:^2.0.0"
     "@types/node": "npm:20.14.11"
