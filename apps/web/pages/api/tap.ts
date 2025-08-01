@@ -38,9 +38,9 @@ export default async function handler(
     try {
 
       const { value, chain } = await prepareTransfer(to, chainId, authLevel)
-      const hash = await tranferFunds({to, value}, chain)
-      console.info("transfer pending", to,  hash)
-      res.status(200).json({ txHash: hash, status: RequestStatus.Pending })
+      const {hash, status} = await tranferFunds({to, value}, chain)
+      console.info("transfer transaction", status, to,  hash)
+      res.status(200).json({ txHash: hash, status: status === 'success' ? RequestStatus.Done : RequestStatus.Failed })
     } catch (error) {
       console.error(error)
       res.status(404).json({

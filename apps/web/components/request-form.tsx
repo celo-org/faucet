@@ -42,14 +42,14 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
 
       const beneficiary = inputRef.current?.value
       console.info('begin faucet sequence')
-      if (!beneficiary?.length || !executeRecaptcha) {
+      if (!beneficiary?.length || !(executeRecaptcha && process.env.VERCEL_ENV === 'production')) {
         console.info('aborting')
         return
       }
       // save to local storage
       saveAddress(beneficiary)
 
-      const captchaToken = await executeRecaptcha('faucet')
+      const captchaToken = process.env.VERCEL_ENV === 'production' ? await executeRecaptcha('faucet') : null
       if (chainIsUsingNewFaucetService) {
         const response2 = await fetch('api/tap', {
           method: 'POST',

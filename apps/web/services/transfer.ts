@@ -2,6 +2,7 @@ import { isUsingNewFaucetService, NEW_CHAINS } from 'config/chains';
 import { getQualifiedValue } from 'services/qualifiers';
 import { AuthLevel } from 'types';
 import { Address, createWalletClient, extractChain, Hex, http } from 'viem';
+import { waitForTransactionReceipt } from 'viem/_types/actions/public/waitForTransactionReceipt';
 import { privateKeyToAccount } from 'viem/accounts';
 import { Chain } from 'viem/chains';
 
@@ -17,7 +18,7 @@ import { Chain } from 'viem/chains';
 export async function tranferFunds(
   request: { to: Address; value: bigint },
   chain: Chain
-): Promise<Hex> {
+): Promise<{ hash: Hex; status: "success" | "reverted" }> {
 
   if (!request.to || !request.value) {
     throw new Error('to and value are required fields')
@@ -45,8 +46,11 @@ export async function tranferFunds(
 
   const hash = await walletClient.sendTransaction(txRequest)
   console.timeEnd('sendTransaction')
-  
-  return hash
+  console.time('waitForTransactionReceipt')
+  const receipt = await waitForTransactionReceipt(walletClient, { hash })
+  console.timeEnd('waitForTransactionReceipt')
+  console.debug('Transaction receipt:', receipt)
+  return {hash, status: receipt.status}
 }
 
 export type TransferRequest = {
