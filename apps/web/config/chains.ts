@@ -14,6 +14,24 @@ interface ChainParams {
   iconUrls: string[]
 }
 
+export function networkToChainId(network: Network): number {
+  switch (network) {
+    case 'alfajores':
+      return celoAlfajores.id
+    case 'celo-sepolia':
+      return celoSepolia.id
+    default:
+      throw new Error(`Unsupported network: ${network}`)
+  }
+}
+
+export const NEW_CHAINS = [celoSepolia]
+export const NEW_CHAIN_IDS = new Set<number>(NEW_CHAINS.map(chain => chain.id));
+
+export function isUsingNewFaucetService(chainId: number): chainId is typeof celoSepolia['id'] {
+  return NEW_CHAIN_IDS.has(chainId);
+}
+
 export const CHAIN_PARAMS: Record<Network, ChainParams> = [
   { ...celoAlfajores, network: 'alfajores' as Network },
   { ...celoSepolia, network: 'celo-sepolia' as Network },

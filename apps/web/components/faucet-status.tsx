@@ -1,5 +1,6 @@
 import { FC, useCallback, useEffect, useState } from 'react'
 import { inter } from 'components/request-form'
+import { TxMessage } from 'components/TxMessage'
 import styles from 'styles/Form.module.css'
 import { Network, RequestRecord, RequestStatus } from 'types'
 import { subscribeRequest } from 'utils/firebase.client'
@@ -73,31 +74,4 @@ export const FaucetStatus: FC<StatusProps> = ({
   )
 }
 
-const TxMessage = ({
-  txHash,
-  network,
-}: {
-  txHash?: string
-  network: Network
-}) => {
-  if (!txHash) {
-    return null
-  }
-  if (txHash === 'skipped') {
-    return (
-      <span className={inter.className}>
-        No celo was transferred as the account already has a large celo balance.
-      </span>
-    )
-  }
-  return (
-    <a
-      className={inter.className}
-      target="_blank"
-      rel="noreferrer"
-      href={`https://celo-${network}.blockscout.com/tx/${txHash}`}
-    >
-      View on Celo Explorer
-    </a>
-  )
-}
+

@@ -5,8 +5,10 @@ import Link from 'next/link'
 import { FC, FormEvent, useCallback, useRef, useState } from 'react'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useAsyncCallback } from 'react-use-async-callback'
+import { isUsingNewFaucetService, networkToChainId } from 'config/chains'
+import { TxMessage } from 'components/TxMessage'
 import styles from 'styles/Form.module.css'
-import { FaucetAPIResponse, Network } from 'types'
+import { Faucet2APIResponse, FaucetAPIResponse, Network } from 'types'
 import { saveAddress } from 'utils/history'
 import { useLastAddress } from 'utils/useLastAddress'
 
@@ -25,9 +27,10 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
   const inputRef = useRef<HTMLInputElement>(null)
   const { data: session } = useSession()
 
-  const { executeRecaptcha } = useGoogleReCaptcha()
-  const [skipStables, setSkipStables] = useState(true)
+  const chainIsUsingNewFaucetService = isUsingNewFaucetService(networkToChainId(network))
 
+  const { executeRecaptcha } = useGoogleReCaptcha()
+  const [txHash, setTxHash] = useState<string | null>(null)
   const [faucetRequestKey, setKey] = useState<string | null>(null)
   const [failureStatus, setFailureStatus] = useState<string | null>(null)
 
@@ -39,14 +42,37 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
 
       const beneficiary = inputRef.current?.value
       console.info('begin faucet sequence')
-      if (!beneficiary?.length || !executeRecaptcha) {
+      if (!beneficiary?.length || !(executeRecaptcha && process.env.VERCEL_ENV === 'production')) {
         console.info('aborting')
         return
       }
       // save to local storage
       saveAddress(beneficiary)
 
-      const captchaToken = await executeRecaptcha('faucet')
+      const captchaToken = process.env.VERCEL_ENV === 'production' ? await executeRecaptcha('faucet') : null
+      if (chainIsUsingNewFaucetService) {
+        const response2 = await fetch('api/tap', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            captchaToken,
+            to: beneficiary,
+            chainId: networkToChainId(network),
+          }),
+        })
+        const result2 = (await response2.json()) as Faucet2APIResponse
+        console.info('faucet request sent...received')
+        if (result2.status === 'Failed') {
+          console.warn(result2.message)
+          setFailureStatus(result2.message)
+        } else {
+          setTxHash(result2.txHash)
+        }
+        return
+      }
+
       console.info('received captcha token...posting faucet request')
       const response = await fetch('api/faucet', {
         method: 'POST',
@@ -56,11 +82,10 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
         body: JSON.stringify({
           beneficiary,
           captchaToken,
-          skipStables,
+          skipStables: true,
           network,
         }),
       })
-      // TODO get key from result and set
       const result = (await response.json()) as FaucetAPIResponse
       console.info('faucet request sent...received')
       if (result.status === 'Failed') {
@@ -70,7 +95,7 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
         setKey(result.key)
       }
     },
-    [inputRef, executeRecaptcha, skipStables],
+    [inputRef, executeRecaptcha, chainIsUsingNewFaucetService, network],
   )
 
   const onInvalid = useCallback((event: FormEvent<HTMLInputElement>) => {
@@ -136,7 +161,11 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
           {'Claim CELO'}
         </button>
 
-        {/* @ts-ignore */}
+
+
+        {chainIsUsingNewFaucetService ? (
+          <>{isExecuting ? <span className={inter.className}>Awaiting TX Hash...</span> : <TxMessage txHash={txHash} network={network} />}</>
+        ) : (
         <FaucetStatus
           network={network}
           reset={reset}
@@ -145,6 +174,7 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
           isExecuting={isExecuting || !!faucetRequestKey}
           errors={errors}
         />
+        )}
       </form>
     </>
   )

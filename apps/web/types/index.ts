@@ -1,3 +1,5 @@
+import { Hex } from "viem"
+
 export type Address = string
 export type E164Number = string
 
@@ -55,3 +57,13 @@ export type FaucetAPIResponse =
       status: RequestStatus.Failed
       message: string
     }
+
+export type Faucet2APIResponse = {
+  txHash: Hex
+  status: RequestStatus.Pending | RequestStatus.Done 
+
+} | {
+  status: RequestStatus.Failed
+  message: string
+  txHash?: Hex
+}
