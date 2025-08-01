@@ -103,4 +103,4 @@ To set up the firebase app to run locally:
 
 ### Firebase
 
-In the `apps/firebase` project run `yarn cli config:set` with the relevant params.
+Dispatch the deploy-chains workflow. ensure chain name is kebab case and matches a network in `config/chains.ts`.

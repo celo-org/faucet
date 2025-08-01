@@ -7,6 +7,7 @@ import { SetupButton } from 'components/setup-button'
 import styles from 'styles/Home.module.css'
 import { Network, networks } from 'types'
 import { isBalanceBelowPar } from 'utils/balance'
+import { capitalize } from 'utils/capitalize'
 import { inter } from 'utils/inter'
 
 interface Props {
@@ -50,7 +51,13 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
           <small className={`${styles.phaseDown} ${inter.className}`}>
             Need <b>USDC</b>? Get tokens at{' '}
             <u>
-              <a href="https://faucet.circle.com/" target="_blank" rel="noopener noreferrer">faucet.circle.com</a>
+              <a
+                href="https://faucet.circle.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                faucet.circle.com
+              </a>
             </u>
           </small>
 
@@ -120,17 +127,13 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
   )
 }
 
-function capitalize(word: string) {
-  return `${word[0].toUpperCase()}${word.slice(1).toLowerCase()}`
-}
-
 export default Home
 
 export const getServerSideProps: GetServerSideProps<Props> = async (
   context,
 ) => {
   const network = context.query.chain
-  if (typeof network !== 'string' || !networks.includes(network)) {
+  if (typeof network !== 'string' || !networks.includes(network as Network)) {
     return {
       notFound: true,
     }

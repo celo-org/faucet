@@ -5,6 +5,7 @@ import { useAsyncCallback } from 'react-use-async-callback'
 import { CHAIN_PARAMS, tokens } from '../config/chains'
 import styles from 'styles/Home.module.css'
 import { ChainId, Network } from 'types'
+import { capitalize } from 'utils/capitalize'
 import { inter } from 'utils/inter'
 
 interface Props {
@@ -12,9 +13,7 @@ interface Props {
 }
 
 export const SetupButton: FC<Props> = ({ network }) => {
-  const networkCapitalized = `${network[0].toUpperCase()}${network
-    .slice(1)
-    .toLowerCase()}`
+  const networkCapitalized = capitalize(network)
 
   const [importTokens, { isExecuting }] = useAsyncCallback(async () => {
     const provider = (await detectEthereumProvider()) as EthProvider
