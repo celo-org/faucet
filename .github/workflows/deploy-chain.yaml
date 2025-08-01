@@ -1,0 +1,50 @@
+name: Deploy Chain
+
+on:
+  workflow_dispatch:
+    inputs:
+      CHAIN_NAME:
+        description: 'Chain Name (kebab-case)'
+        required: true
+      RPC_URL:
+        description: 'RPC URL'
+        required: true
+      PROD:
+        type: boolean
+        description: 'Is this a production deployment?'
+        default: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+       
+      - name: Login to GAR
+        uses: docker/login-action@v3
+        with: 
+          registry: ${{ inputs.artifact-registry }}
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+        
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build project
+        working-directory: apps/firebase
+        run: yarn build
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: 'google-github-actions/auth@v2'
+        with:
+          workload_identity_provider: projects/1094498259535/locations/global/workloadIdentityPools/gh-/providers/github-by-repos
+          service_account: faucet-deploy-firebase@celo-faucet.iam.gserviceaccount.com
+ 
+      - name: Set Firebase project and Deploy Firebase Function
+        working-directory: apps/firebase
+        run: |
+          yarn firebase use ${{github.event.inputs.PROD == 'true' && 'celo-faucet' || 'celo-faucet-staging'}}
+          yarn cli config:set --net ${{ github.event.inputs.CHAIN_NAME }} --nodeUrl ${{ github.event.inputs.RPC_URL }} --deploy
