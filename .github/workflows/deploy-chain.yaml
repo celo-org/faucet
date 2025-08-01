@@ -21,14 +21,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-       
-      - name: Login to GAR
-        uses: docker/login-action@v3
-        with: 
-          registry: ${{ inputs.artifact-registry }}
-          username: oauth2accesstoken
-          password: ${{ steps.auth.outputs.access_token }}
-        
       - name: Install dependencies
         run: yarn install
 
