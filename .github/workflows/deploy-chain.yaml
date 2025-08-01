@@ -32,7 +32,7 @@ jobs:
         id: auth
         uses: 'google-github-actions/auth@v2'
         with:
-          workload_identity_provider: projects/1094498259535/locations/global/workloadIdentityPools/gh-/providers/github-by-repos
+          workload_identity_provider: projects/1094498259535/locations/global/workloadIdentityPools/gh-faucet/providers/github-by-repos
           service_account: faucet-deploy-firebase@celo-faucet.iam.gserviceaccount.com
  
       - name: Set Firebase project and Deploy Firebase Function
