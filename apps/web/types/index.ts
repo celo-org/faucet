@@ -60,9 +60,10 @@ export type FaucetAPIResponse =
 
 export type Faucet2APIResponse = {
   txHash: Hex
-  status: RequestStatus.Pending | RequestStatus.Done | RequestStatus.Failed
+  status: RequestStatus.Pending | RequestStatus.Done 
 
 } | {
   status: RequestStatus.Failed
   message: string
+  txHash?: Hex
 }

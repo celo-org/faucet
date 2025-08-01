@@ -1,8 +1,7 @@
 import { isUsingNewFaucetService, NEW_CHAINS } from 'config/chains';
 import { getQualifiedValue } from 'services/qualifiers';
 import { AuthLevel } from 'types';
-import { Address, createWalletClient, extractChain, Hex, http } from 'viem';
-import { waitForTransactionReceipt } from 'viem/_types/actions/public/waitForTransactionReceipt';
+import { Address, createPublicClient, createWalletClient, extractChain, Hex, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { Chain } from 'viem/chains';
 
@@ -35,6 +34,11 @@ export async function tranferFunds(
     chain,
     transport: http(),
     account: account
+  })  
+
+  const publicClient = createPublicClient({
+    chain,
+    transport: http(),
   })
 
   console.time('sendTransaction')
@@ -46,9 +50,11 @@ export async function tranferFunds(
 
   const hash = await walletClient.sendTransaction(txRequest)
   console.timeEnd('sendTransaction')
+  
   console.time('waitForTransactionReceipt')
-  const receipt = await waitForTransactionReceipt(walletClient, { hash })
+  const receipt = await publicClient.waitForTransactionReceipt({ hash })
   console.timeEnd('waitForTransactionReceipt')
+  
   console.debug('Transaction receipt:', receipt)
   return {hash, status: receipt.status}
 }

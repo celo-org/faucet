@@ -38,9 +38,18 @@ export default async function handler(
     try {
 
       const { value, chain } = await prepareTransfer(to, chainId, authLevel)
-      const {hash, status} = await tranferFunds({to, value}, chain)
+      const { hash, status } = await tranferFunds({to, value}, chain)
+      if (status === 'reverted') {
+        console.warn('Transaction reverted:', to, hash)
+        res.status(400).json({
+          status: RequestStatus.Failed,
+          message: 'Transaction reverted',
+          txHash: hash,
+        })
+        return
+      }
       console.info("transfer transaction", status, to,  hash)
-      res.status(200).json({ txHash: hash, status: status === 'success' ? RequestStatus.Done : RequestStatus.Failed })
+      res.status(200).json({ txHash: hash, status: RequestStatus.Done })
     } catch (error) {
       console.error(error)
       res.status(404).json({
