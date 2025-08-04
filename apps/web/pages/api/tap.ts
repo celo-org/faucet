@@ -1,11 +1,11 @@
+import { isUsingNewFaucetService } from 'config/chains'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth/next'
-import { Address, isAddress } from 'viem'
-import { authOptions } from './auth/[...nextauth]'
-import { isUsingNewFaucetService } from 'config/chains'
 import { prepareTransfer, tranferFunds } from 'services/transfer'
 import { AuthLevel, Faucet2APIResponse, RequestStatus } from 'types'
 import { captchaVerify } from 'utils/captcha-verify'
+import { Address, isAddress } from 'viem'
+import { authOptions } from './auth/[...nextauth]'
 
 export default async function handler(
   req: NextApiRequest,
@@ -33,7 +33,7 @@ export default async function handler(
     return
   }
 
-  const captchaResponse = await captchaVerify(captchaToken)
+  const captchaResponse = process.env.VERCEL_ENV === 'preview' ? {success: true} : await captchaVerify(captchaToken)
   if (process.env.VERCEL_ENV === 'preview' || captchaResponse.success) {
     try {
 

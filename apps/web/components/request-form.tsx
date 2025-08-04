@@ -1,3 +1,5 @@
+import { TxMessage } from 'components/TxMessage'
+import { isUsingNewFaucetService, networkToChainId } from 'config/chains'
 import { useSession } from 'next-auth/react'
 import dynamic from 'next/dynamic'
 import { Inter } from 'next/font/google'
@@ -5,8 +7,6 @@ import Link from 'next/link'
 import { FC, FormEvent, useCallback, useRef, useState } from 'react'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useAsyncCallback } from 'react-use-async-callback'
-import { isUsingNewFaucetService, networkToChainId } from 'config/chains'
-import { TxMessage } from 'components/TxMessage'
 import styles from 'styles/Form.module.css'
 import { Faucet2APIResponse, FaucetAPIResponse, Network } from 'types'
 import { saveAddress } from 'utils/history'
@@ -41,16 +41,17 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
       event.preventDefault()
 
       const beneficiary = inputRef.current?.value
-      console.info('begin faucet sequence')
-      if (!beneficiary?.length || !(executeRecaptcha && process.env.VERCEL_ENV === 'production')) {
-        console.info('aborting')
+      if (!beneficiary?.length) {
+        console.info('aborting: no recipient address')
         return
       }
       // save to local storage
       saveAddress(beneficiary)
+      console.info('begin faucet sequence')
 
-      const captchaToken = process.env.VERCEL_ENV === 'production' ? await executeRecaptcha('faucet') : null
       if (chainIsUsingNewFaucetService) {
+        const captchaToken = executeRecaptcha ? await executeRecaptcha('faucet') : null
+
         const response2 = await fetch('api/tap', {
           method: 'POST',
           headers: {
@@ -73,6 +74,13 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
         return
       }
 
+      if (!executeRecaptcha) {
+        console.warn('recaptcha not available')
+        setFailureStatus('recaptcha not available')
+        return
+      }
+      
+      const captchaToken = await executeRecaptcha('faucet')
       console.info('received captcha token...posting faucet request')
       const response = await fetch('api/faucet', {
         method: 'POST',
