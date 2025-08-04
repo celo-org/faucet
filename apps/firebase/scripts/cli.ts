@@ -1,6 +1,7 @@
-import { execSync } from 'child_process'
-import yargs from 'yargs'
-import { NetworkConfig } from '../src/config'
+import { privateKeyToAddress } from "@celo/utils/lib/address";
+import { execSync } from 'child_process';
+import yargs from 'yargs';
+import { NetworkConfig } from '../src/config';
 
 // tslint:disable-next-line: no-unused-expression
 yargs
@@ -38,7 +39,7 @@ yargs
     (args) => clearAccounts(args.net),
   )
   .command(
-    'accounts:add <pk> <address>',
+    'accounts:add <pk>',
     'Add an account',
     (args) =>
       args
@@ -51,12 +52,8 @@ yargs
           type: 'string',
           description: 'Private Key. Format 0x...',
         })
-        .positional('address', {
-          type: 'string',
-          description: 'Address. Format 0x...',
-        })
-        .demand(['pk', 'address']),
-    (args) => addAccount(args.net, args.pk, args.address),
+        .demand(['pk']),
+    (args) => addAccount(args.net, args.pk),
   )
   .command(
     'faucet:request <to>',
@@ -199,10 +196,10 @@ function enqueueFundRequest(network: string, address: string) {
   })
 }
 
-function addAccount(network: string, pk: string, address: string) {
+function addAccount(network: string, pk: string) {
   const account = {
     pk,
-    address,
+    address: privateKeyToAddress(pk),
     locked: false,
   }
   const data = JSON.stringify(account)
