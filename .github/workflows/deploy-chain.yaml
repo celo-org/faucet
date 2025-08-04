@@ -40,7 +40,7 @@ jobs:
         uses: 'google-github-actions/auth@v2'
         with:
           workload_identity_provider: projects/1094498259535/locations/global/workloadIdentityPools/gh-faucet-master/providers/github-by-repos
-          service_account: faucet-deploy-firebase@celo-faucet.iam.gserviceaccount.com
+          service_account: ${{ github.event.inputs.prod == 'true' && 'faucet-deploy-firebase@celo-faucet.iam.gserviceaccount.com' || 'faucet-deploy-firebase-staging@celo-faucet-staging.iam.gserviceaccount.com' }}
  
       - name: Set PK
         if: ${{ github.event.inputs.PK != '' }}
