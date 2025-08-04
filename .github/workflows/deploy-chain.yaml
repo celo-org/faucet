@@ -11,7 +11,7 @@ on:
         required: true
       PK:
         description: 'Private Key (0x...)'
-        required: true  
+        required: false  
       PROD:
         type: boolean
         description: 'Is this a production deployment?'
@@ -42,10 +42,15 @@ jobs:
           workload_identity_provider: projects/1094498259535/locations/global/workloadIdentityPools/gh-faucet-master/providers/github-by-repos
           service_account: faucet-deploy-firebase@celo-faucet.iam.gserviceaccount.com
  
-      - name: Set Firebase project and Deploy Firebase Function
-        working-directory: apps/firebase
+      - name: Set PK
+        if: ${{ github.event.inputs.PK != '' }}
         run: |
           yarn firebase use ${{github.event.inputs.PROD == 'true' && 'celo-faucet' || 'celo-faucet-staging'}}
           yarn cli accounts:add  ${{ github.event.inputs.PK }} --net ${{ github.event.inputs.CHAIN_NAME }}
-          yarn firebase functions:config:set faucet.${{ github.event.inputs.CHAIN_NAME }}.node_url="${{ github.event.inputs.RPC_URL }}"
+      - name: Set Firebase project and Deploy Firebase Function
+        working-directory: apps/firebase
+        run: |
+          yarn firebase use ${{ github.event.inputs.PROD == 'true' && 'celo-faucet' || 'celo-faucet-staging' }}
+          yarn cli config:set --net ${{ github.event.inputs.CHAIN_NAME }} --nodeUrl="${{ github.event.inputs.RPC_URL }}" --faucetGoldAmount 300000000000000000 --authenticatedGoldAmount 3000000000000000000
           yarn firebase deploy --only functions:faucetRequestProcessor
+      
