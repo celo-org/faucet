@@ -216,7 +216,7 @@ function clearAccounts(network: string) {
 
 function deployFunctions() {
   execSync(
-    `yarn firebase deploy --only functions:faucetRequestProcessor,functions:bigFaucetFunder,functions:topUp`,
+    `yarn firebase deploy --only functions:faucetRequestProcessor`,
     {
       stdio: 'inherit',
     },
