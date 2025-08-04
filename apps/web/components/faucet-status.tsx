@@ -1,5 +1,6 @@
-import { FC, useCallback, useEffect, useState } from 'react'
 import { inter } from 'components/request-form'
+import { CHAIN_PARAMS } from 'config/chains'
+import { FC, useCallback, useEffect, useState } from 'react'
 import styles from 'styles/Form.module.css'
 import { Network, RequestRecord, RequestStatus } from 'types'
 import { subscribeRequest } from 'utils/firebase.client'
@@ -90,12 +91,14 @@ const TxMessage = ({
       </span>
     )
   }
+  const explorerUrl = new URL(CHAIN_PARAMS[network].blockExplorerUrls[0])
+  explorerUrl.pathname = `/tx/${txHash}`
   return (
     <a
       className={inter.className}
       target="_blank"
       rel="noreferrer"
-      href={`https://celo-${network}.blockscout.com/tx/${txHash}`}
+      href={explorerUrl.href}
     >
       View on Celo Explorer
     </a>
