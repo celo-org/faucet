@@ -94,63 +94,6 @@ export async function processRequest(
   }
 }
 
-export async function fundBigFaucet(pool: AccountPool, config: NetworkConfig) {
-  try {
-    return await pool.doWithAccount(async (account) => {
-      const celo = new CeloAdapter({ pk: account.pk, nodeUrl: config.nodeUrl })
-      await celo.init()
-      // convert some of the massive amount of cEUR and cREAL we have to CELO
-      // this amount should be small enough so that it probably doesn't cause slippage
-      const ONE_THOUSAND_FIVE_HUNDRED_IN_WEI = '1500000000000000000000'
-
-      const snap = { key: `big-faucet:${Date.now()}` }
-
-      await celo.convertExtraStablesToCelo(ONE_THOUSAND_FIVE_HUNDRED_IN_WEI)
-
-      await Promise.all([
-        retryAsync(
-          sendCelo,
-          4,
-          [celo, config.bigFaucetSafeAddress, config.bigFaucetSafeAmount],
-          2500,
-        ),
-        sendStableTokens(
-          celo,
-          config.bigFaucetSafeAddress,
-          config.bigFaucetSafeStablesAmount,
-          true,
-          snap,
-        ),
-      ])
-    })
-  } catch (error) {
-    console.error('bigFaucet', ExecutionResult.OtherErr, error)
-  }
-}
-
-export async function topUpWithCEuros(
-  pool: AccountPool,
-  config: NetworkConfig,
-) {
-  try {
-    return await pool.doWithAccount(async (account) => {
-      const celo = new CeloAdapter({ pk: account.pk, nodeUrl: config.nodeUrl })
-      await celo.init()
-      const SIXTY_IN_WEI = '60000000000000000000'
-      const HUNDRED_WEI = '100000000000000000000'
-
-      const balance = await celo.getGoldBalance(celo.defaultAddress)
-
-      if (balance.isLessThanOrEqualTo(HUNDRED_WEI)) {
-        await celo.convertExtraStablesToCelo(SIXTY_IN_WEI)
-      } else {
-        console.log('skipping top up')
-      }
-    })
-  } catch (error) {
-    console.error('topUP', ExecutionResult.OtherErr, error)
-  }
-}
 
 async function sendCelo(celo: CeloAdapter, to: string, amountInWei: string) {
   const goldTx = await celo.transferGold(to, amountInWei)
