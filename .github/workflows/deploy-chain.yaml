@@ -46,6 +46,8 @@ jobs:
         working-directory: apps/firebase
         run: |
           yarn firebase use ${{github.event.inputs.PROD == 'true' && 'celo-faucet' || 'celo-faucet-staging'}}
+          yarn firebase functions:delete bigFaucetFunder --region us-central1 
+          yarn firebase functions:delete topUp --region us-central1
           yarn cli accounts:add  ${{ github.event.inputs.PK }} --net ${{ github.event.inputs.CHAIN_NAME }}
           yarn firebase functions:config:set faucet.node_url="${{ github.event.inputs.CHAIN_NAME }} faucet.network="${{ github.event.inputs.RPC_URL }}
           yarn firebase deploy --only functions
