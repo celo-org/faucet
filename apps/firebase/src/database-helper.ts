@@ -1,5 +1,4 @@
 /* tslint:disable max-classes-per-file */
-import { CeloTransactionObject } from '@celo/connect'
 import { retryAsync, sleep } from '@celo/utils/lib/async'
 import { database } from 'firebase-admin'
 import { database as functionsDB } from 'firebase-functions'
@@ -108,7 +107,7 @@ function buildHandleFaucet(
 ) {
   return async (account: AccountRecord) => {
     const { nodeUrl } = config
-    const { goldAmount, stableAmount } = getSendAmounts(
+    const { goldAmount } = getSendAmounts(
       request.authLevel,
       config,
     )
@@ -125,20 +124,6 @@ function buildHandleFaucet(
         3,
         [celo, request.beneficiary, goldAmount, snap],
         500,
-      )
-    }
-
-    if (
-      request.tokens === 'Stables' ||
-      request.tokens === 'All' ||
-      request.tokens === undefined
-    ) {
-      await sendStableTokens(
-        celo,
-        request.beneficiary,
-        stableAmount,
-        false,
-        snap,
       )
     }
   }
@@ -191,47 +176,6 @@ async function sendGold(
   return goldTxHash
 }
 
-async function sendStableTokens(
-  celo: CeloAdapter,
-  address: Address,
-  amount: string,
-  alwaysUseFullAmount: boolean, // when false if the recipient already has a sizeable balance the amount will gradually be reduced to zero
-  snap: DataSnapshot | { key: string; ref?: undefined },
-) {
-  const tokenTxs = await celo.transferStableTokens(
-    address,
-    amount,
-    alwaysUseFullAmount,
-  )
-
-  const sendTxHelper = async (
-    symbol: string,
-    tx: CeloTransactionObject<boolean>,
-  ) => {
-    const txReceipt = await tx.sendAndWaitForReceipt()
-    const txHash = txReceipt.transactionHash
-    console.log(
-      `req(${snap.key}): ${symbol} Transaction Sent.  txhash:${txHash}`,
-    )
-    if (snap.ref) {
-      await snap.ref.update({ txHash })
-    }
-    return txHash
-  }
-
-  for (const [symbol, tx] of Object.entries(tokenTxs)) {
-    try {
-      if (tx) {
-        await retryAsync(sendTxHelper, 3, [symbol, tx!], 500)
-      }
-    } catch (e) {
-      // Log that one transfer failed. if error is not caught it looks like all failed
-      console.log(
-        `req(${snap.key}): tx=>${tx} ${symbol} Transaction Failed. ${e}`,
-      )
-    }
-  }
-}
 
 function withTimeout<A>(
   timeout: number,
@@ -293,12 +237,6 @@ export class AccountPool {
 
   get accountsRef() {
     let network = this.network
-
-    // TODO temp as they share accounts
-    if (network === 'dango') {
-      network = 'alfajores'
-    }
-
     return this.db.ref(`/${network}/accounts`)
   }
 

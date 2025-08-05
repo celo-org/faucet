@@ -18,9 +18,6 @@ The accounts are stored in firebase realtime DB. For each account it needs:
 - account address
 - account private key
 
-## Adding additional stable tokens to the faucet
-
-In addition to funding the faucet address with the new token, update the `contractkit` dependency (such that the new desired token is included in the `StableTokenConfig`) and then redeploy this function on firebase.
 
 ### Setting Faucet Amounts
 
