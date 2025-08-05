@@ -24,7 +24,7 @@
       "matchPackageNames": ["/eslint/"]
     }
   ],
-  "ignoreDeps": ["web3", "ethers"],
+  "ignoreDeps": ["web3"],
   "major": {
     "minimumReleaseAge": "12 days"
   },
