@@ -3,7 +3,7 @@ import { AuthLevel } from './database-helper';
 
 export function getQualifiedAmount(
   authLevel: AuthLevel,
-  config: NetworkConfig): { celoAmount: string; } {
+  config: Pick<NetworkConfig, 'faucetGoldAmount' | 'authenticatedGoldAmount'>): { celoAmount: string; } {
   switch (authLevel) {
     case undefined:
     case AuthLevel.none:
