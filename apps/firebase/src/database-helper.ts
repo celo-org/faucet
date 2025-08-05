@@ -2,15 +2,15 @@
 import { retryAsync, sleep } from '@celo/utils/lib/async'
 import { database } from 'firebase-admin'
 import { database as functionsDB } from 'firebase-functions'
+import type { Address, Hex } from 'viem'
 import { CeloAdapter } from './celo-adapter'
 import { NetworkConfig } from './config'
+import { getQualifiedAmount } from './get-qualified-mount'
 import { ExecutionResult, logExecutionResult } from './metrics'
-
 type DataSnapshot = functionsDB.DataSnapshot
 
-export type Address = string
 export interface AccountRecord {
-  pk: string
+  pk: Hex
   address: Address
   locked: boolean
 }
@@ -63,15 +63,13 @@ export async function processRequest(
   )
 
   try {
-    let requestHandler
-    if (request.type === RequestType.Faucet) {
-      requestHandler = buildHandleFaucet(request, snap, config)
-    } else {
+    if (request.type !== RequestType.Faucet) {
       logExecutionResult(snap.key, ExecutionResult.InvalidRequestErr)
       return ExecutionResult.InvalidRequestErr
     }
+    const faucetSender = buildFaucetSender(request, snap, config)
 
-    const actionResult = await pool.doWithAccount(requestHandler)
+    const actionResult = await pool.doWithAccount(faucetSender)
     if (actionResult === ActionResult.Ok) {
       await snap.ref.update({ status: RequestStatus.Done })
       logExecutionResult(snap.key, ExecutionResult.Ok)
@@ -93,87 +91,49 @@ export async function processRequest(
   }
 }
 
-
-async function sendCelo(celo: CeloAdapter, to: string, amountInWei: string) {
-  const goldTx = await celo.transferGold(to, amountInWei)
-  const goldTxReceipt = await goldTx.sendAndWaitForReceipt()
-  return goldTxReceipt.transactionHash
-}
-
-function buildHandleFaucet(
+const MAX_RETRIES = 3
+const RETRY_WAIT_MS = 500
+function buildFaucetSender(
   request: RequestRecord,
   snap: DataSnapshot,
   config: NetworkConfig,
 ) {
   return async (account: AccountRecord) => {
     const { nodeUrl } = config
-    const { goldAmount } = getSendAmounts(
+    const { celoAmount } = getQualifiedAmount(
       request.authLevel,
       config,
     )
     const celo = new CeloAdapter({ nodeUrl, pk: account.pk })
-    await celo.init()
 
-    if (
-      request.tokens === 'Celo' ||
-      request.tokens === 'All' ||
-      request.tokens === undefined
-    ) {
-      await retryAsync(
-        sendGold,
-        3,
-        [celo, request.beneficiary, goldAmount, snap],
-        500,
-      )
-    }
+    await retryAsync(
+      dispatchCeloFunds,
+      MAX_RETRIES,
+      [celo, request.beneficiary, celoAmount, snap],
+      RETRY_WAIT_MS,
+    )
   }
 }
 
-function getSendAmounts(
-  authLevel: AuthLevel,
-  config: NetworkConfig,
-): { goldAmount: string; stableAmount: string } {
-  switch (authLevel) {
-    case undefined:
-    case AuthLevel.none:
-      return {
-        goldAmount: config.faucetGoldAmount,
-        stableAmount: config.faucetStableAmount,
-      }
-    case AuthLevel.authenticated:
-      return {
-        goldAmount: config.authenticatedGoldAmount,
-        stableAmount: config.authenticatedStableAmount,
-      }
-  }
-}
-
-async function sendGold(
+async function dispatchCeloFunds(
   celo: CeloAdapter,
   address: Address,
   amount: string,
   snap: DataSnapshot,
 ) {
-  const token = await celo.kit.contracts.getGoldToken()
-
-  const recipientBalance = await token.balanceOf(address)
-
-  const actualAmount = celo.fadeOutAmount(recipientBalance, amount, false)
+  
+  const actualAmount = BigInt(amount)
 
   console.info(
     `req(${
       snap.key
-    }): Sending ${actualAmount.toString()} celo to ${address} (balance ${recipientBalance.toString()})`,
+    }): Sending ${actualAmount.toString()} celo to ${address}`,
   )
-  if (actualAmount.eq(0)) {
-    console.info(`req(${snap.key}): CELO Transaction SKIPPED`)
-    await snap.ref.update({ goldTxHash: 'skipped' })
-    return 'skipped'
-  }
-  const goldTxHash = await sendCelo(celo, address, actualAmount.toFixed())
-  console.info(`req(${snap.key}): CELO Transaction Sent. txhash:${goldTxHash}`)
-  await snap.ref.update({ goldTxHash })
-  return goldTxHash
+ 
+  const celoTxhash = await celo.transferCelo(address, actualAmount)
+  console.info(`req(${snap.key}): CELO Transaction Submited to mempool. txhash:${celoTxhash}`)
+  await snap.ref.update({ celoTxhash })
+  return celoTxhash
 }
 
 
