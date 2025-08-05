@@ -236,7 +236,7 @@ export class AccountPool {
   }
 
   get accountsRef() {
-    let network = this.network
+    const network = this.network
     return this.db.ref(`/${network}/accounts`)
   }
 
