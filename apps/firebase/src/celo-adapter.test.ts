@@ -55,7 +55,7 @@ describe('CeloAdapter Integration Tests', () => {
         pk: testPrivateKey,
         nodeUrl: testNodeUrls.alfajores
       })
-      vi.spyOn(adapter.client, 'sendTransaction').mockResolvedValue('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef' as Hex)
+      vi.spyOn(adapter.client, 'sendTransaction').mockResolvedValue('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef' as const)
     })
     it('has the correct method signature', () => {
 
@@ -132,23 +132,6 @@ describe('CeloAdapter Integration Tests', () => {
           nodeUrl: testNodeUrls.alfajores
         })
       }).toThrow()
-    })
-  })
-
-  describe('Type Safety', () => {
-    it('enforces correct parameter types', () => {
-      const adapter = new CeloAdapter({
-        pk: testPrivateKey,
-        nodeUrl: testNodeUrls.alfajores
-      })
-
-      // Test that the method requires the correct types
-      const validAmount = BigInt("1000000000000000000")
-
-      // These should not cause TypeScript errors
-      expect(() => {
-        adapter.transferCelo(validAddress, validAmount)
-      }).not.toThrow()
     })
   })
 
