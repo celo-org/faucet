@@ -1,6 +1,6 @@
 import { parseEther } from 'viem'
 import { celoAlfajores, celoSepolia } from 'viem/chains'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CeloAdapter } from './celo-adapter'
 
 describe('CeloAdapter Integration Tests', () => {
@@ -48,11 +48,16 @@ describe('CeloAdapter Integration Tests', () => {
   })
 
   describe('transferCelo method', () => {
-    it('has the correct method signature', () => {
-      const adapter = new CeloAdapter({
+    let adapter: CeloAdapter
+    beforeEach(() => {
+      vi.resetAllMocks()
+      adapter = new CeloAdapter({
         pk: testPrivateKey,
         nodeUrl: testNodeUrls.alfajores
       })
+      vi.spyOn(adapter.client, 'sendTransaction').mockResolvedValue('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef' as Hex)
+    })
+    it('has the correct method signature', () => {
 
       // Test that the method exists and has the right signature
       expect(typeof adapter.transferCelo).toBe('function')
@@ -63,30 +68,20 @@ describe('CeloAdapter Integration Tests', () => {
       expect(method.length).toBe(2) // Should accept 2 parameters
     })
 
-    it('accepts valid parameters without throwing', () => {
-      const adapter = new CeloAdapter({
-        pk: testPrivateKey,
-        nodeUrl: testNodeUrls.alfajores
-      })
+    it('accepts valid parameters without throwing', async () => {     
 
       // Use a valid checksummed address
       const amount = parseEther("1") // 1 CELO in wei
 
-      // We're not actually calling the method since it would require real funds
-      // but we can verify the method exists and accepts the right types
-      expect(() => {
-        // Just check that the method exists and can be called
-        adapter.transferCelo(validAddress, amount)
-      }).not.toThrow()
+      await adapter.transferCelo(validAddress, amount)
+      expect(adapter.client.sendTransaction).toHaveBeenCalledWith({
+        to: validAddress,
+        value: amount,
+        chain: celoAlfajores
+      })
     })
 
-    it('handles different amount types', () => {
-      const adapter = new CeloAdapter({
-        pk: testPrivateKey,
-        nodeUrl: testNodeUrls.alfajores
-      })
-
-      // Use a valid checksummed address
+    it('handles different amount types', async () => {
       
       // Test with different bigint amounts
       const amounts = [
@@ -95,11 +90,13 @@ describe('CeloAdapter Integration Tests', () => {
         parseEther('100000000'), // Very large amount
       ]
 
-      amounts.forEach(amount => {
-        expect(() => {
-          // Again, not actually calling due to real network requirements
-          adapter.transferCelo(validAddress, amount)
-        }).not.toThrow()
+      amounts.forEach(async amount => {
+        await adapter.transferCelo(validAddress, amount)
+        expect(adapter.client.sendTransaction).toHaveBeenCalledWith({
+          to: validAddress,
+          value: amount,
+          chain: celoAlfajores
+        })
       })
     })
   })
@@ -110,7 +107,7 @@ describe('CeloAdapter Integration Tests', () => {
         pk: testPrivateKey,
         nodeUrl: testNodeUrls.alfajores
       })
-
+      
       // Verify the adapter was created with Alfajores configuration
       expect(adapter).toBeInstanceOf(CeloAdapter)
     })

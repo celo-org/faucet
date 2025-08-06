@@ -4,7 +4,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 import { celoAlfajores, celoSepolia } from 'viem/chains'
 
 export class CeloAdapter {
-  private readonly client: WalletClient<Transport, typeof celoAlfajores | typeof celoSepolia, Account>
+  public readonly client: WalletClient<Transport, typeof celoAlfajores | typeof celoSepolia, Account>
   private readonly chain: typeof celoAlfajores | typeof celoSepolia
 
   constructor({ pk, nodeUrl }: { pk: Hex; nodeUrl: string }) {
