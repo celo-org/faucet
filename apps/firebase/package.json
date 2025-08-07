@@ -19,19 +19,15 @@
     "test:ci": "vitest run"
   },
   "dependencies": {
-    "@celo/connect": "5.3.0",
-    "@celo/contractkit": "8.0.0",
     "@celo/utils": "6.0.1",
     "@firebase/app": "^0.10.7",
     "@google-cloud/logging": "^11.1.0",
-    "bignumber.js": "^9.1.2",
     "debug": "^4.3.5",
     "firebase": "^10.7.0",
     "firebase-admin": "^12.0.0",
     "firebase-functions": "^4.6.0",
     "firebase-tools": "^13.0.2",
-    "viem": "^2.33.2",
-    "web3": "1.10.4"
+    "viem": "^2.33.2"
   },
   "devDependencies": {
     "@types/debug": "^4.1.12",

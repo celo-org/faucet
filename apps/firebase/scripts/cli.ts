@@ -1,5 +1,5 @@
-import { privateKeyToAddress } from "@celo/utils/lib/address";
 import { execSync } from 'child_process';
+import { privateKeyToAddress } from 'viem/accounts';
 import yargs from 'yargs';
 import { NetworkConfig } from '../src/config';
 
