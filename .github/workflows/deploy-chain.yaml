@@ -35,22 +35,21 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
+      - name: Show ref name
+        run: |
+          echo "Ref name: ${{ github.ref_name }} ${{env.IS_PROD && ' (Production)' || ' (Staging)'}}"
       - name: Install dependencies
         run: yarn install
 
       - name: Build project
         working-directory: apps/firebase
         run: yarn build
-
-      - name: Show ref name
-        run: |
-          echo "Ref name: ${{ github.ref_name }} ${{env.IS_PROD && ' (Production)' || ' (Staging)'}}"
+ 
       - name: Authenticate to Google Cloud
         id: auth
         uses: 'google-github-actions/auth@v2'
         with:
-          workload_identity_provider: ${{ env.IS_PROD && 'projects/1094498259535/locations/global/workloadIdentityPools/gh-faucet-master/providers/github-by-repos' || 'projects/1094498259535/locations/global/workloadIdentityPools/gh-faucet/providers/github-by-repos' }}
+          workload_identity_provider: ${{ env.IS_PROD && 'projects/1094498259535/locations/global/workloadIdentityPools/gh-faucet-master/providers/github-by-repos' || 'projects/1094498259535/locations/global/workloadIdentityPools/gh-faucet/providers/github-by-repos'  }}
           service_account: ${{ env.IS_PROD && 'faucet-deploy-firebase@celo-faucet.iam.gserviceaccount.com' || 'faucet-deploy-firebase-staging@celo-faucet-staging.iam.gserviceaccount.com' }}
       - name: Set Firebase Project
         id: set_firebase_project
