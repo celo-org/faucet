@@ -35,6 +35,10 @@ jobs:
         run: yarn lint
       - name: Build Firebase
         run: yarn --cwd=apps/firebase run build
+
+      - name: Run Tests
+        run: yarn --cwd=apps/firebase run test:ci
+
   validate-renovate-config:
     name: Validate Renovate Config
     runs-on: ubuntu-latest
