@@ -23,7 +23,7 @@
     "@celo/utils": "6.0.1",
     "@firebase/app": "^0.10.7",
     "@google-cloud/logging": "^11.1.0",
-    "@mento-protocol/mento-sdk": "^0.1.5",
+    "@mento-protocol/mento-sdk": "^1.10.3",
     "bignumber.js": "^9.1.2",
     "debug": "^4.3.5",
     "ethers": "^5.7.2",

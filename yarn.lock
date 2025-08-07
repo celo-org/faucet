@@ -135,7 +135,7 @@ __metadata:
     "@celo/utils": "npm:6.0.1"
     "@firebase/app": "npm:^0.10.7"
     "@google-cloud/logging": "npm:^11.1.0"
-    "@mento-protocol/mento-sdk": "npm:^0.1.5"
+    "@mento-protocol/mento-sdk": "npm:^1.10.3"
     "@types/debug": "npm:^4.1.12"
     "@types/node": "npm:^20.14.11"
     "@types/yargs": "npm:^17.0.32"
@@ -1702,21 +1702,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mento-protocol/mento-core-ts@npm:^0.1.1":
-  version: 0.1.1
-  resolution: "@mento-protocol/mento-core-ts@npm:0.1.1"
-  checksum: 10c0/9b87ab527ca011d89fdb10136df787f6decbfed32fd5a2cdb85bf7ad61a37bd7eb600a61c6dccec5dce997682d219fb199015d85aaa5b7a1f3f72384dfacaa9c
+"@mento-protocol/mento-core-ts@npm:^0.2.0":
+  version: 0.2.3
+  resolution: "@mento-protocol/mento-core-ts@npm:0.2.3"
+  checksum: 10c0/3e61f9a2b70eeae4db505f65053740dae945a50ce0730d429373c0d992d772ddfff23003fdfda0470929506faa4402e9e72330f5c546623ee34aeebb3bff9a1a
   languageName: node
   linkType: hard
 
-"@mento-protocol/mento-sdk@npm:^0.1.5":
-  version: 0.1.5
-  resolution: "@mento-protocol/mento-sdk@npm:0.1.5"
+"@mento-protocol/mento-sdk@npm:^1.10.3":
+  version: 1.10.3
+  resolution: "@mento-protocol/mento-sdk@npm:1.10.3"
   dependencies:
-    "@mento-protocol/mento-core-ts": "npm:^0.1.1"
+    "@mento-protocol/mento-core-ts": "npm:^0.2.0"
+    mento-router-ts: "npm:^0.2.0"
   peerDependencies:
     ethers: ^5.7
-  checksum: 10c0/739b11bff71f1e07ec9a4a454395f7189cce7a9db26b750cd946626d324020fceb864e29e4efdb2ef67b9855bc03cdbeb4639dcb09b9e64af630857ba9b33939
+  checksum: 10c0/28a05c3c73661a3abe863775e0a5b9be70b696d661faed9d779225a110721f47bfad441a92300969485beae5bad3897c926f5daf44309662b1080b11cac9f4fc
   languageName: node
   linkType: hard
 
@@ -8945,6 +8946,13 @@ __metadata:
   version: 0.3.0
   resolution: "media-typer@npm:0.3.0"
   checksum: 10c0/d160f31246907e79fed398470285f21bafb45a62869dc469b1c8877f3f064f5eabc4bcc122f9479b8b605bc5c76187d7871cf84c4ee3ecd3e487da1993279928
+  languageName: node
+  linkType: hard
+
+"mento-router-ts@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "mento-router-ts@npm:0.2.0"
+  checksum: 10c0/238d076ebe1aaeebaf2fe96709bad2df78b6c33b427d1f95bbcbfcc034037328a5fe59d7dfd4ac522e6c8b80fea553753d6f32133b4f76e7f28b2c05ce29debb
   languageName: node
   linkType: hard
 
