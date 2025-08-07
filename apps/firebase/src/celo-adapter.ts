@@ -1,3 +1,4 @@
+import { ensureLeading0x } from '@celo/utils/lib/address'
 import {
   Account,
   Address,
@@ -19,7 +20,7 @@ export class CeloAdapter {
   private readonly chain: typeof celoAlfajores | typeof celoSepolia
 
   constructor({ pk, nodeUrl }: { pk: Hex; nodeUrl: string }) {
-    const account = privateKeyToAccount(pk)
+    const account = privateKeyToAccount(ensureLeading0x(pk))
     this.chain = nodeUrl.includes('alfajores') ? celoAlfajores : celoSepolia
     this.client = createWalletClient({
       account,
