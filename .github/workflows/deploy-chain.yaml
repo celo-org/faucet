@@ -42,6 +42,9 @@ jobs:
         working-directory: apps/firebase
         run: yarn build
 
+      - name: Show ref name
+        run: |
+          echo "Ref name: ${{ github.ref_name }}"
       - name: Authenticate to Google Cloud
         id: auth
         uses: 'google-github-actions/auth@v2'

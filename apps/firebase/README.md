@@ -1,6 +1,6 @@
 # Celo Faucet
 
-A firebase function that creates faucets addresses
+A firebase function that faucets addresses
 
 
 ## Funding the accounts

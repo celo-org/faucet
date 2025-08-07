@@ -8,8 +8,8 @@
   "scripts": {
     "preserve": "yarn run build",
     "serve": "cross-env NODE_ENV=production firebase serve -p 5001",
-    "deploy:staging": "echo 'please use the deploy-chain workflow on github'",
-    "deploy:prod": "echo 'please use the deploy-chain workflow on github'",
+    "deploy:staging": "echo 'please use the deploy-chain workflow on github' && exit 1",
+    "deploy:prod": "echo 'please use the deploy-chain workflow on github' && exit 1",
     "clean": "tsc -b . --clean",
     "build": "tsc -b .",
     "lint": "eslint -c ../../.eslintrc.js --ext .ts ./src",
