@@ -35,9 +35,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Show ref name
-        run: |
-          echo "Ref name: ${{ github.ref_name }} ${{github.event.inputs.PROD == 'true' }} ${{env.IS_PROD == 'true' && ' (Production)' || ' (Staging)'}}"
       - name: Install dependencies
         run: yarn install
 
@@ -53,9 +50,11 @@ jobs:
           service_account: ${{ env.IS_PROD == 'true' && 'faucet-deploy-firebase@celo-faucet.iam.gserviceaccount.com' || 'faucet-deploy-firebase-staging@celo-faucet-staging.iam.gserviceaccount.com' }}
       - name: Set Firebase Project
         id: set_firebase_project
+        working-directory: apps/firebase
         run: yarn firebase use ${{env.IS_PROD == 'true' && 'celo-faucet' || 'celo-faucet-staging'}}
       - name: Set PK
         if: ${{ github.event.inputs.PK != '' }}
+        working-directory: apps/firebase
         run: |
           yarn cli accounts:add  ${{ github.event.inputs.PK }} --net ${{ github.event.inputs.CHAIN_NAME }}
       - name: Set Firebase project
@@ -64,6 +63,7 @@ jobs:
         run: |
           yarn cli config:set --net ${{ github.event.inputs.CHAIN_NAME }} --nodeUrl="${{ github.event.inputs.RPC_URL }}" --faucetGoldAmount 300000000000000000 --authenticatedGoldAmount 3000000000000000000
       - name: Deploy Firebase Function faucetRequestProcessor
+        working-directory: apps/firebase
         run: |
           yarn firebase deploy --only functions:faucetRequestProcessor
       
