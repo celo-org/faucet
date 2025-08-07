@@ -44,7 +44,7 @@ jobs:
 
       - name: Show ref name
         run: |
-          echo "Ref name: ${{ github.ref_name }}"
+          echo "Ref name: ${{ github.ref_name }} ${{env.IS_PROD}}"
       - name: Authenticate to Google Cloud
         id: auth
         uses: 'google-github-actions/auth@v2'
