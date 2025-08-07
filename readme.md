@@ -1,12 +1,17 @@
-# Welcome to Alfajores Faucet app
+# Welcome to Celo Faucet app
 
-This Repo contains the code for the alfajores faucet. This is contained in 2 apps.
+This Repo contains the code for the celo testnets faucet. This is contained in 2 apps.
 
 - The firebase app contains functions which do the actual fauceting.
 
 - The web app contains a UI for making requests.
 
 The web app deploys automatically to vercel.
+
+The deploy-chains gh actions deploys functions to staging and production envronments from staging and master branches respectively
+
+Note other branches are not deployed autamtically but can be by manually triggering the flow
+
 
 ## Setup
 

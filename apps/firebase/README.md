@@ -15,7 +15,7 @@ push to the staging branch. this branch is the only non master branch that can b
 
 ## How to deploy
 
-Currently deployment is done thru a manually triggered github action. see deploy-chain.yaml
+Deployment is done thru a github action. see deploy-chain.yaml
 
 ## ✍️ <a id="contributing"></a>Contributing
 

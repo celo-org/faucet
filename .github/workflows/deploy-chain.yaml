@@ -12,10 +12,10 @@ on:
     inputs:
       CHAIN_NAME:
         description: 'Chain Name (kebab-case)'
-        required: true
+        required: false
       RPC_URL:
         description: 'RPC URL'
-        required: true
+        required: false
       PK:
         description: 'Private Key (0x...)'
         required: false  
