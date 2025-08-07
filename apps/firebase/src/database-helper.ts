@@ -100,10 +100,7 @@ function buildFaucetSender(
 ) {
   return async (account: AccountRecord) => {
     const { nodeUrl } = config
-    const { celoAmount } = getQualifiedAmount(
-      request.authLevel,
-      config,
-    )
+    const { celoAmount } = getQualifiedAmount(request.authLevel, config)
     const celo = new CeloAdapter({ nodeUrl, pk: account.pk })
 
     await retryAsync(
@@ -121,21 +118,19 @@ async function dispatchCeloFunds(
   amount: string,
   snap: DataSnapshot,
 ) {
-  
   const actualAmount = BigInt(amount)
 
   console.info(
-    `req(${
-      snap.key
-    }): Sending ${actualAmount.toString()} celo to ${address}`,
+    `req(${snap.key}): Sending ${actualAmount.toString()} celo to ${address}`,
   )
- 
+
   const celoTxhash = await celo.transferCelo(address, actualAmount)
-  console.info(`req(${snap.key}): CELO Transaction Submited to mempool. txhash:${celoTxhash}`)
+  console.info(
+    `req(${snap.key}): CELO Transaction Submited to mempool. txhash:${celoTxhash}`,
+  )
   await snap.ref.update({ celoTxhash })
   return celoTxhash
 }
-
 
 function withTimeout<A>(
   timeout: number,

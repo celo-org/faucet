@@ -1,7 +1,7 @@
-import { execSync } from 'child_process';
-import { privateKeyToAddress } from 'viem/accounts';
-import yargs from 'yargs';
-import { NetworkConfig } from '../src/config';
+import { execSync } from 'child_process'
+import { privateKeyToAddress } from 'viem/accounts'
+import yargs from 'yargs'
+import { NetworkConfig } from '../src/config'
 
 // tslint:disable-next-line: no-unused-expression
 yargs
@@ -215,10 +215,7 @@ function clearAccounts(network: string) {
 }
 
 function deployFunctions() {
-  execSync(
-    `yarn firebase deploy --only functions:faucetRequestProcessor`,
-    {
-      stdio: 'inherit',
-    },
-  )
+  execSync(`yarn firebase deploy --only functions:faucetRequestProcessor`, {
+    stdio: 'inherit',
+  })
 }
