@@ -1,11 +1,12 @@
 name: Deploy Chain and Functions
+run-name: 'Deploy Chain and Functions: ${{ github.head_ref || github.ref_name }}'
 
 on:
   push:
-    # This workflow will fail on other branches
+    
     branches:
-      - master
-      - staging
+      - master # authorized for celo-faucet project & celo-faucet-staging
+      - staging # only authorized for celo-faucet-staging project
     
   workflow_dispatch:
     inputs:
@@ -44,7 +45,7 @@ jobs:
 
       - name: Show ref name
         run: |
-          echo "Ref name: ${{ github.ref_name }} ${{env.IS_PROD}}"
+          echo "Ref name: ${{ github.ref_name }} ${{env.IS_PROD && ' (Production)' || ' (Staging)'}}"
       - name: Authenticate to Google Cloud
         id: auth
         uses: 'google-github-actions/auth@v2'
