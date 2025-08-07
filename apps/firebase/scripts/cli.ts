@@ -1,3 +1,4 @@
+import { ensureLeading0x } from '@celo/utils/lib/address'
 import { execSync } from 'child_process'
 import { privateKeyToAddress } from 'viem/accounts'
 import yargs from 'yargs'
@@ -199,7 +200,7 @@ function enqueueFundRequest(network: string, address: string) {
 function addAccount(network: string, pk: string) {
   const account = {
     pk,
-    address: privateKeyToAddress(pk),
+    address: privateKeyToAddress(ensureLeading0x(pk)),
     locked: false,
   }
   const data = JSON.stringify(account)
