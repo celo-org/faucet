@@ -57,7 +57,7 @@ jobs:
         working-directory: apps/firebase
         run: |
           yarn cli accounts:add  ${{ github.event.inputs.PK }} --net ${{ github.event.inputs.CHAIN_NAME }}
-      - name: Set Firebase project
+      - name: Set Firebase Chain Config
         if: ${{ github.event.inputs.CHAIN_NAME != '' && github.event.inputs.RPC_URL != '' }}
         working-directory: apps/firebase
         run: |
