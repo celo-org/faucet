@@ -278,6 +278,7 @@ export class AccountPool {
     for (const key of accountKeys) {
       console.log(`tryLockAccount: Trying to lock account ${key}`)
       const lockPath = accountsSnap.child(key + '/locked')
+      console.info(`tryLockAccount: Lock path is ${lockPath.ref.toString()} ${lockPath.val()}`)
       if (!lockPath.val() && (await this.trySetLockField(lockPath.ref))) {
         return accountsSnap.child(key)
       }
@@ -294,7 +295,6 @@ export class AccountPool {
    */
   private async trySetLockField(lockRef: database.Reference) {
     const txres = await lockRef.transaction((curr: boolean) => {
-      console.info(`trySetLockField: Current value is ${curr}`)
       if (curr) {
         return // already locked, abort
       } else {
