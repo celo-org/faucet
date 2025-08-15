@@ -1,14 +1,21 @@
-name: Deploy Chain
+name: Deploy Chain and Functions
+run-name: 'Deploy Chain and Functions: ${{ github.head_ref || github.ref_name }}'
 
 on:
+  push:
+    
+    branches:
+      - master # authorized for celo-faucet project & celo-faucet-staging
+      - staging # only authorized for celo-faucet-staging project
+    
   workflow_dispatch:
     inputs:
       CHAIN_NAME:
         description: 'Chain Name (kebab-case)'
-        required: true
+        required: false
       RPC_URL:
         description: 'RPC URL'
-        required: true
+        required: false
       PK:
         description: 'Private Key (0x...)'
         required: false  
@@ -16,7 +23,8 @@ on:
         type: boolean
         description: 'Is this a production deployment?'
         default: false
-
+env:
+  IS_PROD: ${{ github.event.inputs.PROD == 'true' || github.ref_name == 'master' }}
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -27,30 +35,35 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
       - name: Install dependencies
         run: yarn install
 
       - name: Build project
         working-directory: apps/firebase
         run: yarn build
-
+ 
       - name: Authenticate to Google Cloud
         id: auth
         uses: 'google-github-actions/auth@v2'
         with:
-          workload_identity_provider: ${{ github.event.inputs.PROD == 'true' && 'projects/1094498259535/locations/global/workloadIdentityPools/gh-faucet-master/providers/github-by-repos' || 'projects/1094498259535/locations/global/workloadIdentityPools/gh-faucet/providers/github-by-repos' }}
-          service_account: ${{ github.event.inputs.PROD == 'true' && 'faucet-deploy-firebase@celo-faucet.iam.gserviceaccount.com' || 'faucet-deploy-firebase-staging@celo-faucet-staging.iam.gserviceaccount.com' }}
- 
+          workload_identity_provider: ${{ env.IS_PROD == 'true' && 'projects/1094498259535/locations/global/workloadIdentityPools/gh-faucet-master/providers/github-by-repos' || 'projects/1094498259535/locations/global/workloadIdentityPools/gh-faucet/providers/github-by-repos'  }}
+          service_account: ${{ env.IS_PROD == 'true' && 'faucet-deploy-firebase@celo-faucet.iam.gserviceaccount.com' || 'faucet-deploy-firebase-staging@celo-faucet-staging.iam.gserviceaccount.com' }}
+      - name: Set Firebase Project
+        id: set_firebase_project
+        working-directory: apps/firebase
+        run: yarn firebase use ${{env.IS_PROD == 'true' && 'celo-faucet' || 'celo-faucet-staging'}}
       - name: Set PK
         if: ${{ github.event.inputs.PK != '' }}
-        run: |
-          yarn firebase use ${{github.event.inputs.PROD == 'true' && 'celo-faucet' || 'celo-faucet-staging'}}
-          yarn cli accounts:add  ${{ github.event.inputs.PK }} --net ${{ github.event.inputs.CHAIN_NAME }}
-      - name: Set Firebase project and Deploy Firebase Function
         working-directory: apps/firebase
         run: |
-          yarn firebase use ${{ github.event.inputs.PROD == 'true' && 'celo-faucet' || 'celo-faucet-staging' }}
+          yarn cli accounts:add  ${{ github.event.inputs.PK }} --net ${{ github.event.inputs.CHAIN_NAME }}
+      - name: Set Firebase Chain Config
+        if: ${{ github.event.inputs.CHAIN_NAME != '' && github.event.inputs.RPC_URL != '' }}
+        working-directory: apps/firebase
+        run: |
           yarn cli config:set --net ${{ github.event.inputs.CHAIN_NAME }} --nodeUrl="${{ github.event.inputs.RPC_URL }}" --faucetGoldAmount 300000000000000000 --authenticatedGoldAmount 3000000000000000000
+      - name: Deploy Firebase Function faucetRequestProcessor
+        working-directory: apps/firebase
+        run: |
           yarn firebase deploy --only functions:faucetRequestProcessor
       

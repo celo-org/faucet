@@ -6,7 +6,7 @@ const nextConfig = {
     return [
       {
         source: '/',
-        destination: '/alfajores',
+        destination: '/celo-sepolia',
         permanent: false,
       },
     ]

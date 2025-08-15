@@ -1,7 +1,8 @@
-import { privateKeyToAddress } from "@celo/utils/lib/address";
-import { execSync } from 'child_process';
-import yargs from 'yargs';
-import { NetworkConfig } from '../src/config';
+import { ensureLeading0x } from '@celo/utils/lib/address'
+import { execSync } from 'child_process'
+import { privateKeyToAddress } from 'viem/accounts'
+import yargs from 'yargs'
+import { NetworkConfig } from '../src/config'
 
 // tslint:disable-next-line: no-unused-expression
 yargs
@@ -199,7 +200,7 @@ function enqueueFundRequest(network: string, address: string) {
 function addAccount(network: string, pk: string) {
   const account = {
     pk,
-    address: privateKeyToAddress(pk),
+    address: privateKeyToAddress(ensureLeading0x(pk)),
     locked: false,
   }
   const data = JSON.stringify(account)
@@ -215,10 +216,7 @@ function clearAccounts(network: string) {
 }
 
 function deployFunctions() {
-  execSync(
-    `yarn firebase deploy --only functions:faucetRequestProcessor`,
-    {
-      stdio: 'inherit',
-    },
-  )
+  execSync(`yarn firebase deploy --only functions:faucetRequestProcessor`, {
+    stdio: 'inherit',
+  })
 }

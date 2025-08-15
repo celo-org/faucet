@@ -1,133 +1,21 @@
 # Celo Faucet
 
-A firebase function that creates invites and/or faucets addresses
+A firebase function that faucets addresses
 
-## Faucet Deployment Configuration
 
-The function requires a few configuration variables to work:
+## Funding the accounts
 
-- nodeUrl: The url for the node the faucet server will use to send transactions
-- faucetGoldAmount: The amount of gold to faucet on each request
-- faucetStableAmount: The amount of each stable token (cUSD, cEUR) to faucet on each request
+The accounts are normal EOAs. send CELO via transfer or simple transaction. 
 
-All these variables, are set using firebase function:config mechanism
 
-Besides these variables, it also need a list of accounts to use for fauceting.
-The accounts are stored in firebase realtime DB. For each account it needs:
+## How to qa 
 
-- account address
-- account private key
+push to the staging branch. this branch is the only non master branch that can be used with captcha and deployment
 
-## Adding additional stable tokens to the faucet
 
-In addition to funding the faucet address with the new token, update the `contractkit` dependency (such that the new desired token is included in the `StableTokenConfig`) and then redeploy this function on firebase.
+## How to deploy
 
-### Setting Faucet Amounts
-
-Replace net with proper net
-
-```
-yarn cli config:set --net alfajores --faucetGoldAmount 1000000000000000000 --faucetStableAmount 1000000000000000000
-```
-
-You can verify with `yarn cli config:get --net alfajores`
-
-Alternatively, check which project is currently the default (`firebase projects:list`) and if necessary change this (for example, change to the staging project to test new changes via `firebase use celo-faucet-staging`. Then, use `firebase functions:config:get` and `firebase functions:config:set` to set specific parameters (for example: `firebase functions:config:set faucet.alfajores.faucet_stable_amount="1"` will set the `faucetStableAmount` parameter for the `alfajores` network).
-
-### Setting Node Url
-
-#### Obtain the Node IP
-
-To obtain the node ip use `gcloud compute addresses list`
-
-Take in account that:
-
-- The node name scheme is: `${envname}-tx-nodes-0`
-- GCloud Project: celo-testnet-production for Alfajores, celo-testnet for the rest
-
-For Alfajores:
-
-```bash
-gcloud compute addresses describe alfajores-tx-nodes-0 \
-  --project celo-testnet-production \
-  --region us-west1 \
-  --format "value(address)"
-```
-
-For Integration:
-
-```bash
-gcloud compute addresses describe integration-tx-nodes-0 \
-  --project celo-testnet \
-  --region us-west1 \
-  --format "value(address)"
-```
-
-#### Set the node URL
-
-In directory: `packages/faucet`, run:
-
-Replace `net` and `ip` with the proper ones
-
-```
-yarn cli config:set --net alfajores --nodeUrl http://35.185.236.10:8545
-```
-
-You can verify with `yarn cli config:get --net alfajores`
-
-### Setting Accounts
-
-To generate the faucet account addresses and private keys we use celotool in the celo-monorepo.
-
-1.  In Monorepo source the mnemonic `.env` file (i.e. `source .env.mnemonic.alfajores`)
-2.  In Monorepo Run `celotooljs generate bip32 -m "$MNEMONIC" -a faucet -i 0` to obtain faucet account `0` private key
-3.  In Monorepo Run `celotooljs generate account-address --private-key <<pk_here>>` to obtain the address
-4.  In Faucet Run `yarn cli accounts:add --net alfajores <<pk_here>> <<address_here>>` to add the account to the faucet server
-
-Repeat the operation for all the faucet accounts you need (change index `-i` to `1,2,...`)
-
-You can check the result running:
-
-```bash
-yarn cli accounts:get --net alfajores
-```
-
-### Funding the accounts
-
-Faucet accounts should already be funded on network deploy.
-
-For now, that's not running, so we need to do that manually. The process consists on transfering
-funds from validatos-0 account to the faucet account.
-
-To do this, we use `celotool account faucet` command.
-
-Since the command faucet a fixed amount, open `celo-monorepo/packages/celotool/src/cmds/account/faucet.ts` and modify (ex: `--tokenParams CELO,3 cUSD,10 cEUR,5`) with the desired amounts:
-
-```ts
-const cb = async () => {
-  await execCmd(
-    // TODO(yerdua): reimplement the protocol transfer script here, using
-    //  the SDK + Web3 when the SDK can be built for multiple environments
-    `yarn --cwd ../protocol run transfer -n ${argv.celoEnv} -a ${argv.account} -d 10000 -g 10000`
-  )
-}
-```
-
-And then run:
-
-```bash
-celotooljs account faucet -e alfajores --account 0xCEa3eF8e187490A9d85A1849D98412E5D27D1Bb3
-```
-
-### How to deploy to staging
-
-1.  `yarn firebase login`
-2.  `yarn deploy:staging`
-3.  Deployment can be seen at [https://console.firebase.google.com/project/celo-faucet-staging/overview](https://console.firebase.google.com/project/celo-faucet-staging/overview)
-4.  You can simulate the access at [https://console.firebase.google.com/project/celo-faucet-staging/database/celo-faucet-staging/rules](https://console.firebase.google.com/project/celo-faucet-staging/database/celo-faucet-staging/rules)
-
-Go to [https://dev.celo.org/developers/faucet](https://dev.celo.org/developers/faucet) and perform submit, verify that no failure appears in the [logs](https://console.firebase.google.com/project/celo-faucet-staging/functions/logs?search=&severity=DEBUG).
-
+Deployment is done thru a github action. see deploy-chain.yaml
 
 ## ✍️ <a id="contributing"></a>Contributing
 
