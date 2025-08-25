@@ -1,7 +1,7 @@
 /* tslint:disable max-classes-per-file */
 import { retryAsync, sleep } from '@celo/utils/lib/async'
 import { database } from 'firebase-admin'
-import { database as functionsDB } from 'firebase-functions'
+import { database as functionsDB } from 'firebase-functions/v1'
 import type { Address, Hex } from 'viem'
 import { CeloAdapter } from './celo-adapter'
 import { NetworkConfig } from './config'
@@ -278,7 +278,9 @@ export class AccountPool {
     for (const key of accountKeys) {
       console.log(`tryLockAccount: Trying to lock account ${key}`)
       const lockPath = accountsSnap.child(key + '/locked')
-      console.info(`tryLockAccount: Lock path is ${lockPath.ref.toString()} ${lockPath.val()}`)
+      console.info(
+        `tryLockAccount: Lock path is ${lockPath.ref.toString()} ${lockPath.val()}`,
+      )
       if (!lockPath.val() && (await this.trySetLockField(lockPath.ref))) {
         return accountsSnap.child(key)
       }
