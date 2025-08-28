@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@celo/abis": "^13.0.0",
     "@firebase/app-types": "^0.9.3",
     "@metamask/detect-provider": "^2.0.0",
     "@upstash/redis": "^1.35.3",

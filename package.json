@@ -25,8 +25,5 @@
   "engines": {
     "node": "20"
   },
-  "packageManager": "yarn@4.3.1",
-  "dependencies": {
-    "@celo/abis": "^13.0.0"
-  }
+  "packageManager": "yarn@4.3.1"
 }

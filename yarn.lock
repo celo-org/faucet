@@ -9393,7 +9393,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "mono-faucet@workspace:."
   dependencies:
-    "@celo/abis": "npm:^13.0.0"
     eslint: "npm:^8.57.0"
     husky: "npm:9.1.1"
     prettier: "npm:^3.3.3"
@@ -13327,6 +13326,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "web@workspace:apps/web"
   dependencies:
+    "@celo/abis": "npm:^13.0.0"
     "@firebase/app-types": "npm:^0.9.3"
     "@metamask/detect-provider": "npm:^2.0.0"
     "@types/node": "npm:20.14.11"
