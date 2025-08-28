@@ -50,11 +50,9 @@ const SECONDS = 1
 const MINUTES = 60 * SECONDS
 const HOURS = 60 * MINUTES
 export const RATE_LIMITS = {
-  [AuthLevel.none]: { amount: 2, timePeriodInSeconds: 24 * HOURS },
-  [AuthLevel.authenticated]: { amount: 10, timePeriodInSeconds: 24 * HOURS },
-} as Readonly<
-  Record<AuthLevel, { amount: number; timePeriodInSeconds: number }>
->
+  [AuthLevel.none]: { count: 2, timePeriodInSeconds: 24 * HOURS },
+  [AuthLevel.authenticated]: { count: 10, timePeriodInSeconds: 24 * HOURS },
+} as Readonly<Record<AuthLevel, { count: number; timePeriodInSeconds: number }>>
 
 export async function sendRequest(
   address: Address,
@@ -73,6 +71,7 @@ export async function sendRequest(
     type: RequestType.Faucet,
     tokens: skipStables ? RequestedTokenSet.Celo : RequestedTokenSet.All,
     authLevel,
+    timestamp: Date.now(),
   }
 
   try {
@@ -86,7 +85,7 @@ export async function sendRequest(
       `${namespace}:${beneficiary}:*`,
     )
 
-    if (pendingRequestsInTimePeriod.length >= RATE_LIMITS[authLevel].amount) {
+    if (pendingRequestsInTimePeriod.length >= RATE_LIMITS[authLevel].count) {
       return { reason: 'rate_limited' }
     }
 
