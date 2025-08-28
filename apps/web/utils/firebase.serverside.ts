@@ -130,5 +130,5 @@ async function addressCanBeElevatedToTrusted(address: `0x${string}`) {
     }),
   ])
 
-  return ethOnMainnet >= MIN_ETH_ON_MAINNET || lockedCELO > MIN_LOCKED_CELO
+  return ethOnMainnet >= MIN_ETH_ON_MAINNET || lockedCELO >= MIN_LOCKED_CELO
 }
