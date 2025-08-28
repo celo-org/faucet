@@ -59,7 +59,7 @@ export async function sendRequest(
   skipStables: boolean,
   network: Network,
   authLevel: AuthLevel,
-): Promise<{ result?: string; reason?: 'rate_limited' }> {
+): Promise<{ key?: string; reason?: 'rate_limited' }> {
   // NOTE: make sure address is stable (no lowercase/not-prefixed BS)
   const beneficiary = getAddress(
     address.startsWith('0x') ? address : `0x${address}`,
@@ -97,7 +97,7 @@ export async function sendRequest(
       ex: RATE_LIMITS[authLevel].timePeriodInSeconds,
     })
 
-    return { result: ref.key! }
+    return { key: ref.key! }
   } catch (e) {
     console.error(`Error while sendRequest: ${e}`)
     throw e
