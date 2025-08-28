@@ -60,10 +60,10 @@ jobs:
         working-directory: apps/firebase
         run: |
           yarn cli config:set --net ${{ github.event.inputs.CHAIN_NAME }} --nodeUrl="${{ github.event.inputs.RPC_URL }}" --faucetGoldAmount 300000000000000000 --authenticatedGoldAmount 3000000000000000000
-      - name: Setup artifacts policy
-        working-directory: apps/firebase
-        run: |
-          yarn firebase functions:artifacts:setpolicy --days 14d
+      # - name: Setup artifacts policy
+      #   working-directory: apps/firebase
+      #   run: |
+      #     yarn firebase functions:artifacts:setpolicy --days 14d
       - name: Deploy Firebase Function faucetRequestProcessor
         working-directory: apps/firebase
         run: |
