@@ -61,7 +61,7 @@ export async function sendRequest(
   skipStables: boolean,
   network: Network,
   authLevel: AuthLevel,
-) {
+): Promise<{ result?: string; reason?: 'rate_limited' }> {
   // NOTE: make sure address is stable (no lowercase/not-prefixed BS)
   const beneficiary = getAddress(
     address.startsWith('0x') ? address : `0x${address}`,
@@ -87,7 +87,7 @@ export async function sendRequest(
     )
 
     if (pendingRequestsInTimePeriod.length >= RATE_LIMITS[authLevel].amount) {
-      return null
+      return { reason: 'rate_limited' }
     }
 
     const ref: firebase.database.Reference = await db
@@ -98,7 +98,7 @@ export async function sendRequest(
       ex: RATE_LIMITS[authLevel].timePeriodInSeconds,
     })
 
-    return ref.key
+    return { result: ref.key! }
   } catch (e) {
     console.error(`Error while sendRequest: ${e}`)
     throw e
