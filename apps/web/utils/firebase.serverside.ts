@@ -115,7 +115,7 @@ const celoPublicClient = createPublicClient({
 const LOCKED_CELO_CONTRACT_ADDRESS =
   '0x6cC083Aed9e3ebe302A6336dBC7c921C9f03349E'
 const WEI = BigInt('1000000000000000000')
-const MIN_ETH_ON_MAINNET = (BigInt(1) * WEI) / BigInt(10) // 0.1 ETH
+const MIN_ETH_ON_MAINNET = (BigInt(1) * WEI) / BigInt(100) // 0.01 ETH
 const MIN_LOCKED_CELO = BigInt(100) * WEI // 100 LockedCELO
 
 async function addressCanBeElevatedToTrusted(address: `0x${string}`) {
