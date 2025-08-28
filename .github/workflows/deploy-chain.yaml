@@ -3,11 +3,10 @@ run-name: 'Deploy Chain and Functions: ${{ github.head_ref || github.ref_name }}
 
 on:
   push:
-    
     branches:
       - master # authorized for celo-faucet project & celo-faucet-staging
       - staging # only authorized for celo-faucet-staging project
-    
+
   workflow_dispatch:
     inputs:
       CHAIN_NAME:
@@ -18,7 +17,7 @@ on:
         required: false
       PK:
         description: 'Private Key (0x...)'
-        required: false  
+        required: false
       PROD:
         type: boolean
         description: 'Is this a production deployment?'
@@ -41,7 +40,6 @@ jobs:
       - name: Build project
         working-directory: apps/firebase
         run: yarn build
- 
       - name: Authenticate to Google Cloud
         id: auth
         uses: 'google-github-actions/auth@v2'
@@ -62,8 +60,11 @@ jobs:
         working-directory: apps/firebase
         run: |
           yarn cli config:set --net ${{ github.event.inputs.CHAIN_NAME }} --nodeUrl="${{ github.event.inputs.RPC_URL }}" --faucetGoldAmount 300000000000000000 --authenticatedGoldAmount 3000000000000000000
+      - name: Setup artifacts policy
+        working-directory: apps/firebase
+        run: |
+          yarn firebase functions:artifacts:setpolicy --days 14d
       - name: Deploy Firebase Function faucetRequestProcessor
         working-directory: apps/firebase
         run: |
           yarn firebase deploy --only functions:faucetRequestProcessor
-      
