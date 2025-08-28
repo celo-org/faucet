@@ -39,6 +39,7 @@ export interface RequestRecord {
   goldTxHash?: string
   tokens?: RequestedTokenSet
   authLevel: AuthLevel
+  timestamp: number
 }
 
 enum RequestedTokenSet {

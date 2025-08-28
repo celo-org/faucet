@@ -1,4 +1,5 @@
 import * as functions from 'firebase-functions/v1'
+import { AuthLevel } from './database-helper'
 
 export interface NetworkConfig {
   nodeUrl: string
