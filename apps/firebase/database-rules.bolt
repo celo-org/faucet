@@ -105,4 +105,3 @@ isAllowed(ref) {
   // we are on staging network or the production network.
   return auth.uid == "LFH1B0m3tqdWGSugIvM2EkjARVR2" || auth.uid == "ldA2DGvtgWP1xa8QFrtB7BYKc7l2"
 }
-

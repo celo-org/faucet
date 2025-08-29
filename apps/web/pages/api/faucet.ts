@@ -1,9 +1,9 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth/next'
+import type { NextApiRequest, NextApiResponse } from 'next'
+import { captchaVerify } from '../../utils/captcha-verify'
+import { sendRequest } from '../../utils/firebase.serverside'
 import { authOptions } from './auth/[...nextauth]'
-import { captchaVerify } from 'utils/captcha-verify'
-import { FaucetAPIResponse, RequestStatus, AuthLevel, networks } from 'types'
-import { sendRequest } from 'utils/firebase.serverside'
+import { AuthLevel, FaucetAPIResponse, networks, RequestStatus } from 'types'
 
 export default async function handler(
   req: NextApiRequest,
@@ -32,8 +32,23 @@ export default async function handler(
   const captchaResponse = await captchaVerify(captchaToken)
   if (captchaResponse.success) {
     try {
-      const key = await sendRequest(beneficiary, true, network, authLevel)
-      res.status(200).json({ status: RequestStatus.Pending, key })
+      const { key, reason } = await sendRequest(
+        beneficiary,
+        true,
+        network,
+        authLevel,
+      )
+
+      if (key) {
+        res.status(200).json({ status: RequestStatus.Pending, key })
+      } else if (reason === 'rate_limited') {
+        res.status(403).json({
+          status: RequestStatus.Failed,
+          message: 'Fauceting denied',
+        })
+      } else {
+        throw new Error(reason)
+      }
     } catch (error) {
       console.error(error)
       res.status(404).json({

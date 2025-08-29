@@ -48,7 +48,7 @@ export const FaucetStatus: FC<StatusProps> = ({
     run().catch(console.error)
   }, [faucetRequestKey, onFirebaseUpdate, network])
 
-  if (!faucetRecord && !isExecuting) {
+  if (!faucetRecord && !isExecuting && !errors?.length && !failureStatus) {
     return null
   }
 
