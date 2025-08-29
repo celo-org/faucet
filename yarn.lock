@@ -107,7 +107,7 @@ __metadata:
     firebase-admin: "npm:^13.4.0"
     firebase-bolt: "npm:^0.8.4"
     firebase-functions: "npm:^6.4.0"
-    firebase-tools: "npm:^14.12.0"
+    firebase-tools: "npm:^14.14.0"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^5.5.3"
     viem: "npm:^2.33.2"
@@ -6535,9 +6535,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"firebase-tools@npm:^14.12.0":
-  version: 14.14.0
-  resolution: "firebase-tools@npm:14.14.0"
+"firebase-tools@npm:^14.14.0":
+  version: 14.15.1
+  resolution: "firebase-tools@npm:14.15.1"
   dependencies:
     "@electric-sql/pglite": "npm:^0.3.3"
     "@electric-sql/pglite-tools": "npm:^0.2.8"
@@ -6615,7 +6615,7 @@ __metadata:
     zod-to-json-schema: "npm:^3.24.5"
   bin:
     firebase: lib/bin/firebase.js
-  checksum: 10c0/45adf4032e8d6504eccc6a63611f2d5450db5ce87645e5b9bb5ac939028416ad9e5cd9ac07b7a330de17900d5ee594b42bc23be23ae147d628b5903a6e1b2f55
+  checksum: 10c0/879695978618edf81ad1fec91587814a03018dd1d6e861779c64cfaca98cdced810df84ec5b1411a30333810fdf8440bf34f215667d614f9abb72b11fe97011f
   languageName: node
   linkType: hard
 
