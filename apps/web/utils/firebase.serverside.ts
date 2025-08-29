@@ -81,11 +81,9 @@ export async function sendRequest(
     const db = await getDB()
     const redis = Redis.fromEnv()
     const namespace = 'rate-limits'
-    const pendingRequestsInTimePeriod = await redis.keys(
-      `${namespace}:${beneficiary}:*`,
-    )
+    const pendingRequestCount = await redis.hlen(`${namespace}:${beneficiary}`)
 
-    if (pendingRequestsInTimePeriod.length >= RATE_LIMITS[authLevel].count) {
+    if (pendingRequestCount >= RATE_LIMITS[authLevel].count) {
       return { reason: 'rate_limited' }
     }
 
@@ -93,9 +91,14 @@ export async function sendRequest(
       .ref(`${network}/requests`)
       .push(newRequest)
 
-    await redis.set(`${namespace}:${beneficiary}:${ref.key}`, 1, {
-      ex: RATE_LIMITS[authLevel].timePeriodInSeconds,
-    })
+    const tx = redis.multi()
+    tx.hsetnx(`${namespace}:${beneficiary}`, `${ref.key}`, 1)
+    tx.hexpire(
+      `${namespace}:${beneficiary}`,
+      `${ref.key}`,
+      RATE_LIMITS[authLevel].timePeriodInSeconds,
+    )
+    await tx.exec()
 
     return { key: ref.key! }
   } catch (e) {

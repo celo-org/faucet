@@ -11,6 +11,7 @@ type Request {
   type: RequestType,               // Request Type enum
   tokens: RequestedTokenSet,
   authLevel: AuthLevel | Null,
+  timestamp: Number | Null, 
 }
 
 type Account {
