@@ -71,7 +71,6 @@ export async function sendRequest(
     type: RequestType.Faucet,
     tokens: skipStables ? RequestedTokenSet.Celo : RequestedTokenSet.All,
     authLevel,
-    timestamp: Date.now(),
   }
 
   try {
