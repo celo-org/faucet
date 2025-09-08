@@ -120,7 +120,7 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
         action="api/faucet"
         method="post"
       >
-        <div className="flex gap-4 flex-col">
+        <div className="flex gap-4 flex-col w-full">
           <Label htmlFor="address">Account Address</Label>
           <Input
             id="address"
