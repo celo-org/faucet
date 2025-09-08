@@ -101,11 +101,6 @@
     grid-column: span 1;
   }
 
-  .grid a,
-  .grid button {
-    text-align: center;
-  }
-
   .title {
     font-size: 1.5rem;
   }
