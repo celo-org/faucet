@@ -96,22 +96,20 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
         <footer className={styles.grid}>
           <Card className={styles.card}>
             <h3 className={inter.className}>Faucet rules</h3>
-            <p className={inter.className}>
-              <ul>
-                <li>
-                  &bull; You are considered <i>authenticated</i> if you either
-                  sign-in with GitHub, own 0.01 ETH on eth-mainnet, or own 100
-                  LockedCelo on celo-mainnet
-                </li>
-                <li>
-                  &bull; You may faucet 4 times a day if <i>unauthenticated</i>.
-                </li>
-                <li>
-                  &bull; You may faucet 10 times a day if <i>authenticated</i>,
-                  for 10 times the amount of unauthenticated requests.
-                </li>
-              </ul>
-            </p>
+            <div className="flex flex-col gap-1">
+              <p className={inter.className}>
+                &bull; You are considered <i>authenticated</i> if you either
+                sign-in with GitHub, own 0.01 ETH on eth-mainnet, or own 100
+                LockedCelo on celo-mainnet
+              </p>
+              <p className={inter.className}>
+                &bull; You may faucet 4 times a day if <i>unauthenticated</i>.
+              </p>
+              <p className={inter.className}>
+                &bull; You may faucet 10 times a day if <i>authenticated</i>,
+                for 10 times the amount of unauthenticated requests.
+              </p>
+            </div>
           </Card>
           <Card className={styles.card}>
             <SetupButton network={network} />
