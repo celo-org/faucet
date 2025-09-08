@@ -1,14 +1,22 @@
-import { GetServerSideProps, NextPage } from 'next'
-import Head from 'next/head'
-import Link from 'next/link'
+import { Card } from '@/components/ui/card'
 import { FaucetHeader } from 'components/faucet-header'
 import { RequestForm } from 'components/request-form'
 import { SetupButton } from 'components/setup-button'
+import { GetServerSideProps, NextPage } from 'next'
+import Head from 'next/head'
+import Link from 'next/link'
 import styles from 'styles/Home.module.css'
 import { Network, networks } from 'types'
 import { isBalanceBelowPar } from 'utils/balance'
 import { capitalize } from 'utils/capitalize'
 import { inter } from 'utils/inter'
+import {
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '../@/components/ui/card'
 
 interface Props {
   isOutOfCELO: boolean
@@ -33,87 +41,128 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
       </Head>
       <main className={styles.main}>
         <FaucetHeader network={network} isOutOfCELO={isOutOfCELO} />
-        <div className={styles.container}>
-          <header className={`${inter.className} ${styles.center}`}>
-            <h1 className={`${inter.className} ${styles.title}`}>
-              {networkCapitalized} Token Faucet
-            </h1>
-            {networks.length > 1 && (
-              <Link className={styles.switchNetwork} href={`/${otherNetwork}`}>
-                Switch to {capitalize(otherNetwork)}
-              </Link>
-            )}
-          </header>
-          <div className={styles.center}>
+        <Card className="w-full max-w-sm items-stretch">
+          <CardHeader>
+            <CardTitle>{networkCapitalized} Token Faucet</CardTitle>
+            <CardDescription>
+              {networks.length > 1 && (
+                <Link
+                  className={styles.switchNetwork}
+                  href={`/${otherNetwork}`}
+                >
+                  Switch to {capitalize(otherNetwork)}
+                </Link>
+              )}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             <RequestForm network={network} isOutOfCELO={isOutOfCELO} />
-          </div>
+          </CardContent>
+          <CardFooter className="flex-col gap-2">
+            <div className="mt-4 text-sm">
+              <small className={`${styles.phaseDown} ${inter.className}`}>
+                Need <b>USDC</b>? Get tokens at{' '}
+                <u>
+                  <a
+                    href="https://faucet.circle.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    faucet.circle.com
+                  </a>
+                </u>
+              </small>
+              <br />
+              <small className={`${styles.phaseDown} ${inter.className}`}>
+                Swap CELO for cUSD, cEUR, or cREAL, or USDC on{' '}
+                <u>
+                  <Link href="https://app.mento.org/">mento</Link>
+                </u>{' '}
+              </small>
+              {network === 'celo-sepolia' && (
+                <small className={`${styles.phaseDown} ${inter.className}`}>
+                  Alternative faucet{' '}
+                  <u>
+                    <Link href="https://cloud.google.com/application/web3/faucet/celo/sepolia">
+                      by Google
+                    </Link>
+                  </u>{' '}
+                </small>
+              )}
+            </div>
+          </CardFooter>
+        </Card>
 
-          <small className={`${styles.phaseDown} ${inter.className}`}>
-            Need <b>USDC</b>? Get tokens at{' '}
-            <u>
-              <a
-                href="https://faucet.circle.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                faucet.circle.com
-              </a>
-            </u>
-          </small>
-          <small className={`${styles.phaseDown} ${inter.className}`}>
-            Swap CELO for cUSD, cEUR, or cREAL, or USDC on{' '}
-            <u>
-              <Link href="https://app.mento.org/">mento</Link>
-            </u>{' '}
-          </small>
-        </div>
         <footer className={styles.grid}>
-          <SetupButton network={network} />
-
-          <a
-            href="https://docs.celo.org"
-            className={styles.card}
-            target="_blank"
-            tabIndex={0}
-            rel="noopener noreferrer"
-          >
-            <h3 className={inter.className}>
-              Read Celo Docs <span>&gt;</span>
-            </h3>
+          <Card className={styles.card}>
+            <h3 className={inter.className}>Faucet rules</h3>
             <p className={inter.className}>
-              Find in-depth information about the Celo blockchain
+              <ul>
+                <li>
+                  &bull; You are considered <i>authenticated</i> if you either
+                  sign-in with GitHub, own 0.01 ETH on eth-mainnet, or own 100
+                  LockedCelo on celo-mainnet
+                </li>
+                <li>
+                  &bull; You may faucet 4 times a day if <i>unauthenticated</i>.
+                </li>
+                <li>
+                  &bull; You may faucet 10 times a day if <i>authenticated</i>,
+                  for 10 times the amount of unauthenticated requests.
+                </li>
+              </ul>
             </p>
-          </a>
+          </Card>
+          <Card className={styles.card}>
+            <SetupButton network={network} />
+          </Card>
 
-          <a
-            href="https://chat.celo.org"
-            className={styles.card}
-            target="_blank"
-            tabIndex={0}
-            rel="noopener noreferrer"
-          >
-            <h3 className={inter.className}>
-              Ask Questions <span>&gt;</span>
-            </h3>
-            <p className={inter.className}>
-              Chat with Celo Community on Discord
-            </p>
-          </a>
+          <Card className={styles.card}>
+            <a
+              href="https://docs.celo.org"
+              target="_blank"
+              tabIndex={0}
+              rel="noopener noreferrer"
+            >
+              <h3 className={inter.className}>
+                Read Celo Docs <span>→</span>
+              </h3>
+              <p className={inter.className}>
+                Find in-depth information about the Celo blockchain
+              </p>
+            </a>
+          </Card>
+          <Card className={styles.card}>
+            <a
+              href="https://chat.celo.org"
+              target="_blank"
+              tabIndex={0}
+              rel="noopener noreferrer"
+            >
+              <h3 className={inter.className}>
+                Ask Questions <span>→</span>
+              </h3>
+              <p className={inter.className}>
+                Chat with Celo Community on Discord
+              </p>
+            </a>
+          </Card>
 
-          <a
-            href="https://docs.google.com/forms/d/1n6m-nMjjDn2RpBDadMMqYpf5DzDTOeRk1dhDJrLFdO4/viewform"
-            className={styles.card}
-            target="_blank"
-            tabIndex={0}
-            rel="noopener noreferrer"
-          >
-            <h3 className={inter.className}>
-              Have Advanced Needs? <span>&gt;</span>
-            </h3>
-            <p className={inter.className}>
-              Request a larger amount of tokens for your testing needs.
-            </p>
-          </a>
+          <Card className={styles.card}>
+            <a
+              href="https://docs.google.com/forms/d/1n6m-nMjjDn2RpBDadMMqYpf5DzDTOeRk1dhDJrLFdO4/viewform"
+              target="_blank"
+              tabIndex={0}
+              rel="noopener noreferrer"
+            >
+              <h3 className={inter.className}>
+                Have Advanced Needs? <span>→</span>
+              </h3>
+              <p className={inter.className}>
+                Request a larger amount of tokens for your testing needs.
+              </p>
+            </a>
+          </Card>
         </footer>
       </main>
     </>

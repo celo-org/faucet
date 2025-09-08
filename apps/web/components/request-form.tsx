@@ -9,6 +9,9 @@ import styles from 'styles/Form.module.css'
 import { FaucetAPIResponse, Network } from 'types'
 import { saveAddress } from 'utils/history'
 import { useLastAddress } from 'utils/useLastAddress'
+import { Button } from '../@/components/ui/button'
+import { Input } from '../@/components/ui/input'
+import { Label } from '../@/components/ui/label'
 
 const FaucetStatus = dynamic(async () => {
   const imported = await import('components/faucet-status')
@@ -27,6 +30,8 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
 
   const { executeRecaptcha } = useGoogleReCaptcha()
 
+  const previousAddress = useLastAddress()
+  const [address, setAddress] = useState<string | undefined>(previousAddress)
   const [faucetRequestKey, setKey] = useState<string | null>(null)
   const [failureStatus, setFailureStatus] = useState<string | null>(null)
 
@@ -36,7 +41,7 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
 
-      const beneficiary = inputRef.current?.value
+      const beneficiary = address
       console.info('begin faucet sequence')
       if (!beneficiary?.length || !executeRecaptcha) {
         console.info('aborting')
@@ -66,11 +71,12 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
         setKey(result.key)
       }
     },
-    [inputRef, executeRecaptcha],
+    [address, executeRecaptcha],
   )
 
   const onInvalid = useCallback((event: FormEvent<HTMLInputElement>) => {
     const { validity } = event.currentTarget
+    console.log(event.currentTarget.validity, event.currentTarget.value)
     console.debug('validity input', JSON.stringify(validity))
     if (validity.patternMismatch || validity.badInput || !validity.valid) {
       event.currentTarget.setCustomValidity('enter an 0x address')
@@ -84,9 +90,12 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
     setKey(null)
   }, [])
 
-  const previousAddress = useLastAddress()
   const buttonDisabled =
-    !executeRecaptcha || !!faucetRequestKey || disableCELOWhenOut
+    !executeRecaptcha ||
+    !!faucetRequestKey ||
+    disableCELOWhenOut ||
+    !address ||
+    isExecuting
 
   return (
     <>
@@ -111,26 +120,27 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
         action="api/faucet"
         method="post"
       >
-        <label className={styles.center}>
-          <span className={styles.label}>Account Address</span>
-          <input
-            defaultValue={previousAddress}
+        <div className="flex gap-4 flex-col">
+          <Label htmlFor="address">Account Address</Label>
+          <Input
+            id="address"
             onInvalid={onInvalid}
             minLength={40}
-            ref={inputRef}
+            value={address}
+            onChange={(event) => setAddress(event.target.value)}
             pattern="^0x[a-fA-F0-9]{40}"
             type="text"
             placeholder="0x01F10..."
             className={styles.address}
           />
-        </label>
-        <button
-          disabled={buttonDisabled}
-          className={styles.button}
-          type="submit"
-        >
-          {'Claim CELO'}
-        </button>
+          <Button
+            disabled={buttonDisabled}
+            type="submit"
+            className="self-center"
+          >
+            Claim CELO
+          </Button>
+        </div>
 
         <FaucetStatus
           network={network}

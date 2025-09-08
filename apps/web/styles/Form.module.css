@@ -32,12 +32,11 @@
   margin-bottom: 1rem;
 }
 
-.button {
-  max-width: fit-content;
-  margin: 1rem;
-}
-
 .githubAuthenticate {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+.githubAuthenticate:hover {
   text-decoration: underline;
 }
 

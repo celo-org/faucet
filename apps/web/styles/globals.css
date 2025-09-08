@@ -1,104 +1,90 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
 :root {
-  --max-width: 1100px;
-  --border-radius: 12px;
-  --font-mono: ui-monospace, Menlo, Monaco, 'Cascadia Mono', 'Segoe UI Mono',
-    'Roboto Mono', 'Oxygen Mono', 'Ubuntu Monospace', 'Source Code Pro',
-    'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace;
-
-  --prosperity-yellow: #FCFF52;
-  --gypsum: #FCF6F1;
-  --sand: #E7E3D4;
-  --wood: #655947;
-  --fig: #1E002B;
-  --disabled: #9B9B9B;
-  --foreground-rgb: var(--fig);
-  --button-hover: var(--prosperity-yellow);
-  --background-start-rgb: var(--sand);
-  --background-end-rgb: var(--sand);
-
-  --outline-color: var(--wood);
-
-  --card-rgb: 180, 185, 188;
-  --card-border-rgb: 131, 134, 135;
+  --background: rgb(252, 246, 241);
+  --secondary-background: oklch(100% 0 0);
+  --foreground: oklch(0% 0 0);
+  --main-foreground: oklch(0% 0 0);
+  --main: rgb(252, 255, 82);
+  --border: oklch(0% 0 0);
+  --ring: oklch(0% 0 0);
+  --overlay: oklch(0% 0 0 / 0.8);
+  --shadow: 4px 4px 0px 0px var(--border);
+  --chart-1: #ca7aff;
+  --chart-2: #facc00;
+  --chart-3: #00d696;
+  --chart-4: #ff7a05;
+  --chart-5: #0099ff;
+  --chart-active-dot: #000;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: var(--gypsum);
-    --background-start-rgb: var(--fig);
-    --background-end-rgb:  var(--fig);
-    --button-hover: var(--wood);
+.dark {
+  --background: oklch(29.68% 0.0791 315.62);
+  --secondary-background: oklch(23.93% 0 0);
+  --foreground: oklch(92.49% 0 0);
+  --main-foreground: oklch(0% 0 0);
+  --main: rgb(180, 144, 255);
+  --border: oklch(0% 0 0);
+  --ring: oklch(100% 0 0);
+  --shadow: 4px 4px 0px 0px var(--border);
+  --chart-1: #d494ff;
+  --chart-2: #e0b700;
+  --chart-3: #00bd84;
+  --chart-4: #eb6d00;
+  --chart-5: #008ae5;
+  --chart-active-dot: #fff;
+}
 
-    --outline-color: var(--prosperity-yellow);
+@theme inline {
+  --color-main: var(--main);
+  --color-background: var(--background);
+  --color-secondary-background: var(--secondary-background);
+  --color-foreground: var(--foreground);
+  --color-main-foreground: var(--main-foreground);
+  --color-border: var(--border);
+  --color-overlay: var(--overlay);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
 
-    --card-rgb: 100, 100, 100;
-    --card-border-rgb: 200, 200, 200;
+  --spacing-boxShadowX: 4px;
+  --spacing-boxShadowY: 4px;
+  --spacing-reverseBoxShadowX: -4px;
+  --spacing-reverseBoxShadowY: -4px;
+  --radius-base: 5px;
+  --shadow-shadow: var(--shadow);
+  --font-weight-base: 500;
+  --font-weight-heading: 900;
+}
 
+@layer base {
+  body {
+    @apply text-foreground font-base bg-background;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading;
   }
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-:active, :focus, :focus-visible {
-  outline-width: 1px;
-  outline-offset: 1px;
-  outline-color: var(--outline-color);
-}
-
-html,
 body {
-  max-width: 100vw;
-  overflow-x: hidden;
-  color: #000;
-}
-
-body {
-  color: var(--foreground-rgb);
-  background: var(--background-start-rgb)
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-}
-
-label {
-  font-size: 1.2rem;
-
-}
-
-input {
-  font-size: large;
-  padding: 0.45rem .5rem;
-  border: .1rem solid  var(--foreground-rgb);
-  background-color: transparent;
-  border-radius: 2.4rem;
+  color: var(--foreground);
+  background-image: linear-gradient(90deg, #8080804d 1px, #0000 0),
+    linear-gradient(#80808090 1px, #0000 0);
+  background-size: 40px 40px;
 }
 
 button {
-  color: var(--foreground-rgb);
-  font-size: 1.25rem;
-  border: .1rem solid  var(--foreground-rgb);
-  border-radius: 2.4rem;
-  padding: 0.5rem 1.5rem;
-  background-color: transparent;
-}
-
-button:hover {
-  background-color: var(--button-hover);
-}
-
-button[disabled]:hover {
-  background-color: inherit;
-  color:var(--disabled)
+  cursor: pointer;
 }
