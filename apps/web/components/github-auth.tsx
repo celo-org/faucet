@@ -7,7 +7,7 @@ import { Button } from '../@/components/ui/button'
 export const inter = Inter({ subsets: ['latin'] })
 
 export const GitHubAuth: FC = () => {
-  let { data: session } = useSession()
+  const { data: session } = useSession()
   const isMobile = useMediaQuery('(max-width: 700px)')
 
   return (

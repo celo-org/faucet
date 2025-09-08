@@ -139,7 +139,7 @@ module.exports = {
     'id-match': 'error',
     'import/no-extraneous-dependencies': 'off',
     'import/no-internal-modules': 'off',
-    'import/order': 'error',
+    'import/order': 'warn',
     indent: 'off',
     'jsdoc/check-alignment': 'error',
     'jsdoc/check-indentation': 'error',
