@@ -60,7 +60,7 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
           </CardContent>
           <CardFooter className="flex-col gap-2">
             <div className="mt-4 text-sm">
-              <small className={`${styles.phaseDown} ${inter.className}`}>
+              <small className={inter.className}>
                 Need <b>USDC</b>? Get tokens at{' '}
                 <u>
                   <a
@@ -73,14 +73,14 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
                 </u>
               </small>
               <br />
-              <small className={`${styles.phaseDown} ${inter.className}`}>
+              <small className={inter.className}>
                 Swap CELO for cUSD, cEUR, or cREAL, or USDC on{' '}
                 <u>
                   <Link href="https://app.mento.org/">mento</Link>
                 </u>{' '}
               </small>
               {network === 'celo-sepolia' && (
-                <small className={`${styles.phaseDown} ${inter.className}`}>
+                <small className={inter.className}>
                   Alternative faucet{' '}
                   <u>
                     <Link href="https://cloud.google.com/application/web3/faucet/celo/sepolia">
