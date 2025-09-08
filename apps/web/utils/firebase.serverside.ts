@@ -50,7 +50,7 @@ const SECONDS = 1
 const MINUTES = 60 * SECONDS
 const HOURS = 60 * MINUTES
 export const RATE_LIMITS = {
-  [AuthLevel.none]: { count: 2, timePeriodInSeconds: 24 * HOURS },
+  [AuthLevel.none]: { count: 4, timePeriodInSeconds: 24 * HOURS },
   [AuthLevel.authenticated]: { count: 10, timePeriodInSeconds: 24 * HOURS },
 } as Readonly<Record<AuthLevel, { count: number; timePeriodInSeconds: number }>>
 
@@ -92,6 +92,10 @@ export async function sendRequest(
 
     const tx = redis.multi()
     tx.hsetnx(`${namespace}:${beneficiary}`, `${ref.key}`, 1)
+    tx.expire(
+      `${namespace}:${beneficiary}`,
+      RATE_LIMITS[authLevel].timePeriodInSeconds,
+    )
     tx.hexpire(
       `${namespace}:${beneficiary}`,
       `${ref.key}`,
