@@ -3,6 +3,7 @@ import { FaucetHeader } from 'components/faucet-header'
 import { RequestForm } from 'components/request-form'
 import { SetupButton } from 'components/setup-button'
 import { GetServerSideProps, NextPage } from 'next'
+import { useSession } from 'next-auth/react'
 import Head from 'next/head'
 import Link from 'next/link'
 import styles from 'styles/Home.module.css'
@@ -25,6 +26,7 @@ interface Props {
 
 const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
   const networkCapitalized = capitalize(network)
+  const { data: session } = useSession()
 
   const otherNetwork =
     networks.indexOf(network) === 0 ? networks[1] : networks[0]
@@ -59,34 +61,38 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
             <RequestForm network={network} isOutOfCELO={isOutOfCELO} />
           </CardContent>
           <CardFooter className="flex-col gap-2">
-            <div className="mt-4 text-sm">
+            <div className="mt-4 text-sm flex flex-col gap-0.5 items-start">
+              {!session && (
+                <>
+                  <small className={inter.className}>
+                    &bull; To receive <b>10x the tokens</b>,{' '}
+                    <Link className="underline" href="/api/auth/signin/github">
+                      authenticate with GitHub
+                    </Link>
+                  </small>
+                </>
+              )}
               <small className={inter.className}>
-                Need <b>USDC</b>? Get tokens at{' '}
-                <u>
-                  <a
-                    href="https://faucet.circle.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    faucet.circle.com
-                  </a>
-                </u>
+                &bull; Need <b>USDC</b>? Get tokens at{' '}
+                <Link className="underline" href="https://faucet.circle.com/">
+                  faucet.circle.com
+                </Link>
               </small>
-              <br />
               <small className={inter.className}>
-                Swap CELO for cUSD, cEUR, or cREAL, or USDC on{' '}
-                <u>
-                  <Link href="https://app.mento.org/">mento</Link>
-                </u>{' '}
+                &bull; Swap CELO for cUSD, cEUR, or cREAL, or USDC on{' '}
+                <Link className="underline" href="https://app.mento.org/">
+                  mento
+                </Link>
               </small>
               {network === 'celo-sepolia' && (
                 <small className={inter.className}>
-                  Alternative faucet{' '}
-                  <u>
-                    <Link href="https://cloud.google.com/application/web3/faucet/celo/sepolia">
-                      by Google
-                    </Link>
-                  </u>{' '}
+                  &bull; Alternative faucet{' '}
+                  <Link
+                    className="underline"
+                    href="https://cloud.google.com/application/web3/faucet/celo/sepolia"
+                  >
+                    by Google
+                  </Link>
                 </small>
               )}
             </div>

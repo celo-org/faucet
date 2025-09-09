@@ -1,7 +1,6 @@
 import { useSession } from 'next-auth/react'
 import dynamic from 'next/dynamic'
 import { Inter } from 'next/font/google'
-import Link from 'next/link'
 import { FC, FormEvent, useCallback, useRef, useState } from 'react'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useAsyncCallback } from 'react-use-async-callback'
@@ -26,7 +25,6 @@ interface Props {
 
 export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
   const inputRef = useRef<HTMLInputElement>(null)
-  const { data: session } = useSession()
 
   const { executeRecaptcha } = useGoogleReCaptcha()
 
@@ -98,59 +96,38 @@ export const RequestForm: FC<Props> = ({ isOutOfCELO, network }) => {
     isExecuting
 
   return (
-    <>
-      <div className={styles.intro}>
-        <p className={`${inter.className} ${styles.center}`}>
-          {!session && (
-            <em>
-              <Link
-                className={styles.githubAuthenticate}
-                href="/api/auth/signin/github"
-              >
-                Authenticate with GitHub
-              </Link>{' '}
-              to receive 10x the tokens.
-            </em>
-          )}
-        </p>
-      </div>
-      <form
-        className={styles.center}
-        onSubmit={onSubmit}
-        action="api/faucet"
-        method="post"
-      >
-        <div className="flex gap-4 flex-col w-full">
-          <Label htmlFor="address">Account Address</Label>
-          <Input
-            id="address"
-            onInvalid={onInvalid}
-            minLength={40}
-            value={address}
-            onChange={(event) => setAddress(event.target.value)}
-            pattern="^0x[a-fA-F0-9]{40}"
-            type="text"
-            placeholder="0x01F10..."
-            className={styles.address}
-          />
-          <Button
-            disabled={buttonDisabled}
-            type="submit"
-            className="self-center"
-          >
-            Claim CELO
-          </Button>
-        </div>
-
-        <FaucetStatus
-          network={network}
-          reset={reset}
-          failureStatus={failureStatus}
-          faucetRequestKey={faucetRequestKey}
-          isExecuting={isExecuting || !!faucetRequestKey}
-          errors={errors}
+    <form
+      className={styles.center}
+      onSubmit={onSubmit}
+      action="api/faucet"
+      method="post"
+    >
+      <div className="flex gap-4 flex-col w-full">
+        <Label htmlFor="address">Account Address</Label>
+        <Input
+          id="address"
+          onInvalid={onInvalid}
+          minLength={40}
+          value={address}
+          onChange={(event) => setAddress(event.target.value)}
+          pattern="^0x[a-fA-F0-9]{40}"
+          type="text"
+          placeholder="0x01F10..."
+          className={styles.address}
         />
-      </form>
-    </>
+        <Button disabled={buttonDisabled} type="submit" className="self-center">
+          Claim CELO
+        </Button>
+      </div>
+
+      <FaucetStatus
+        network={network}
+        reset={reset}
+        failureStatus={failureStatus}
+        faucetRequestKey={faucetRequestKey}
+        isExecuting={isExecuting || !!faucetRequestKey}
+        errors={errors}
+      />
+    </form>
   )
 }
