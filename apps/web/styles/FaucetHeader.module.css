@@ -25,15 +25,6 @@
   border-bottom: 2px solid #fcff52;
 }
 
-@media (prefers-color-scheme: dark) {
-  .top {
-    background-color: var(--fig);
-  }
-  .logo {
-    filter: invert(1);
-  }
-}
-
 @media (max-width: 700px) {
   .top {
     border-bottom: 1px solid var(--foreground-rgb);

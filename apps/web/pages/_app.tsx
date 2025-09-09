@@ -1,15 +1,21 @@
+import { Analytics } from '@vercel/analytics/react'
+import { SessionProvider } from 'next-auth/react'
+import { ThemeProvider } from 'next-themes'
 import type { AppProps } from 'next/app'
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
 import 'styles/globals.css'
-import { Analytics } from '@vercel/analytics/react'
-import { SessionProvider } from 'next-auth/react'
 
 export default function App({
   Component,
   pageProps: { session, ...pageProps },
 }: AppProps) {
   return (
-    <>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
       <GoogleReCaptchaProvider
         reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_KEY as string}
       >
@@ -18,6 +24,6 @@ export default function App({
         </SessionProvider>
       </GoogleReCaptchaProvider>
       <Analytics />
-    </>
+    </ThemeProvider>
   )
 }

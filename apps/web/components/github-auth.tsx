@@ -10,20 +10,16 @@ export const GitHubAuth: FC = () => {
   const { data: session } = useSession()
   const isMobile = useMediaQuery('(max-width: 700px)')
 
-  return (
-    <div className="pr-[40px]">
-      {session?.user ? (
-        <Button onClick={() => signOut()}>
-          Sign out <b>@{session.user.name}</b>
-          <GitHubIcon />
-        </Button>
-      ) : (
-        <Button onClick={() => signIn('github')}>
-          Sign in{!isMobile && ' with GitHub'}
-          <GitHubIcon />
-        </Button>
-      )}
-    </div>
+  return session?.user ? (
+    <Button onClick={() => signOut()}>
+      Sign out <b>@{session.user.name}</b>
+      <GitHubIcon />
+    </Button>
+  ) : (
+    <Button onClick={() => signIn('github')}>
+      Sign in{!isMobile && ' with GitHub'}
+      <GitHubIcon />
+    </Button>
   )
 }
 
