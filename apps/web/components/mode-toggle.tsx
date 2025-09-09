@@ -8,17 +8,17 @@ export function ModeToggle() {
   const { theme, setTheme } = useTheme()
 
   const onClick = useCallback(() => {
+    let oldTheme = theme
     const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
       .matches
       ? 'dark'
       : 'light'
 
-    let _theme = theme
     if (theme === 'system' || theme === undefined) {
-      _theme = systemTheme
+      oldTheme = systemTheme
     }
 
-    const newTheme = _theme === 'light' ? 'dark' : 'light'
+    const newTheme = oldTheme === 'light' ? 'dark' : 'light'
     setTheme(newTheme)
   }, [theme])
 
