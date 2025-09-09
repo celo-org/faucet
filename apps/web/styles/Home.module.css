@@ -12,19 +12,22 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(25%, auto));
-  width: var(--max-width);
+  padding-right: 2rem;
+  max-width: 100%;
+  gap: 1rem;
+}
+
+.grid > :first-child {
+  grid-column: span 4;
+}
+.grid > :first-child p {
   max-width: 100%;
 }
 
 .card {
-  color: var(--foreground-rgb);
   text-align: left;
-  font-size: 1rem;
   padding: 1rem 1.2rem;
-  border-radius: var(--border-radius);
-  background: rgba(var(--card-rgb), 0);
-  border: 1px solid rgba(var(--card-border-rgb), 0);
-  transition: background 200ms, border 200ms;
+  width: 100%;
 }
 
 .card span {
@@ -48,50 +51,23 @@
   font-size: 0.9rem;
   line-height: 1.5;
   max-width: 30ch;
+  text-align: left;
 }
 
 .card h3 span {
   margin-left: 4px;
 }
 
-.center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  text-align: center;
+.switchNetwork {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
 }
-
-.container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-self: center;
-  justify-content: center;
-  max-width: 100%;
-  width: 450px;
-}
-
-.container small {
-  margin-top: 1rem;
-  text-align: center;
-}
-
-.phaseDown {
-  font-style: italic;
-}
-
 .switchNetwork:hover {
   text-decoration: underline;
 }
 
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
-  .card:hover {
-    background: rgba(var(--card-rgb), 0.1);
-    border: 1px solid rgba(var(--card-border-rgb), 0.15);
-  }
-
   .card:hover span {
     transform: translateX(4px);
   }
@@ -111,19 +87,18 @@
 @media (max-width: 700px) {
   .main {
     padding: 1rem;
-    justify-content: unset;
   }
   .grid {
     grid-template-columns: 1fr;
     margin-top: 40px;
     margin-bottom: 40px;
-    max-width: 320px;
-    text-align: center;
+    max-width: 100%;
+    gap: 1rem;
+    padding-right: 0rem;
   }
 
-  .grid a,
-  .grid button {
-    text-align: center;
+  .grid > :first-child {
+    grid-column: span 1;
   }
 
   .title {
@@ -141,17 +116,23 @@
   .container {
     flex: none;
   }
-
-  .phaseDown {
-    margin: 2rem 3rem 0 3rem;
-  }
 }
 
 /* Tablet and Smaller Desktop */
-@media (min-width: 701px) and (max-width: 1120px) {
+@media (min-width: 701px) and (max-width: 1600px) {
+  .main {
+    padding: 1rem;
+    justify-content: unset;
+  }
   .grid {
     grid-template-columns: repeat(2, 50%);
     justify-items: center;
+    gap: 1rem;
+    padding-right: 1rem;
+  }
+
+  .grid > :first-child {
+    grid-column: span 2;
   }
 }
 

@@ -5,12 +5,12 @@
 .topBar {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .logo {
   margin-top: 20px;
   margin-left: 20px;
-  opacity: 90%;
 }
 
 .notice {
@@ -23,18 +23,6 @@
   color: white;
   padding: 0.5rem;
   border-bottom: 2px solid #fcff52;
-}
-
-@media (prefers-color-scheme: dark) {
-  .top {
-    background-color: var(--fig);
-  }
-  .topBar {
-    align-items: center;
-  }
-  .logo {
-    filter: invert(1) drop-shadow(0 0 0.3rem #ffffff70);
-  }
 }
 
 @media (max-width: 700px) {

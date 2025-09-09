@@ -18,7 +18,6 @@
 }
 
 .address {
-  width: 385px;
   font-size: 0.9rem;
   font-family: 'Inter', Arial, Helvetica, sans-serif;
 }
@@ -32,12 +31,11 @@
   margin-bottom: 1rem;
 }
 
-.button {
-  max-width: fit-content;
-  margin: 1rem;
-}
-
 .githubAuthenticate {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+.githubAuthenticate:hover {
   text-decoration: underline;
 }
 
@@ -50,7 +48,6 @@
   }
 
   .intro {
-    text-align: center;
     margin-top: 1.4rem;
     margin-bottom: 1.4rem;
   }
