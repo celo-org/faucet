@@ -1,7 +1,7 @@
+import { FC } from 'react'
 import { GitHubAuth } from 'components/github-auth'
 import { Logo } from 'components/logo'
 import { ModeToggle } from 'components/mode-toggle'
-import { FC } from 'react'
 import styles from 'styles/FaucetHeader.module.css'
 import { Network } from 'types'
 

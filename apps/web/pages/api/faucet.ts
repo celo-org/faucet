@@ -1,9 +1,10 @@
+import { ipAddress } from '@vercel/functions'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth/next'
-import { AuthLevel, FaucetAPIResponse, networks, RequestStatus } from 'types'
-import { captchaVerify } from '../../utils/captcha-verify'
 import { sendRequest } from '../../utils/firebase.serverside'
 import { authOptions } from './auth/[...nextauth]'
+import { AuthLevel, FaucetAPIResponse, networks, RequestStatus } from 'types'
+import { captchaVerify } from 'utils/captcha-verify'
 
 export default async function handler(
   req: NextApiRequest,
@@ -28,6 +29,10 @@ export default async function handler(
     })
     return
   }
+  const headers = new Headers()
+  for (const [key, value] of Object.entries(req.headers)) {
+    headers.set(key, value as string)
+  }
 
   const captchaResponse = await captchaVerify(captchaToken)
   if (captchaResponse.success) {
@@ -37,6 +42,8 @@ export default async function handler(
         true,
         network,
         authLevel,
+        ipAddress(headers) ||
+          (req.headers['x-forwarded-for'] as string | undefined),
       )
 
       if (key) {

@@ -54,11 +54,15 @@ export const RATE_LIMITS = {
   [AuthLevel.authenticated]: { count: 10, timePeriodInSeconds: 24 * HOURS },
 } as Readonly<Record<AuthLevel, { count: number; timePeriodInSeconds: number }>>
 
+export const RATE_LIMITS_PER_IP =
+  RATE_LIMITS.authenticated.count + RATE_LIMITS.none.count * 3
+
 export async function sendRequest(
   address: Address,
   skipStables: boolean,
   network: Network,
   authLevel: AuthLevel,
+  ip?: string,
 ): Promise<{ key?: string; reason?: 'rate_limited' }> {
   // NOTE: make sure address is stable (no lowercase/not-prefixed BS)
   const beneficiary = getAddress(
@@ -80,7 +84,13 @@ export async function sendRequest(
     const db = await getDB()
     const redis = Redis.fromEnv()
     const namespace = 'rate-limits'
+    const ipNamespace = 'ip-counts'
     const pendingRequestCount = await redis.hlen(`${namespace}:${beneficiary}`)
+    const totalRequestCountForIp = await redis.hlen(`${ipNamespace}:${ip}`)
+
+    if (totalRequestCountForIp > RATE_LIMITS_PER_IP) {
+      return { reason: 'rate_limited' }
+    }
 
     if (pendingRequestCount >= RATE_LIMITS[authLevel].count) {
       return { reason: 'rate_limited' }
@@ -90,6 +100,7 @@ export async function sendRequest(
       .ref(`${network}/requests`)
       .push(newRequest)
 
+    /// BEGIN TRANSACTION
     const tx = redis.multi()
     tx.hsetnx(`${namespace}:${beneficiary}`, `${ref.key}`, 1)
     tx.expire(
@@ -101,7 +112,15 @@ export async function sendRequest(
       `${ref.key}`,
       RATE_LIMITS[authLevel].timePeriodInSeconds,
     )
+    tx.hsetnx(`${ipNamespace}:${ip}`, `${ref.key}`, 1)
+    tx.expire(`${ipNamespace}:${ip}`, RATE_LIMITS.none.timePeriodInSeconds)
+    tx.hexpire(
+      `${ipNamespace}:${ip}`,
+      `${ref.key}`,
+      RATE_LIMITS.none.timePeriodInSeconds,
+    )
     await tx.exec()
+    /// END TRANSACTION
 
     return { key: ref.key! }
   } catch (e) {
