@@ -1,16 +1,7 @@
-import { Card } from '@/components/ui/card'
-import { FaucetHeader } from 'components/faucet-header'
-import { RequestForm } from 'components/request-form'
-import { SetupButton } from 'components/setup-button'
 import { GetServerSideProps, NextPage } from 'next'
 import { useSession } from 'next-auth/react'
 import Head from 'next/head'
 import Link from 'next/link'
-import styles from 'styles/Home.module.css'
-import { Network, networks } from 'types'
-import { isBalanceBelowPar } from 'utils/balance'
-import { capitalize } from 'utils/capitalize'
-import { inter } from 'utils/inter'
 import {
   CardContent,
   CardDescription,
@@ -18,6 +9,15 @@ import {
   CardHeader,
   CardTitle,
 } from '../@/components/ui/card'
+import { Card } from '@/components/ui/card'
+import { FaucetHeader } from 'components/faucet-header'
+import { RequestForm } from 'components/request-form'
+import { SetupButton } from 'components/setup-button'
+import styles from 'styles/Home.module.css'
+import { Network, networks } from 'types'
+import { isBalanceBelowPar } from 'utils/balance'
+import { capitalize } from 'utils/capitalize'
+import { inter } from 'utils/inter'
 
 interface Props {
   isOutOfCELO: boolean

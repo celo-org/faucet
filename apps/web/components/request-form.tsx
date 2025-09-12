@@ -1,16 +1,15 @@
-import { useSession } from 'next-auth/react'
 import dynamic from 'next/dynamic'
 import { Inter } from 'next/font/google'
 import { FC, FormEvent, useCallback, useRef, useState } from 'react'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useAsyncCallback } from 'react-use-async-callback'
+import { Button } from '../@/components/ui/button'
+import { Input } from '../@/components/ui/input'
+import { Label } from '../@/components/ui/label'
 import styles from 'styles/Form.module.css'
 import { FaucetAPIResponse, Network } from 'types'
 import { saveAddress } from 'utils/history'
 import { useLastAddress } from 'utils/useLastAddress'
-import { Button } from '../@/components/ui/button'
-import { Input } from '../@/components/ui/input'
-import { Label } from '../@/components/ui/label'
 
 const FaucetStatus = dynamic(async () => {
   const imported = await import('components/faucet-status')

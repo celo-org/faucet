@@ -1,8 +1,8 @@
 import { signIn, signOut, useSession } from 'next-auth/react'
 import { Inter } from 'next/font/google'
 import { FC } from 'react'
-import { useMediaQuery } from 'utils/use-media-query'
 import { Button } from '../@/components/ui/button'
+import { useMediaQuery } from 'utils/use-media-query'
 
 export const inter = Inter({ subsets: ['latin'] })
 
