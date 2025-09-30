@@ -55,8 +55,8 @@ export const RATE_LIMITS = {
 } as Readonly<Record<AuthLevel, { count: number; timePeriodInSeconds: number }>>
 
 export const GLOBAL_RATE_LIMITS = {
-  [AuthLevel.none]: { count: 25, timePeriodInSeconds: 1 * HOURS },
-  [AuthLevel.authenticated]: { count: 75, timePeriodInSeconds: 1 * HOURS },
+  [AuthLevel.none]: { count: 3, timePeriodInSeconds: 10 * MINUTES },
+  [AuthLevel.authenticated]: { count: 15, timePeriodInSeconds: 10 * MINUTES },
 } as Readonly<Record<AuthLevel, { count: number; timePeriodInSeconds: number }>>
 
 export const RATE_LIMITS_PER_IP =
