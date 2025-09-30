@@ -54,6 +54,11 @@ export const RATE_LIMITS = {
   [AuthLevel.authenticated]: { count: 10, timePeriodInSeconds: 24 * HOURS },
 } as Readonly<Record<AuthLevel, { count: number; timePeriodInSeconds: number }>>
 
+export const GLOBAL_RATE_LIMITS = {
+  [AuthLevel.none]: { count: 25, timePeriodInSeconds: 1 * HOURS },
+  [AuthLevel.authenticated]: { count: 75, timePeriodInSeconds: 1 * HOURS },
+} as Readonly<Record<AuthLevel, { count: number; timePeriodInSeconds: number }>>
+
 export const RATE_LIMITS_PER_IP =
   RATE_LIMITS.authenticated.count + RATE_LIMITS.none.count * 3
 
@@ -63,6 +68,7 @@ export async function sendRequest(
   network: Network,
   authLevel: AuthLevel,
   ip?: string,
+  userId?: string,
 ): Promise<{ key?: string; reason?: 'rate_limited' }> {
   // NOTE: make sure address is stable (no lowercase/not-prefixed BS)
   const beneficiary = getAddress(
@@ -85,14 +91,32 @@ export async function sendRequest(
     const redis = Redis.fromEnv()
     const namespace = 'rate-limits'
     const ipNamespace = 'ip-counts'
-    const pendingRequestCount = await redis.hlen(`${namespace}:${beneficiary}`)
-    const totalRequestCountForIp = await redis.hlen(`${ipNamespace}:${ip}`)
 
-    if (totalRequestCountForIp > RATE_LIMITS_PER_IP) {
+    const [
+      pendingRequestCountGlobal,
+      pendingRequestCountForBeneficiary,
+      pendingRequestCountForUser,
+      pendingRequestCountForIp,
+    ] = await Promise.all([
+      redis.hlen(`${namespace}:global`),
+      redis.hlen(`${namespace}:${beneficiary}`),
+      userId ? redis.hlen(`${namespace}:${userId}`) : 0,
+      redis.hlen(`${ipNamespace}:${ip}`),
+    ])
+
+    if (pendingRequestCountGlobal >= GLOBAL_RATE_LIMITS[authLevel].count) {
       return { reason: 'rate_limited' }
     }
 
-    if (pendingRequestCount >= RATE_LIMITS[authLevel].count) {
+    if (pendingRequestCountForIp >= RATE_LIMITS_PER_IP) {
+      return { reason: 'rate_limited' }
+    }
+
+    if (userId && pendingRequestCountForUser >= RATE_LIMITS[authLevel].count) {
+      return { reason: 'rate_limited' }
+    }
+
+    if (pendingRequestCountForBeneficiary >= RATE_LIMITS[authLevel].count) {
       return { reason: 'rate_limited' }
     }
 
@@ -100,25 +124,31 @@ export async function sendRequest(
       .ref(`${network}/requests`)
       .push(newRequest)
 
+    const params = {
+      // INCREASE GLOBAL COUNT
+      [`${namespace}:global`]:
+        GLOBAL_RATE_LIMITS[authLevel].timePeriodInSeconds,
+
+      // INCREASE COUNT FOR BENEFICIARY
+      [`${namespace}:${beneficiary}`]:
+        RATE_LIMITS[authLevel].timePeriodInSeconds,
+
+      // INCREASE COUNT FOR USER IDENTIFIER IF AUTHENTICATED
+      ...(userId != null && {
+        [`${namespace}:${userId}`]:
+          RATE_LIMITS.authenticated.timePeriodInSeconds,
+      }),
+      // INCREASE COUNT FOR IP
+      [`${ipNamespace}:${ip}`]: RATE_LIMITS.none.timePeriodInSeconds,
+    }
+
     /// BEGIN TRANSACTION
     const tx = redis.multi()
-    tx.hsetnx(`${namespace}:${beneficiary}`, `${ref.key}`, 1)
-    tx.expire(
-      `${namespace}:${beneficiary}`,
-      RATE_LIMITS[authLevel].timePeriodInSeconds,
-    )
-    tx.hexpire(
-      `${namespace}:${beneficiary}`,
-      `${ref.key}`,
-      RATE_LIMITS[authLevel].timePeriodInSeconds,
-    )
-    tx.hsetnx(`${ipNamespace}:${ip}`, `${ref.key}`, 1)
-    tx.expire(`${ipNamespace}:${ip}`, RATE_LIMITS.none.timePeriodInSeconds)
-    tx.hexpire(
-      `${ipNamespace}:${ip}`,
-      `${ref.key}`,
-      RATE_LIMITS.none.timePeriodInSeconds,
-    )
+    for (const [path, ttl] of Object.entries(params)) {
+      tx.hsetnx(path, ref.key!, 1)
+      tx.expire(path, ttl)
+      tx.hexpire(path, ref.key!, ttl)
+    }
     await tx.exec()
     /// END TRANSACTION
 

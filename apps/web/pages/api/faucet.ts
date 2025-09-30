@@ -1,18 +1,21 @@
 import { ipAddress } from '@vercel/functions'
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { Session } from 'next-auth'
 import { getServerSession } from 'next-auth/next'
+import { Hex, sha256 } from 'viem'
 import { sendRequest } from '../../utils/firebase.serverside'
 import { authOptions } from './auth/[...nextauth]'
-import { AuthLevel, FaucetAPIResponse, networks, RequestStatus } from 'types'
 import { captchaVerify } from 'utils/captcha-verify'
+import { AuthLevel, FaucetAPIResponse, networks, RequestStatus } from 'types'
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<FaucetAPIResponse>,
 ) {
   let authLevel = AuthLevel.none
+  let session: Session | null | undefined
   try {
-    const session = await getServerSession(req, res, authOptions)
+    session = await getServerSession(req, res, authOptions)
     if (session) {
       authLevel = AuthLevel.authenticated
     }
@@ -44,6 +47,7 @@ export default async function handler(
         authLevel,
         ipAddress(headers) ||
           (req.headers['x-forwarded-for'] as string | undefined),
+        session?.user?.email ? sha256(session.user.email as Hex) : undefined,
       )
 
       if (key) {
