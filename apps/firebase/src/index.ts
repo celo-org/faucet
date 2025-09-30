@@ -1,34 +1,21 @@
-import * as admin from 'firebase-admin'
-import * as functions from 'firebase-functions/v1'
-import { getNetworkConfig } from './config'
+import { initializeApp } from 'firebase-admin/app'
+import { getDatabase } from 'firebase-admin/database'
+import { onValueCreated } from 'firebase-functions/v2/database'
+import {
+  DB_POOL_OPTS,
+  getNetworkConfig,
+  PROCESSOR_RUNTIME_OPTS,
+} from './config'
 import { AccountPool, processRequest } from './database-helper'
 
-const PROCESSOR_RUNTIME_OPTS: functions.RuntimeOptions = {
-  // When changing this, check that actionTimeoutMS is less than this number
-  timeoutSeconds: 120,
-  memory: '512MB',
-}
-admin.initializeApp(functions.config().firebase)
+initializeApp()
 
-const db = admin.database()
-
-const SECOND = 1000
-
-export const faucetRequestProcessor = functions
-  .runWith(PROCESSOR_RUNTIME_OPTS)
-  .database.ref('/{network}/requests/{request}')
-  .onCreate(async (snap, ctx) => {
-    const network: string = ctx.params.network
+export const faucetRequestProcessor = onValueCreated(
+  PROCESSOR_RUNTIME_OPTS,
+  async (event) => {
+    const network = event.params.network
     const config = getNetworkConfig(network)
-    const pool = new AccountPool(db, network, {
-      retryWaitMS: SECOND,
-      getAccountTimeoutMS: 20 * SECOND,
-      actionTimeoutMS: 90 * SECOND,
-    })
-    return processRequest(snap, pool, config)
-  })
-
-// From https://firebase.googleblog.com/2019/04/schedule-cloud-functions-firebase-cron.html
-// export const scheduledFunctionCrontab = functions.pubsub.schedule('5 11 * * *').onRun((context) => {
-//   console.log('This will be run every day at 11:05 AM UTC!')
-// })
+    const pool = new AccountPool(getDatabase(), network, DB_POOL_OPTS)
+    return processRequest(event.data, pool, config)
+  },
+)
