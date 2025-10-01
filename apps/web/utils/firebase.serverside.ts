@@ -46,21 +46,25 @@ async function getDB(): Promise<firebase.database.Database> {
   return (await getFirebase()).database()
 }
 
+type RateLimit = Readonly<{ count: number; timePeriodInSeconds: number }>
+
 const SECONDS = 1
 const MINUTES = 60 * SECONDS
 const HOURS = 60 * MINUTES
-export const RATE_LIMITS = {
+export const RATE_LIMITS: Record<string, RateLimit> = {
   [AuthLevel.none]: { count: 4, timePeriodInSeconds: 24 * HOURS },
   [AuthLevel.authenticated]: { count: 10, timePeriodInSeconds: 24 * HOURS },
-} as Readonly<Record<AuthLevel, { count: number; timePeriodInSeconds: number }>>
+}
 
-export const GLOBAL_RATE_LIMITS = {
+export const GLOBAL_RATE_LIMITS: Record<string, RateLimit> = {
   [AuthLevel.none]: { count: 3, timePeriodInSeconds: 10 * MINUTES },
   [AuthLevel.authenticated]: { count: 15, timePeriodInSeconds: 10 * MINUTES },
-} as Readonly<Record<AuthLevel, { count: number; timePeriodInSeconds: number }>>
+}
 
-export const RATE_LIMITS_PER_IP =
-  RATE_LIMITS.authenticated.count + RATE_LIMITS.none.count * 3
+export const RATE_LIMITS_PER_IP: RateLimit = {
+  count: 18, // authenticated + none*2
+  timePeriodInSeconds: 24 * HOURS,
+}
 
 export async function sendRequest(
   address: Address,
@@ -108,7 +112,7 @@ export async function sendRequest(
       return { reason: 'rate_limited' }
     }
 
-    if (pendingRequestCountForIp >= RATE_LIMITS_PER_IP) {
+    if (pendingRequestCountForIp >= RATE_LIMITS_PER_IP.count) {
       return { reason: 'rate_limited' }
     }
 
@@ -139,7 +143,7 @@ export async function sendRequest(
           RATE_LIMITS.authenticated.timePeriodInSeconds,
       }),
       // INCREASE COUNT FOR IP
-      [`${ipNamespace}:${ip}`]: RATE_LIMITS.none.timePeriodInSeconds,
+      [`${ipNamespace}:${ip}`]: RATE_LIMITS_PER_IP.timePeriodInSeconds,
     }
 
     /// BEGIN TRANSACTION
