@@ -1,5 +1,5 @@
-import { ReferenceOptions } from 'firebase-functions/database'
-import { PoolOptions } from './database-helper'
+import type { ReferenceOptions } from 'firebase-functions/database'
+import type { PoolOptions } from './database-helper'
 
 export interface NetworkConfig {
   nodeUrl: string
