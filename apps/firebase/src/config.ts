@@ -1,3 +1,4 @@
+import assert from 'node:assert'
 import type { ReferenceOptions } from 'firebase-functions/database'
 import type { PoolOptions } from './database-helper'
 
@@ -44,3 +45,20 @@ export const DB_POOL_OPTS: PoolOptions = {
   getAccountTimeoutMS: 20_000,
   actionTimeoutMS: 90_000,
 }
+
+assert(process.env.FIREBASE_CONFIG, 'Missing in env: FIREBASE_CONFIG')
+
+const FIREBASE_CONFIG = JSON.parse(process.env.FIREBASE_CONFIG) as {
+  projectId: string
+  databaseURL: string
+  storageBucket: string
+}
+
+assert(
+  FIREBASE_CONFIG.projectId,
+  `Missing in FIREBASE_CONFIG: projectId, found firebase=${JSON.stringify(FIREBASE_CONFIG)}`,
+)
+
+const SUFFIX = FIREBASE_CONFIG.projectId.includes('staging') ? '-staging' : ''
+export const SERVICE_ACCOUNT = `faucet-deploy-firebase${SUFFIX}@celo-faucet${SUFFIX}.iam.gserviceaccount.com`
+export const DATABASE_URL = FIREBASE_CONFIG.databaseURL
