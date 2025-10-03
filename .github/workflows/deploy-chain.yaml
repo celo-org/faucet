@@ -55,11 +55,6 @@ jobs:
         working-directory: apps/firebase
         run: |
           yarn cli accounts:add  ${{ github.event.inputs.PK }} --net ${{ github.event.inputs.CHAIN_NAME }}
-      - name: Set Firebase Chain Config
-        if: ${{ github.event.inputs.CHAIN_NAME != '' && github.event.inputs.RPC_URL != '' }}
-        working-directory: apps/firebase
-        run: |
-          yarn cli config:set --net ${{ github.event.inputs.CHAIN_NAME }} --nodeUrl="${{ github.event.inputs.RPC_URL }}" --faucetGoldAmount 300000000000000000 --authenticatedGoldAmount 3000000000000000000
       # - name: Setup artifacts policy
       #   working-directory: apps/firebase
       #   run: |
