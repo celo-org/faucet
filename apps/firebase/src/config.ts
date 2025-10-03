@@ -46,19 +46,9 @@ export const DB_POOL_OPTS: PoolOptions = {
   actionTimeoutMS: 90_000,
 }
 
-assert(process.env.FIREBASE_CONFIG, 'Missing in env: FIREBASE_CONFIG')
+const GCLOUD_PROJECT = process.env.GCLOUD_PROJECT
+assert(GCLOUD_PROJECT, 'Missing in env: GCLOUD_PROJECT')
 
-const FIREBASE_CONFIG = JSON.parse(process.env.FIREBASE_CONFIG) as {
-  projectId: string
-  databaseURL: string
-  storageBucket: string
-}
-
-assert(
-  FIREBASE_CONFIG.projectId,
-  `Missing in FIREBASE_CONFIG: projectId, found firebase=${JSON.stringify(FIREBASE_CONFIG)}`,
-)
-
-const SUFFIX = FIREBASE_CONFIG.projectId.includes('staging') ? '-staging' : ''
+const SUFFIX = GCLOUD_PROJECT.includes('staging') ? '-staging' : ''
 export const SERVICE_ACCOUNT = `faucet-deploy-firebase${SUFFIX}@celo-faucet${SUFFIX}.iam.gserviceaccount.com`
-export const DATABASE_URL = FIREBASE_CONFIG.databaseURL
+export const DATABASE_URL = `https://celo-faucet${SUFFIX}.firebaseio.com`
