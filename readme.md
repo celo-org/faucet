@@ -1,6 +1,6 @@
 # Welcome to Celo Faucet app
 
-This Repo contains the code for the celo testnets faucet. This is contained in 2 apps.
+This Repo contains the code for the Celo testnets faucet. This is contained in 2 apps.
 
 - The firebase app contains functions which do the actual fauceting.
 
