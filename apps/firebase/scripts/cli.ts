@@ -2,7 +2,6 @@ import { ensureLeading0x } from '@celo/utils/lib/address'
 import { execSync } from 'child_process'
 import { privateKeyToAddress } from 'viem/accounts'
 import yargs from 'yargs'
-import { NetworkConfig } from '../src/config'
 
 // tslint:disable-next-line: no-unused-expression
 yargs
@@ -72,112 +71,7 @@ yargs
           demand: true,
         }),
     (args) => enqueueFundRequest(args.net, args.to),
-  )
-  .command(
-    'config:get',
-    'Get Config for a network',
-    (args) =>
-      args.option('net', {
-        type: 'string',
-        description: 'Name of network',
-      }),
-    (args) => printConfig(args.net),
-  )
-  .command(
-    'config:set',
-    'Configure the environment',
-    (args) =>
-      args
-        .option('net', {
-          type: 'string',
-          description: 'Name of network',
-          demand: true,
-        })
-        .option('nodeUrl', {
-          type: 'string',
-        })
-        .option('faucetGoldAmount', {
-          type: 'string',
-        })
-        .option('faucetStableAmount', {
-          type: 'string',
-        })
-        .option('authenticatedGoldAmount', {
-          type: 'string',
-        })
-        .option('authenticatedStableAmount', {
-          type: 'string',
-        })
-        .option('bigFaucetSafeAmount', {
-          type: 'string',
-          description:
-            'Amount of CELO to be sent to *bigFaucetSafeAddress* each time the script runs',
-        })
-        .option('bigFaucetSafeStablesAmount', {
-          type: 'string',
-          description:
-            'Amount of Stables to be sent to *bigFaucetSafeAddress* each time the script runs',
-        })
-        .option('bigFaucetSafeAddress', {
-          type: 'string',
-          description:
-            'Address for the Celo Safe used for distributing large amounts of CELO to developers by request',
-        })
-
-        .option('deploy', {
-          type: 'boolean',
-          description: 'Whether to deploy functions after set config',
-        }),
-    (args) => {
-      setConfig(args.net, {
-        faucetGoldAmount: args.faucetGoldAmount,
-        faucetStableAmount: args.faucetStableAmount,
-        authenticatedGoldAmount: args.authenticatedGoldAmount,
-        authenticatedStableAmount: args.authenticatedStableAmount,
-        bigFaucetSafeAmount: args.bigFaucetSafeAmount,
-        bigFaucetSafeStablesAmount: args.bigFaucetSafeStablesAmount,
-        bigFaucetSafeAddress: args.bigFaucetSafeAddress,
-        nodeUrl: args.nodeUrl,
-      })
-      if (args.deploy) {
-        deployFunctions()
-      }
-    },
   ).argv
-
-function setConfig(network: string, config: Partial<NetworkConfig>) {
-  const setIfPresent = (name: string, value?: string | number | null) =>
-    value ? `faucet.${network}.${name}="${value}"` : ''
-  const variables = [
-    setIfPresent('node_url', config.nodeUrl),
-    setIfPresent('faucet_gold_amount', config.faucetGoldAmount),
-    setIfPresent('faucet_stable_amount', config.faucetStableAmount),
-    setIfPresent('authenticated_gold_amount', config.authenticatedGoldAmount),
-    setIfPresent(
-      'authenticated_stable_amount',
-      config.authenticatedStableAmount,
-    ),
-    setIfPresent('big_faucet_safe_address', config.bigFaucetSafeAddress),
-    setIfPresent('big_faucet_safe_amount', config.bigFaucetSafeAmount),
-    setIfPresent(
-      'big_faucet_safe_stables_amount',
-      config.bigFaucetSafeStablesAmount,
-    ),
-  ].join(' ')
-  execSync(`yarn firebase functions:config:set ${variables}`, {
-    stdio: 'inherit',
-  })
-}
-
-function printConfig(network?: string) {
-  if (network != null) {
-    execSync(`yarn firebase functions:config:get faucet.${network}`, {
-      stdio: 'inherit',
-    })
-  } else {
-    execSync(`yarn firebase functions:config:get faucet`, { stdio: 'inherit' })
-  }
-}
 
 function printAccounts(network: string) {
   execSync(`yarn firebase database:get --pretty /${network}/accounts`, {

@@ -1,13 +1,11 @@
 /* tslint:disable max-classes-per-file */
 import { retryAsync, sleep } from '@celo/utils/lib/async'
-import { database } from 'firebase-admin'
-import { database as functionsDB } from 'firebase-functions/v1'
+import type { DataSnapshot, Database, Reference } from 'firebase-admin/database'
 import type { Address, Hex } from 'viem'
 import { CeloAdapter } from './celo-adapter'
 import { NetworkConfig } from './config'
 import { getQualifiedAmount } from './get-qualified-mount'
 import { ExecutionResult, logExecutionResult } from './metrics'
-type DataSnapshot = functionsDB.DataSnapshot
 
 export interface AccountRecord {
   pk: Hex
@@ -115,16 +113,14 @@ function buildFaucetSender(
 async function dispatchCeloFunds(
   celo: CeloAdapter,
   address: Address,
-  amount: string,
+  amount: bigint,
   snap: DataSnapshot,
 ) {
-  const actualAmount = BigInt(amount)
-
   console.info(
-    `req(${snap.key}): Sending ${actualAmount.toString()} celo to ${address}`,
+    `req(${snap.key}): Sending ${amount.toString()} celo to ${address}`,
   )
 
-  const celoTxhash = await celo.transferCelo(address, actualAmount)
+  const celoTxhash = await celo.transferCelo(address, amount)
   console.info(
     `req(${snap.key}): CELO Transaction Submited to mempool. txhash:${celoTxhash}`,
   )
@@ -179,7 +175,7 @@ enum ActionResult {
 }
 export class AccountPool {
   constructor(
-    private db: database.Database,
+    private db: Database,
     public network: string,
     private options: PoolOptions = {
       getAccountTimeoutMS: 10 * SECOND,
@@ -267,7 +263,7 @@ export class AccountPool {
     return account
   }
 
-  async tryLockAccount(): Promise<null | database.DataSnapshot> {
+  async tryLockAccount(): Promise<null | DataSnapshot> {
     const accountsSnap = await this.accountsRef.once('value')
 
     const accountKeys: string[] = []
@@ -295,7 +291,7 @@ export class AccountPool {
    * @param lockRef Reference to lock field
    * @returns Wether it sucessfully updated the field
    */
-  private async trySetLockField(lockRef: database.Reference) {
+  private async trySetLockField(lockRef: Reference) {
     const txres = await lockRef.transaction((curr: boolean) => {
       if (curr) {
         return // already locked, abort

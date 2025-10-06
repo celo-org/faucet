@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest'
+import { NetworkConfig } from './config'
 import { AuthLevel } from './database-helper'
 import { getQualifiedAmount } from './get-qualified-mount'
 
 describe('getQualifiedAmount', () => {
-  const mockConfig = {
-    faucetGoldAmount: '100',
-    authenticatedGoldAmount: '200',
+  const mockConfig: NetworkConfig = {
+    nodeUrl: '',
+    faucetGoldAmount: 100n,
+    authenticatedGoldAmount: 200n,
   }
 
   it('should return faucetGoldAmount for undefined authLevel', () => {

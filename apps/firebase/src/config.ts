@@ -1,32 +1,54 @@
-import * as functions from 'firebase-functions/v1'
+import assert from 'node:assert'
+import type { ReferenceOptions } from 'firebase-functions/database'
+import type { PoolOptions } from './database-helper'
 
 export interface NetworkConfig {
   nodeUrl: string
-  faucetGoldAmount: string
-  faucetStableAmount: string
-  authenticatedGoldAmount: string
-  authenticatedStableAmount: string
-  bigFaucetSafeAddress: string
-  bigFaucetSafeAmount: string
-  bigFaucetSafeStablesAmount: string
+  faucetGoldAmount: bigint
+  authenticatedGoldAmount: bigint
+}
+
+const ALFAJORES_CONFIG: NetworkConfig = {
+  nodeUrl: 'https://alfajores-forno.celo-testnet.org',
+  faucetGoldAmount: 300_000_000_000_000_000n,
+  authenticatedGoldAmount: 3_000_000_000_000_000_000n,
+}
+
+const CELO_SEPOLIA_CONFIG: NetworkConfig = {
+  nodeUrl: 'https://forno.celo-sepolia.celo-testnet.org',
+  faucetGoldAmount: 300_000_000_000_000_000n,
+  authenticatedGoldAmount: 3_000_000_000_000_000_000n,
+}
+
+const CONFIGS: Record<string, NetworkConfig> = {
+  alfajores: ALFAJORES_CONFIG,
+  'celo-sepolia': CELO_SEPOLIA_CONFIG,
 }
 
 export function getNetworkConfig(net: string): NetworkConfig {
-  const allconfig = functions.config()
-  const config = allconfig.faucet
-
-  if (config[net] == null) {
+  if (CONFIGS[net] == null) {
     throw new Error('No Config for: ' + net)
   }
 
-  return {
-    nodeUrl: config[net].node_url,
-    faucetGoldAmount: config[net].faucet_gold_amount,
-    faucetStableAmount: config[net].faucet_stable_amount,
-    authenticatedGoldAmount: config[net].authenticated_gold_amount,
-    authenticatedStableAmount: config[net].authenticated_stable_amount,
-    bigFaucetSafeAddress: config[net].big_faucet_safe_address,
-    bigFaucetSafeAmount: config[net].big_faucet_safe_amount,
-    bigFaucetSafeStablesAmount: config[net].big_faucet_safe_stables_amount,
-  }
+  return CONFIGS[net]
 }
+
+export const PROCESSOR_RUNTIME_OPTS: ReferenceOptions = {
+  // When changing this, check that `DB_POOL_OPTS.actionTimeoutMS` is less than this number
+  timeoutSeconds: 120,
+  memory: '512MiB',
+  ref: '/{network}/requests/{request}',
+}
+
+export const DB_POOL_OPTS: PoolOptions = {
+  retryWaitMS: 1_000,
+  getAccountTimeoutMS: 20_000,
+  actionTimeoutMS: 90_000,
+}
+
+const GCLOUD_PROJECT = process.env.GCLOUD_PROJECT
+assert(GCLOUD_PROJECT, 'Missing in env: GCLOUD_PROJECT')
+
+const SUFFIX = GCLOUD_PROJECT.includes('staging') ? '-staging' : ''
+export const SERVICE_ACCOUNT = `faucet-deploy-firebase${SUFFIX}@celo-faucet${SUFFIX}.iam.gserviceaccount.com`
+export const DATABASE_URL = `https://celo-faucet${SUFFIX}.firebaseio.com`
