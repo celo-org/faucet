@@ -79,9 +79,9 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
                 </Link>
               </small>
               <small className={inter.className}>
-                &bull; Swap CELO for cUSD, cEUR, or cREAL, or USDC on{' '}
+                &bull;  {' '}
                 <Link className="underline" href="https://app.mento.org/">
-                  mento
+                  Swap CELO for Mento Tokens
                 </Link>
               </small>
               {network === 'celo-sepolia' && (
