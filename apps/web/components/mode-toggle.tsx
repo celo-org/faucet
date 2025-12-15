@@ -1,8 +1,8 @@
 import { Moon, Sun } from 'lucide-react'
 
+import { Button } from '@/components/ui/button'
 import { useTheme } from 'next-themes'
 import { useCallback } from 'react'
-import { Button } from '@/components/ui/button'
 
 export function ModeToggle() {
   const { theme, setTheme } = useTheme()
@@ -20,7 +20,7 @@ export function ModeToggle() {
 
     const newTheme = oldTheme === 'light' ? 'dark' : 'light'
     setTheme(newTheme)
-  }, [theme])
+  }, [theme, setTheme])
 
   return (
     <Button size="icon" onClick={onClick}>
