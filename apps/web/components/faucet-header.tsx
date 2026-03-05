@@ -15,19 +15,6 @@ export const FaucetHeader: FC<Props> = ({ network, isOutOfCELO }) => (
     {isOutOfCELO && (
       <header className={styles.notice}>
         <span>The Faucet is out of CELO for now.</span>
-        {network === 'alfajores' && (
-          <>
-            {' '}
-            It will be topped up{' '}
-            <a
-              target="_blank"
-              rel="noreferrer"
-              href="https://explorer.celo.org/alfajores/epochs"
-            >
-              within an hour
-            </a>
-          </>
-        )}
       </header>
     )}
     <div className={`${styles.topBar}`}>

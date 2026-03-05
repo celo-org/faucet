@@ -8,12 +8,6 @@ export interface NetworkConfig {
   authenticatedGoldAmount: bigint
 }
 
-const ALFAJORES_CONFIG: NetworkConfig = {
-  nodeUrl: 'https://alfajores-forno.celo-testnet.org',
-  faucetGoldAmount: 300_000_000_000_000_000n,
-  authenticatedGoldAmount: 3_000_000_000_000_000_000n,
-}
-
 const CELO_SEPOLIA_CONFIG: NetworkConfig = {
   nodeUrl: 'https://forno.celo-sepolia.celo-testnet.org',
   faucetGoldAmount: 300_000_000_000_000_000n,
@@ -21,7 +15,6 @@ const CELO_SEPOLIA_CONFIG: NetworkConfig = {
 }
 
 const CONFIGS: Record<string, NetworkConfig> = {
-  alfajores: ALFAJORES_CONFIG,
   'celo-sepolia': CELO_SEPOLIA_CONFIG,
 }
 
