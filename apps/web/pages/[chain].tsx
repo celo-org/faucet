@@ -4,7 +4,6 @@ import Head from 'next/head'
 import Link from 'next/link'
 import {
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -28,8 +27,6 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
   const networkCapitalized = capitalize(network)
   const { data: session } = useSession()
 
-  const otherNetwork =
-    networks.indexOf(network) === 0 ? networks[1] : networks[0]
   return (
     <>
       <Head>
@@ -46,16 +43,6 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
         <Card className="w-full max-w-sm items-stretch">
           <CardHeader>
             <CardTitle>{networkCapitalized} Token Faucet</CardTitle>
-            <CardDescription>
-              {networks.length > 1 && (
-                <Link
-                  className={styles.switchNetwork}
-                  href={`/${otherNetwork}`}
-                >
-                  Switch to {capitalize(otherNetwork)}
-                </Link>
-              )}
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <RequestForm network={network} isOutOfCELO={isOutOfCELO} />
@@ -79,7 +66,7 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
                 </Link>
               </small>
               <small className={inter.className}>
-                &bull;  {' '}
+                &bull;{' '}
                 <Link className="underline" href="https://app.mento.org/">
                   Swap CELO for Mento Tokens
                 </Link>
