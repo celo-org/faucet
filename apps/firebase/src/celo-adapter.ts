@@ -9,19 +9,19 @@ import {
   WalletClient,
 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { celoAlfajores, celoSepolia } from 'viem/chains'
+import { celoSepolia } from 'viem/chains'
 
 export class CeloAdapter {
   public readonly client: WalletClient<
     Transport,
-    typeof celoAlfajores | typeof celoSepolia,
+    typeof celoSepolia,
     Account
   >
-  private readonly chain: typeof celoAlfajores | typeof celoSepolia
+  private readonly chain: typeof celoSepolia
 
   constructor({ pk, nodeUrl }: { pk: Hex; nodeUrl: string }) {
     const account = privateKeyToAccount(ensureLeading0x(pk))
-    this.chain = nodeUrl.includes('alfajores') ? celoAlfajores : celoSepolia
+    this.chain = celoSepolia
     this.client = createWalletClient({
       account,
       transport: http(nodeUrl),

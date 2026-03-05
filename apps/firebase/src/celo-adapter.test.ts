@@ -1,5 +1,5 @@
 import { parseEther } from 'viem'
-import { celoAlfajores, celoSepolia } from 'viem/chains'
+import { celoSepolia } from 'viem/chains'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CeloAdapter } from './celo-adapter'
 
@@ -9,15 +9,13 @@ describe('CeloAdapter Integration Tests', () => {
     '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef' as const
   // this is NOT the address of the test private key
   const validAddress = '0x744a3f56D61487FA2cD5a09262d31E6222DC136E' as const
-  const testNodeUrls = {
-    alfajores: celoAlfajores.rpcUrls.default.http[0],
-    sepolia: celoSepolia.rpcUrls.default.http[0],
-  }
+  const testNodeUrl = celoSepolia.rpcUrls.default.http[0]
+
   describe('Constructor', () => {
-    it('creates an adapter with Alfajores chain when nodeUrl contains alfajores', () => {
+    it('creates an adapter with Sepolia chain', () => {
       const adapter = new CeloAdapter({
         pk: testPrivateKey,
-        nodeUrl: testNodeUrls.alfajores,
+        nodeUrl: testNodeUrl,
       })
 
       // Verify the adapter was created successfully
@@ -27,17 +25,7 @@ describe('CeloAdapter Integration Tests', () => {
       expect(typeof adapter.transferCelo).toBe('function')
     })
 
-    it('creates an adapter with Sepolia chain when nodeUrl contains sepolia', () => {
-      const adapter = new CeloAdapter({
-        pk: testPrivateKey,
-        nodeUrl: testNodeUrls.sepolia,
-      })
-
-      expect(adapter).toBeInstanceOf(CeloAdapter)
-      expect(typeof adapter.transferCelo).toBe('function')
-    })
-
-    it('defaults to Sepolia chain when nodeUrl does not contain alfajores', () => {
+    it('defaults to Sepolia chain for any nodeUrl', () => {
       const adapter = new CeloAdapter({
         pk: testPrivateKey,
         nodeUrl: 'https://some-other-node.org',
@@ -54,7 +42,7 @@ describe('CeloAdapter Integration Tests', () => {
       vi.resetAllMocks()
       adapter = new CeloAdapter({
         pk: testPrivateKey,
-        nodeUrl: testNodeUrls.alfajores,
+        nodeUrl: testNodeUrl,
       })
       vi.spyOn(adapter.client, 'sendTransaction').mockResolvedValue(
         '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef' as const,
@@ -78,7 +66,7 @@ describe('CeloAdapter Integration Tests', () => {
       expect(adapter.client.sendTransaction).toHaveBeenCalledWith({
         to: validAddress,
         value: amount,
-        chain: celoAlfajores,
+        chain: celoSepolia,
       })
     })
 
@@ -95,27 +83,17 @@ describe('CeloAdapter Integration Tests', () => {
         expect(adapter.client.sendTransaction).toHaveBeenCalledWith({
           to: validAddress,
           value: amount,
-          chain: celoAlfajores,
+          chain: celoSepolia,
         })
       })
     })
   })
 
   describe('Chain Configuration', () => {
-    it('uses correct chain configuration for Alfajores', () => {
-      const adapter = new CeloAdapter({
-        pk: testPrivateKey,
-        nodeUrl: testNodeUrls.alfajores,
-      })
-
-      // Verify the adapter was created with Alfajores configuration
-      expect(adapter).toBeInstanceOf(CeloAdapter)
-    })
-
     it('uses correct chain configuration for Sepolia', () => {
       const adapter = new CeloAdapter({
         pk: testPrivateKey,
-        nodeUrl: testNodeUrls.sepolia,
+        nodeUrl: testNodeUrl,
       })
 
       // Verify the adapter was created with Sepolia configuration
@@ -129,33 +107,26 @@ describe('CeloAdapter Integration Tests', () => {
       expect(() => {
         new CeloAdapter({
           pk: 'invalid-private-key' as any,
-          nodeUrl: testNodeUrls.alfajores,
+          nodeUrl: testNodeUrl,
         })
       }).toThrow()
     })
   })
 
   describe('Real Network Integration', () => {
-    it('creates adapter instances without throwing network errors', () => {
-      // Test that we can create adapters for both networks
-      const alfajoresAdapter = new CeloAdapter({
+    it('creates adapter instance without throwing network errors', () => {
+      const adapter = new CeloAdapter({
         pk: testPrivateKey,
-        nodeUrl: testNodeUrls.alfajores,
+        nodeUrl: testNodeUrl,
       })
 
-      const sepoliaAdapter = new CeloAdapter({
-        pk: testPrivateKey,
-        nodeUrl: testNodeUrls.sepolia,
-      })
-
-      expect(alfajoresAdapter).toBeInstanceOf(CeloAdapter)
-      expect(sepoliaAdapter).toBeInstanceOf(CeloAdapter)
+      expect(adapter).toBeInstanceOf(CeloAdapter)
     })
 
     it('handles method calls without network errors', async () => {
       const adapter = new CeloAdapter({
         pk: testPrivateKey,
-        nodeUrl: testNodeUrls.alfajores,
+        nodeUrl: testNodeUrl,
       })
 
       // The method should be callable (though it will fail due to insufficient funds)
