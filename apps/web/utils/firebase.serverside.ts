@@ -12,7 +12,7 @@ import {
   RequestStatus,
   RequestType,
 } from 'types'
-import { createPublicClient, getAddress, http } from 'viem'
+import { createPublicClient, fallback, getAddress, http } from 'viem'
 import { celo, mainnet } from 'viem/chains'
 import { config } from './firebase-config'
 
@@ -164,11 +164,18 @@ export async function sendRequest(
 }
 
 const ethPublicClient = createPublicClient({
-  transport: http(),
+  transport: fallback([
+    ...(process.env.ETH_RPC_URL ? [http(process.env.ETH_RPC_URL)] : []),
+    http('https://1rpc.io/eth'),
+    http('https://eth.drpc.org'),
+  ]),
   chain: mainnet,
 })
 const celoPublicClient = createPublicClient({
-  transport: http(),
+  transport: fallback([
+    ...(process.env.CELO_RPC_URL ? [http(process.env.CELO_RPC_URL)] : []),
+    http('https://forno.celo.org'),
+  ]),
   chain: celo,
 })
 const LOCKED_CELO_CONTRACT_ADDRESS =
