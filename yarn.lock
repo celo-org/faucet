@@ -1164,7 +1164,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@firebase/app-types@npm:0.9.3, @firebase/app-types@npm:^0.9.3":
+"@firebase/app-types@npm:0.9.3":
   version: 0.9.3
   resolution: "@firebase/app-types@npm:0.9.3"
   checksum: 10c0/02ec9a26c10b9bbb2a1e5b9ae0552b5325b40066e3c23be089ceae53414a1505f2ab716ae1098652a0a0c9992ba322c05371a9b2a837cccfae309788372a72e0
@@ -15296,7 +15296,6 @@ __metadata:
   resolution: "web@workspace:apps/web"
   dependencies:
     "@celo/abis": "npm:^13.0.0"
-    "@firebase/app-types": "npm:^0.9.3"
     "@metamask/detect-provider": "npm:^2.0.0"
     "@radix-ui/react-label": "npm:^2.1.7"
     "@radix-ui/react-slot": "npm:^1.2.3"
@@ -15312,6 +15311,7 @@ __metadata:
     eslint: "npm:8.57.0"
     eslint-config-next: "npm:13.5.6"
     firebase: "npm:^12.1.0"
+    firebase-admin: "npm:^13.4.0"
     lucide-react: "npm:^0.542.0"
     next: "npm:15.5.9"
     next-auth: "npm:^4.24.11"

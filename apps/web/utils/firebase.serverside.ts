@@ -1,8 +1,7 @@
 import { lockedGoldABI } from '@celo/abis'
 import { Redis } from '@upstash/redis'
-import firebase from 'firebase/compat/app'
-import 'firebase/compat/auth'
-import 'firebase/compat/database'
+import { getApps, initializeApp } from 'firebase-admin/app'
+import { getDatabase } from 'firebase-admin/database'
 import {
   Address,
   AuthLevel,
@@ -14,36 +13,16 @@ import {
 } from 'types'
 import { createPublicClient, getAddress, http } from 'viem'
 import { celo, mainnet } from 'viem/chains'
-import { config } from './firebase-config'
+import { getFirebaseCredential } from './gcp-credential'
 
-async function getFirebase() {
-  if (!firebase.apps.length) {
-    firebase.initializeApp(config)
-    const loginUsername = process.env.FIREBASE_LOGIN_USERNAME
-    const loginPassword = process.env.FIREBASE_LOGIN_PASSWORD
-    if (
-      loginUsername === undefined ||
-      loginUsername === null ||
-      loginUsername.length === 0 ||
-      loginPassword === undefined
-    ) {
-      throw new Error('Login username or password is empty')
-    }
-    try {
-      // Source: https://firebase.google.com/docs/auth
-      await firebase
-        .auth()
-        .signInWithEmailAndPassword(loginUsername, loginPassword)
-    } catch (e) {
-      console.error(`Fail to login into Firebase: ${e}`)
-      throw e
-    }
+function getDB() {
+  if (!getApps().length) {
+    initializeApp({
+      credential: getFirebaseCredential(),
+      databaseURL: `https://${process.env.NEXT_PUBLIC_FIREBASE_PID}.firebaseio.com`,
+    })
   }
-  return firebase
-}
-
-async function getDB(): Promise<firebase.database.Database> {
-  return (await getFirebase()).database()
+  return getDatabase()
 }
 
 type RateLimit = Readonly<{ count: number; timePeriodInSeconds: number }>
@@ -91,7 +70,7 @@ export async function sendRequest(
     if (await addressCanBeElevatedToTrusted(beneficiary)) {
       authLevel = AuthLevel.authenticated
     }
-    const db = await getDB()
+    const db = getDB()
     const redis = Redis.fromEnv()
     const namespace = 'rate-limits'
     const ipNamespace = 'ip-counts'
@@ -124,9 +103,7 @@ export async function sendRequest(
       return { reason: 'rate_limited' }
     }
 
-    const ref: firebase.database.Reference = await db
-      .ref(`${network}/requests`)
-      .push(newRequest)
+    const ref = await db.ref(`${network}/requests`).push(newRequest)
 
     const params = {
       // INCREASE GLOBAL COUNT
