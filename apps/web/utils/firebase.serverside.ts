@@ -1,5 +1,6 @@
 import { lockedGoldABI } from '@celo/abis'
 import { Redis } from '@upstash/redis'
+import { randomUUID } from 'node:crypto'
 import firebase from 'firebase/compat/app'
 import 'firebase/compat/auth'
 import 'firebase/compat/database'
@@ -66,6 +67,55 @@ export const RATE_LIMITS_PER_IP: RateLimit = {
   timePeriodInSeconds: 24 * HOURS,
 }
 
+// Atomic check-and-reserve for the four rate-limit buckets. Running the
+// HLEN reads, the limit checks, and the HSETNX/EXPIRE/HEXPIRE writes in a
+// single Lua block makes the sequence atomic with respect to other Redis
+// clients, closing the TOCTOU window where a concurrent burst could all
+// observe the same pre-increment counts and all pass the gate.
+//
+// KEYS[1] global bucket  ARGV[1] global limit   ARGV[5] global ttl
+// KEYS[2] beneficiary    ARGV[4] beneficiary    ARGV[8] beneficiary ttl
+// KEYS[3] user (or '')   ARGV[3] user           ARGV[7] user ttl
+// KEYS[4] ip             ARGV[2] ip             ARGV[6] ip ttl
+// ARGV[9] reservation field (caller-generated uuid)
+const ATOMIC_RATE_LIMIT_RESERVE_LUA = `
+local globalCount = redis.call('HLEN', KEYS[1])
+if globalCount >= tonumber(ARGV[1]) then return 'rate_limited' end
+
+local ipCount = redis.call('HLEN', KEYS[4])
+if ipCount >= tonumber(ARGV[2]) then return 'rate_limited' end
+
+if KEYS[3] ~= '' then
+  local userCount = redis.call('HLEN', KEYS[3])
+  if userCount >= tonumber(ARGV[3]) then return 'rate_limited' end
+end
+
+local beneficiaryCount = redis.call('HLEN', KEYS[2])
+if beneficiaryCount >= tonumber(ARGV[4]) then return 'rate_limited' end
+
+local field = ARGV[9]
+
+redis.call('HSETNX', KEYS[1], field, 1)
+redis.call('EXPIRE', KEYS[1], ARGV[5])
+redis.call('HEXPIRE', KEYS[1], ARGV[5], 'FIELDS', 1, field)
+
+redis.call('HSETNX', KEYS[2], field, 1)
+redis.call('EXPIRE', KEYS[2], ARGV[8])
+redis.call('HEXPIRE', KEYS[2], ARGV[8], 'FIELDS', 1, field)
+
+if KEYS[3] ~= '' then
+  redis.call('HSETNX', KEYS[3], field, 1)
+  redis.call('EXPIRE', KEYS[3], ARGV[7])
+  redis.call('HEXPIRE', KEYS[3], ARGV[7], 'FIELDS', 1, field)
+end
+
+redis.call('HSETNX', KEYS[4], field, 1)
+redis.call('EXPIRE', KEYS[4], ARGV[6])
+redis.call('HEXPIRE', KEYS[4], ARGV[6], 'FIELDS', 1, field)
+
+return 'ok'
+`
+
 export async function sendRequest(
   address: Address,
   skipStables: boolean,
@@ -96,67 +146,59 @@ export async function sendRequest(
     const namespace = 'rate-limits'
     const ipNamespace = 'ip-counts'
 
-    const [
-      pendingRequestCountGlobal,
-      pendingRequestCountForBeneficiary,
-      pendingRequestCountForUser,
-      pendingRequestCountForIp,
-    ] = await Promise.all([
-      redis.hlen(`${namespace}:global`),
-      redis.hlen(`${namespace}:${beneficiary}`),
-      userId ? redis.hlen(`${namespace}:${userId}`) : 0,
-      redis.hlen(`${ipNamespace}:${ip}`),
-    ])
+    const globalKey = `${namespace}:global`
+    const beneficiaryKey = `${namespace}:${beneficiary}`
+    const userKey = userId ? `${namespace}:${userId}` : ''
+    const ipKey = `${ipNamespace}:${ip}`
 
-    if (pendingRequestCountGlobal >= GLOBAL_RATE_LIMITS[authLevel].count) {
-      return { reason: 'rate_limited' }
-    }
+    // Generate the reservation field up front so the Redis reservation and
+    // the Firebase entry share the same id. This lets the Lua reservation
+    // run before the Firebase push instead of after — which is what closes
+    // the original TOCTOU window.
+    const reservationKey = randomUUID()
 
-    if (pendingRequestCountForIp >= RATE_LIMITS_PER_IP.count) {
-      return { reason: 'rate_limited' }
-    }
-
-    if (userId && pendingRequestCountForUser >= RATE_LIMITS[authLevel].count) {
-      return { reason: 'rate_limited' }
-    }
-
-    if (pendingRequestCountForBeneficiary >= RATE_LIMITS[authLevel].count) {
-      return { reason: 'rate_limited' }
-    }
-
-    const ref: firebase.database.Reference = await db
-      .ref(`${network}/requests`)
-      .push(newRequest)
-
-    const params = {
-      // INCREASE GLOBAL COUNT
-      [`${namespace}:global`]:
+    const reserveResult = (await redis.eval(
+      ATOMIC_RATE_LIMIT_RESERVE_LUA,
+      [globalKey, beneficiaryKey, userKey, ipKey],
+      [
+        GLOBAL_RATE_LIMITS[authLevel].count,
+        RATE_LIMITS_PER_IP.count,
+        RATE_LIMITS[authLevel].count,
+        RATE_LIMITS[authLevel].count,
         GLOBAL_RATE_LIMITS[authLevel].timePeriodInSeconds,
-
-      // INCREASE COUNT FOR BENEFICIARY
-      [`${namespace}:${beneficiary}`]:
+        RATE_LIMITS_PER_IP.timePeriodInSeconds,
+        RATE_LIMITS.authenticated.timePeriodInSeconds,
         RATE_LIMITS[authLevel].timePeriodInSeconds,
+        reservationKey,
+      ],
+    )) as string
 
-      // INCREASE COUNT FOR USER IDENTIFIER IF AUTHENTICATED
-      ...(userId != null && {
-        [`${namespace}:${userId}`]:
-          RATE_LIMITS.authenticated.timePeriodInSeconds,
-      }),
-      // INCREASE COUNT FOR IP
-      [`${ipNamespace}:${ip}`]: RATE_LIMITS_PER_IP.timePeriodInSeconds,
+    if (reserveResult === 'rate_limited') {
+      return { reason: 'rate_limited' }
     }
 
-    /// BEGIN TRANSACTION
-    const tx = redis.multi()
-    for (const [path, ttl] of Object.entries(params)) {
-      tx.hsetnx(path, ref.key!, 1)
-      tx.expire(path, ttl)
-      tx.hexpire(path, ref.key!, ttl)
+    // Slot is reserved in Redis. Write to Firebase under the same key.
+    // If the Firebase write fails, roll back the Redis reservation so the
+    // slot isn't permanently consumed by a never-processed request.
+    try {
+      await db.ref(`${network}/requests/${reservationKey}`).set(newRequest)
+    } catch (e) {
+      try {
+        const rollback = redis.multi()
+        rollback.hdel(globalKey, reservationKey)
+        rollback.hdel(beneficiaryKey, reservationKey)
+        if (userKey) rollback.hdel(userKey, reservationKey)
+        rollback.hdel(ipKey, reservationKey)
+        await rollback.exec()
+      } catch (rollbackErr) {
+        console.error(
+          `Rollback failed for reservation ${reservationKey}: ${rollbackErr}`,
+        )
+      }
+      throw e
     }
-    await tx.exec()
-    /// END TRANSACTION
 
-    return { key: ref.key! }
+    return { key: reservationKey }
   } catch (e) {
     console.error(`Error while sendRequest: ${e}`)
     throw e
