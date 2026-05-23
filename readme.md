@@ -8,14 +8,14 @@ This Repo contains the code for the celo testnets faucet. This is contained in 2
 
 The web app deploys automatically to vercel.
 
-The deploy-chains gh actions deploys functions to staging and production envronments from staging and master branches respectively
+The deploy-chains gh actions deploys functions to staging and production environments from staging and master branches respectively
 
-Note other branches are not deployed autamtically but can be by manually triggering the flow
+Note other branches are not deployed automatically but can be by manually triggering the flow
 
 
 ## Setup
 
-### Wep app
+### Web app
 
 To set up the web app to run locally:
 

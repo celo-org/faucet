@@ -5,17 +5,17 @@ A firebase function that faucets addresses
 
 ## Funding the accounts
 
-The accounts are normal EOAs. send CELO via transfer or simple transaction. 
+The accounts are normal EOAs. Send CELO via transfer or simple transaction. 
 
 
-## How to qa 
-
-push to the staging branch. this branch is the only non master branch that can be used with captcha and deployment
+## How to QA 
+ 
+ Push to the staging branch. This branch is the only non-master branch that can be used with captcha and deployment.
 
 
 ## How to deploy
 
-Deployment is done thru a github action. see deploy-chain.yaml
+Deployment is done through a GitHub Action. See deploy-chain.yaml
 
 ## ✍️ <a id="contributing"></a>Contributing
 

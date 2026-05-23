@@ -83,7 +83,7 @@ export async function processRequest(
     }
   } catch (err) {
     logExecutionResult(snap.key, ExecutionResult.OtherErr)
-    console.error(`req(${snap.key}): ERROR proccessRequest`, err)
+    console.error(`req(${snap.key}): ERROR processRequest`, err)
     await snap.ref.update({ status: RequestStatus.Failed })
     throw err
   }
@@ -122,7 +122,7 @@ async function dispatchCeloFunds(
 
   const celoTxhash = await celo.transferCelo(address, amount)
   console.info(
-    `req(${snap.key}): CELO Transaction Submited to mempool. txhash:${celoTxhash}`,
+    `req(${snap.key}): CELO Transaction Submitted to mempool. txhash:${celoTxhash}`,
   )
   await snap.ref.update({ celoTxhash })
   return celoTxhash
@@ -289,7 +289,7 @@ export class AccountPool {
    * Try to set `locked` field to true.
    *
    * @param lockRef Reference to lock field
-   * @returns Wether it sucessfully updated the field
+   * @returns Whether it successfully updated the field
    */
   private async trySetLockField(lockRef: Reference) {
     const txres = await lockRef.transaction((curr: boolean) => {
