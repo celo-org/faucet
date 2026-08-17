@@ -12,7 +12,6 @@ The deploy-chains gh actions deploys functions to staging and production envronm
 
 Note other branches are not deployed autamtically but can be by manually triggering the flow
 
-
 ## Setup
 
 ### Wep app
@@ -89,7 +88,7 @@ To set up the firebase app to run locally:
     $ yarn run preserve
     ```
 1.  ensure that you are on required node version specified in `engines.node` in
-    `firebase/package.json`. Currently this is Node 20 at the time of writing.
+    `firebase/package.json`. Currently this is Node 24 at the time of writing.
     ```sh
     $ nvm use <the-required-node-version>
     ```
