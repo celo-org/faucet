@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@celo/abis": "^13.0.0",
-    "@firebase/app-types": "^0.9.3",
     "@metamask/detect-provider": "^2.0.0",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-slot": "^1.2.3",
@@ -20,6 +19,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "firebase": "^12.1.0",
+    "firebase-admin": "^13.4.0",
     "lucide-react": "^0.542.0",
     "next": "15.5.9",
     "next-auth": "^4.24.11",
