@@ -40,6 +40,9 @@ class FakeRedis {
   async smembers(key: string) {
     return [...(this.sets.get(key) ?? [])]
   }
+  async scard(key: string) {
+    return this.sets.get(key)?.size ?? 0
+  }
   async srem(key: string, ...members: string[]) {
     members.forEach((m) => this.sets.get(key)?.delete(m))
   }
@@ -204,6 +207,20 @@ describe('api keys', () => {
       await mintKey(OWNER, `key ${i}`)
     }
     await expect(mintKey(OWNER, 'one too many')).rejects.toThrow(/already have/)
+  })
+
+  // Regression: the cap was check-then-act, so concurrent mints could both
+  // pass it and leave the owner over the limit.
+  it('holds the cap when mints race', async () => {
+    const results = await Promise.allSettled([
+      mintKey(OWNER, 'race a'),
+      mintKey(OWNER, 'race b'),
+      mintKey(OWNER, 'race c'),
+    ])
+
+    const minted = results.filter((r) => r.status === 'fulfilled').length
+    expect(minted).toBeLessThanOrEqual(MAX_KEYS_PER_OWNER)
+    await expect(listKeysForOwner(OWNER)).resolves.toHaveLength(minted)
   })
 
   it('revokes a key so it stops verifying immediately', async () => {

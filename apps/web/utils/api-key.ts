@@ -111,6 +111,17 @@ export async function mintKey(
   tx.expire(ownerKey(ownerHash), KEY_TTL_SECONDS)
   await tx.exec()
 
+  // The cap check above is check-then-act, so two concurrent mints can both
+  // pass it. Re-read the authoritative count and roll this key back if it
+  // put the owner over. Extra keys grant no extra quota, but the cap should
+  // still hold.
+  if ((await redis.scard(ownerKey(ownerHash))) > MAX_KEYS_PER_OWNER) {
+    await revokeKey(keyId, ownerHash)
+    throw new Error(
+      `You already have ${MAX_KEYS_PER_OWNER} active keys. Revoke one first.`,
+    )
+  }
+
   return { key, record }
 }
 
