@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest",
-    "test:ci": "vitest run"
+    "test:ci": "vitest run",
+    "smoke:api-key": "node scripts/smoke-api-key.mjs"
   },
   "dependencies": {
     "@celo/abis": "^13.0.0",

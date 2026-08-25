@@ -160,6 +160,20 @@ To stop all programmatic traffic immediately without a deploy, set the
 `api-keys:disabled` key in Upstash to any truthy value. The browser flow is
 unaffected. Delete it to re-enable.
 
+### Smoke-testing a deployment
+
+`apps/web/scripts/smoke-api-key.mjs` exercises the whole key path over HTTP —
+rejection of unissued keys, address and method validation, a real payout, the
+status poll, and the returned tx hash. It needs no repo credentials:
+
+```sh
+export FAUCET_API_KEY=cfk_...   # minted at <deployment>/keys
+yarn --cwd apps/web smoke:api-key \
+  --url https://<deployment> --beneficiary 0xYourAddress
+```
+
+It exits non-zero if any check fails and never prints the key.
+
 ### Why not a manually issued key?
 
 Keys are self-serve on purpose. Allowlisted keys need a human to triage each
