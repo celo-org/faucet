@@ -109,6 +109,14 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
                 &bull; You may faucet 10 times a day if <i>authenticated</i>,
                 for 10 times the amount of unauthenticated requests.
               </p>
+              <p className={inter.className}>
+                &bull; Requests made with an{' '}
+                <Link className="underline" href="/keys">
+                  API key
+                </Link>{' '}
+                skip the captcha and draw from the same daily allowance as your
+                GitHub sign-in.
+              </p>
             </div>
           </Card>
           <Card className={styles.card}>
