@@ -32,6 +32,7 @@ vi.mock('viem', async (importActual) => ({
 }))
 
 import {
+  PROGRAMMATIC_BURST_LIMIT,
   PROGRAMMATIC_GLOBAL_LIMIT,
   RATE_LIMITS,
   sendRequest,
@@ -184,6 +185,28 @@ describe('sendRequest', () => {
       await expect(sendRequest(keyed())).resolves.toMatchObject({
         reason: 'rate_limited',
         bucket: 'user',
+      })
+      expect(push).not.toHaveBeenCalled()
+    })
+
+    // Regression: every keyed bucket was a 24h window, so a day's worth of
+    // requests could arrive at once and starve the payout pool.
+    it('is subject to a sub-daily concurrency window', async () => {
+      await sendRequest(keyed())
+
+      const ttls = hexpire.mock.calls.map(([, , ttl]) => Number(ttl))
+      expect(Math.min(...ttls)).toBeLessThan(24 * 60 * 60)
+      expect(writtenPaths()).toContain('api-key-counts:burst')
+    })
+
+    it('rate limits on the programmatic burst ceiling', async () => {
+      hlen.mockImplementation(async (key: string) =>
+        key === 'api-key-counts:burst' ? PROGRAMMATIC_BURST_LIMIT.count : 0,
+      )
+
+      await expect(sendRequest(keyed())).resolves.toMatchObject({
+        reason: 'rate_limited',
+        bucket: 'programmatic-burst',
       })
       expect(push).not.toHaveBeenCalled()
     })

@@ -113,7 +113,27 @@ export default async function handler(
       return
     }
 
-    const verified = await verifyKey(token)
+    // verifyKey reaches Redis and throws when FAUCET_API_KEY_PEPPER is absent.
+    // Without this guard the rejection escapes the handler as an opaque 500.
+    let verified
+    try {
+      verified = await verifyKey(token)
+    } catch (e) {
+      console.error('API key verification failed', e)
+      logAdmission({
+        channel,
+        outcome: AdmissionOutcome.invalidKey,
+        network,
+        ipHash,
+      })
+      res.setHeader('Retry-After', '30')
+      res.status(503).json({
+        status: RequestStatus.Failed,
+        message: 'Key verification is unavailable, retry shortly',
+      })
+      return
+    }
+
     if (!verified.ok) {
       // Deliberately no fall-through to the captcha: that would let an attacker
       // probe key space while still being served.

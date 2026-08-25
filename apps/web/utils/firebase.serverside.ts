@@ -84,12 +84,29 @@ export const PROGRAMMATIC_GLOBAL_LIMIT: RateLimit = {
   timePeriodInSeconds: 24 * HOURS,
 }
 
+/**
+ * Short concurrency window for keyed traffic.
+ *
+ * The daily ceiling bounds total spend but says nothing about arrival rate.
+ * Without this, a day's worth of keyed requests can land at once, lock every
+ * account in the payout pool and starve the browser path with
+ * NoFreeAccountErr. It mirrors GLOBAL_RATE_LIMITS, which is the equivalent
+ * concurrency guard on the browser path.
+ */
+export const PROGRAMMATIC_BURST_LIMIT: RateLimit = {
+  get count() {
+    return envCount('PROGRAMMATIC_BURST_LIMIT', 20)
+  },
+  timePeriodInSeconds: 10 * MINUTES,
+}
+
 export type RateLimitBucket =
   | 'global'
   | 'beneficiary'
   | 'ip'
   | 'user'
   | 'programmatic-global'
+  | 'programmatic-burst'
 
 interface Bucket {
   name: RateLimitBucket
@@ -155,6 +172,11 @@ export async function sendRequest({
 
     const buckets: Bucket[] = []
     if (programmatic) {
+      buckets.push({
+        name: 'programmatic-burst',
+        path: `api-key-counts:burst`,
+        limit: PROGRAMMATIC_BURST_LIMIT,
+      })
       buckets.push({
         name: 'programmatic-global',
         path: `api-key-counts:global`,

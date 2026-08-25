@@ -151,8 +151,10 @@ the key path, matching the Coinbase CDP faucet.
 - **Holding two keys does not double your allowance** — the limit is bound to
   the account, not the key, as it is on the Coinbase CDP faucet.
 - The per-address limit is shared with the browser path.
-- A separate daily ceiling applies across all API keys, so programmatic traffic
-  can never starve the browser flow.
+- Two ceilings apply across all API keys: a daily one that bounds total spend,
+  and a 10-minute burst window that bounds arrival rate. The burst window is
+  what stops programmatic traffic locking the payout pool and starving the
+  browser flow.
 - Testnet only. There is no mainnet exposure.
 
 Never commit a key. Keys found in public repositories are revoked without
@@ -168,6 +170,7 @@ Environment variables on the web app:
 | `FAUCET_API_KEY_PEPPER`           | yes      | Secret mixed into the HMAC of every stored key. Without it, key minting and verification both fail closed. Rotating it invalidates every existing key. |
 | `FAUCET_API_KEY_NETWORKS`         | no       | Comma-separated networks that accept key auth. Defaults to `celo-sepolia`.                                                                             |
 | `PROGRAMMATIC_GLOBAL_DAILY_LIMIT` | no       | Daily ceiling across all keys. Defaults to 200.                                                                                                        |
+| `PROGRAMMATIC_BURST_LIMIT`        | no       | Keyed requests allowed per 10 minutes across all keys. Bounds arrival rate so the payout pool cannot be locked. Defaults to 20.                        |
 
 To stop all programmatic traffic immediately without a deploy, set the
 `api-keys:disabled` key in Upstash to any truthy value. The browser flow is

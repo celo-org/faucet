@@ -288,6 +288,20 @@ describe('POST /api/faucet — API key path', () => {
     expect(res._getJSONData().error).toBe('api_key_disabled')
   })
 
+  // Regression: verifyKey reaches Redis and throws when the pepper is
+  // missing; that rejection used to escape the handler as an opaque 500.
+  it('returns 503 rather than throwing when key verification fails', async () => {
+    verifyKey.mockRejectedValue(
+      new Error('Missing in env: FAUCET_API_KEY_PEPPER'),
+    )
+    const { res, run } = call(keyedBody, { authorization: `Bearer ${KEY}` })
+
+    await expect(run()).resolves.not.toThrow()
+    expect(res._getStatusCode()).toBe(503)
+    expect(res._getHeaders()['retry-after']).toBe('30')
+    expect(sendRequest).not.toHaveBeenCalled()
+  })
+
   it('refuses the key path on a network that is not allowlisted', async () => {
     process.env.FAUCET_API_KEY_NETWORKS = 'some-other-net'
     const { res, run } = call(keyedBody, { authorization: `Bearer ${KEY}` })
