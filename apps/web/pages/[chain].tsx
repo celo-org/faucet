@@ -60,6 +60,13 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
                 </>
               )}
               <small className={inter.className}>
+                &bull; Scripting or building an agent?{' '}
+                <Link className="underline" href="/keys">
+                  Create an API key
+                </Link>{' '}
+                to skip the captcha
+              </small>
+              <small className={inter.className}>
                 &bull; Need <b>USDC</b>? Get tokens at{' '}
                 <Link className="underline" href="https://faucet.circle.com/">
                   faucet.circle.com

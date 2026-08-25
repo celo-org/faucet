@@ -1,5 +1,4 @@
 import { lockedGoldABI } from '@celo/abis'
-import { Redis } from '@upstash/redis'
 import firebase from 'firebase/compat/app'
 import 'firebase/compat/auth'
 import 'firebase/compat/database'
@@ -15,6 +14,8 @@ import {
 import { createPublicClient, fallback, getAddress, http } from 'viem'
 import { celo, mainnet } from 'viem/chains'
 import { config } from './firebase-config'
+import { AdmissionChannel } from './metrics'
+import { getRedis } from './redis'
 
 async function getFirebase() {
   if (!firebase.apps.length) {
@@ -66,92 +67,151 @@ export const RATE_LIMITS_PER_IP: RateLimit = {
   timePeriodInSeconds: 24 * HOURS,
 }
 
-export async function sendRequest(
-  address: Address,
-  skipStables: boolean,
-  network: Network,
-  authLevel: AuthLevel,
-  ip?: string,
-  userId?: string,
-): Promise<{ key?: string; reason?: 'rate_limited' }> {
+function envCount(name: string, fallback: number): number {
+  const parsed = Number(process.env[name])
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback
+}
+
+/**
+ * Daily ceiling across every API key, kept separate from GLOBAL_RATE_LIMITS so
+ * programmatic traffic can never starve the browser path. This is the number
+ * that bounds a total key compromise.
+ */
+export const PROGRAMMATIC_GLOBAL_LIMIT: RateLimit = {
+  get count() {
+    return envCount('PROGRAMMATIC_GLOBAL_DAILY_LIMIT', 200)
+  },
+  timePeriodInSeconds: 24 * HOURS,
+}
+
+export type RateLimitBucket =
+  | 'global'
+  | 'beneficiary'
+  | 'ip'
+  | 'user'
+  | 'programmatic-global'
+
+interface Bucket {
+  name: RateLimitBucket
+  path: string
+  limit: RateLimit
+}
+
+export interface SendRequestParams {
+  address: Address
+  skipStables: boolean
+  network: Network
+  authLevel: AuthLevel
+  channel: AdmissionChannel
+  ip?: string
+  /** sha256 of the GitHub email. Shared by the browser and API-key paths. */
+  userId?: string
+}
+
+export interface SendRequestResult {
+  key?: string
+  reason?: 'rate_limited'
+  /** Which cap was hit, for logging. */
+  bucket?: RateLimitBucket
+  count?: number
+  limit?: number
+}
+
+export async function sendRequest({
+  address,
+  skipStables,
+  network,
+  authLevel,
+  channel,
+  ip,
+  userId,
+}: SendRequestParams): Promise<SendRequestResult> {
   // NOTE: make sure address is stable (no lowercase/not-prefixed BS)
   const beneficiary = getAddress(
     address.startsWith('0x') ? address : `0x${address}`,
   )
 
-  const newRequest: RequestRecord = {
-    beneficiary,
-    status: RequestStatus.Pending,
-    type: RequestType.Faucet,
-    tokens: skipStables ? RequestedTokenSet.Celo : RequestedTokenSet.All,
-    authLevel,
-  }
-
   try {
     if (await addressCanBeElevatedToTrusted(beneficiary)) {
       authLevel = AuthLevel.authenticated
     }
+
+    // Built after the elevation above: capturing authLevel any earlier records
+    // the pre-elevation value on the queued request, so a trusted address is
+    // paid faucetGoldAmount instead of authenticatedGoldAmount.
+    const newRequest: RequestRecord = {
+      beneficiary,
+      status: RequestStatus.Pending,
+      type: RequestType.Faucet,
+      tokens: skipStables ? RequestedTokenSet.Celo : RequestedTokenSet.All,
+      authLevel,
+    }
+
     const db = await getDB()
-    const redis = Redis.fromEnv()
+    const redis = getRedis()
     const namespace = 'rate-limits'
     const ipNamespace = 'ip-counts'
+    const programmatic = channel === AdmissionChannel.apiKey
 
-    const [
-      pendingRequestCountGlobal,
-      pendingRequestCountForBeneficiary,
-      pendingRequestCountForUser,
-      pendingRequestCountForIp,
-    ] = await Promise.all([
-      redis.hlen(`${namespace}:global`),
-      redis.hlen(`${namespace}:${beneficiary}`),
-      userId ? redis.hlen(`${namespace}:${userId}`) : 0,
-      redis.hlen(`${ipNamespace}:${ip}`),
-    ])
-
-    if (pendingRequestCountGlobal >= GLOBAL_RATE_LIMITS[authLevel].count) {
-      return { reason: 'rate_limited' }
+    const buckets: Bucket[] = []
+    if (programmatic) {
+      buckets.push({
+        name: 'programmatic-global',
+        path: `api-key-counts:global`,
+        limit: PROGRAMMATIC_GLOBAL_LIMIT,
+      })
+    } else {
+      buckets.push({
+        name: 'global',
+        path: `${namespace}:global`,
+        limit: GLOBAL_RATE_LIMITS[authLevel],
+      })
+      // Skipped for keyed requests: CI runners and agent hosts share egress
+      // IPs, and the key owner is already the identity being limited.
+      buckets.push({
+        name: 'ip',
+        path: `${ipNamespace}:${ip}`,
+        limit: RATE_LIMITS_PER_IP,
+      })
     }
-
-    if (pendingRequestCountForIp >= RATE_LIMITS_PER_IP.count) {
-      return { reason: 'rate_limited' }
+    if (userId) {
+      buckets.push({
+        name: 'user',
+        path: `${namespace}:${userId}`,
+        limit: RATE_LIMITS[authLevel],
+      })
     }
+    buckets.push({
+      name: 'beneficiary',
+      path: `${namespace}:${beneficiary}`,
+      limit: RATE_LIMITS[authLevel],
+    })
 
-    if (userId && pendingRequestCountForUser >= RATE_LIMITS[authLevel].count) {
-      return { reason: 'rate_limited' }
-    }
+    const counts = await Promise.all(
+      buckets.map((bucket) => redis.hlen(bucket.path)),
+    )
 
-    if (pendingRequestCountForBeneficiary >= RATE_LIMITS[authLevel].count) {
-      return { reason: 'rate_limited' }
+    for (const [i, bucket] of buckets.entries()) {
+      if (counts[i] >= bucket.limit.count) {
+        return {
+          reason: 'rate_limited',
+          bucket: bucket.name,
+          count: counts[i],
+          limit: bucket.limit.count,
+        }
+      }
     }
 
     const ref: firebase.database.Reference = await db
       .ref(`${network}/requests`)
       .push(newRequest)
 
-    const params = {
-      // INCREASE GLOBAL COUNT
-      [`${namespace}:global`]:
-        GLOBAL_RATE_LIMITS[authLevel].timePeriodInSeconds,
-
-      // INCREASE COUNT FOR BENEFICIARY
-      [`${namespace}:${beneficiary}`]:
-        RATE_LIMITS[authLevel].timePeriodInSeconds,
-
-      // INCREASE COUNT FOR USER IDENTIFIER IF AUTHENTICATED
-      ...(userId != null && {
-        [`${namespace}:${userId}`]:
-          RATE_LIMITS.authenticated.timePeriodInSeconds,
-      }),
-      // INCREASE COUNT FOR IP
-      [`${ipNamespace}:${ip}`]: RATE_LIMITS_PER_IP.timePeriodInSeconds,
-    }
-
     /// BEGIN TRANSACTION
     const tx = redis.multi()
-    for (const [path, ttl] of Object.entries(params)) {
-      tx.hsetnx(path, ref.key!, 1)
-      tx.expire(path, ttl)
-      tx.hexpire(path, ref.key!, ttl)
+    for (const bucket of buckets) {
+      tx.hsetnx(bucket.path, ref.key!, 1)
+      tx.expire(bucket.path, bucket.limit.timePeriodInSeconds)
+      tx.hexpire(bucket.path, ref.key!, bucket.limit.timePeriodInSeconds)
     }
     await tx.exec()
     /// END TRANSACTION
@@ -161,6 +221,18 @@ export async function sendRequest(
     console.error(`Error while sendRequest: ${e}`)
     throw e
   }
+}
+
+/** Legacy field name written before the goldTxHash fix. */
+type StoredRequestRecord = RequestRecord & { celoTxhash?: string }
+
+export async function getRequestRecord(
+  key: string,
+  network: Network,
+): Promise<StoredRequestRecord | undefined> {
+  const db = await getDB()
+  const snap = await db.ref(`${network}/requests/${key}`).once('value')
+  return snap.val() ?? undefined
 }
 
 const ethPublicClient = createPublicClient({

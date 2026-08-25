@@ -39,11 +39,15 @@ export const authOptions: AuthOptions = {
       return session
     },
   },
+  // Long enough to mint and copy an API key on /keys. Sessions only select the
+  // authenticated tier; the durable control is the per-identity rate-limit
+  // bucket keyed on sha256(email), which survives across sessions, so a longer
+  // session grants no extra funds.
   session: {
-    maxAge: 2 * 60, // 2 minutes in seconds
+    maxAge: 15 * 60, // 15 minutes in seconds
   },
   jwt: {
-    maxAge: 60, // seconds
+    maxAge: 15 * 60, // seconds
   },
 }
 

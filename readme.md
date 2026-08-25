@@ -97,6 +97,84 @@ To set up the firebase app to run locally:
     $ yarn run serve
     ```
 
+## Programmatic access (API keys)
+
+The browser flow is gated on reCAPTCHA v3, which scores headless callers badly
+and cannot be solved without driving a real browser. Scripts and AI agents use
+an API key instead.
+
+### Getting a key
+
+Sign in with GitHub at [`/keys`](https://faucet.celo.org/keys) and create one.
+The key is shown once and only a hash of it is stored, so it cannot be
+recovered — create a new one if you lose it. You may hold up to 2 keys and they
+expire after 90 days.
+
+### Making a request
+
+Send the key as a bearer token and omit `captchaToken`:
+
+```sh
+curl -X POST https://faucet.celo.org/api/faucet \
+  -H "Authorization: Bearer cfk_prd_…" \
+  -H 'Content-Type: application/json' \
+  -d '{"beneficiary":"0xYourAddress","network":"celo-sepolia"}'
+```
+
+A successful call returns `202`-style bookkeeping: `{"status":"Pending","key":"…"}`.
+Poll for the outcome with that key:
+
+```sh
+curl "https://faucet.celo.org/api/status?key=<key>&network=celo-sepolia"
+# {"status":"Done","beneficiary":"0x…","txHash":"0x…"}
+```
+
+Other responses: `400` invalid network or address, `401` missing/invalid/expired
+key, `403` rate limited, `405` wrong method.
+
+### Limits
+
+- Keyed requests count against **your GitHub account's existing daily
+  allowance** (10 per 24h), the same bucket the signed-in browser flow uses. A
+  key changes how you prove who you are, not how much you can request.
+- The per-address limit is shared with the browser path.
+- A separate daily ceiling applies across all API keys, so programmatic traffic
+  can never starve the browser flow.
+- Testnet only. There is no mainnet exposure.
+
+Never commit a key. Keys found in public repositories are revoked without
+notice. If you are integrating a tool that others will install, read the key
+from the user's environment — do not ship a default.
+
+### Operating the key path
+
+Environment variables on the web app:
+
+| Variable                          | Required | Purpose                                                                                                                                                |
+| --------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `FAUCET_API_KEY_PEPPER`           | yes      | Secret mixed into the HMAC of every stored key. Without it, key minting and verification both fail closed. Rotating it invalidates every existing key. |
+| `FAUCET_API_KEY_NETWORKS`         | no       | Comma-separated networks that accept key auth. Defaults to `celo-sepolia`.                                                                             |
+| `PROGRAMMATIC_GLOBAL_DAILY_LIMIT` | no       | Daily ceiling across all keys. Defaults to 200.                                                                                                        |
+
+To stop all programmatic traffic immediately without a deploy, set the
+`api-keys:disabled` key in Upstash to any truthy value. The browser flow is
+unaffected. Delete it to re-enable.
+
+### Why not a manually issued key?
+
+Keys are self-serve on purpose. Allowlisted keys need a human to triage each
+request and hand the secret over out of band, which does not scale and tends to
+leave secrets in chat logs. Tying keys to a GitHub account instead reuses an
+identity the faucet already understands, which is also what the Coinbase CDP,
+Circle, and Chainstack faucets do.
+
+### CI pipelines
+
+If you are testing contracts in CI you probably do not want the faucet at all.
+`anvil --fork-url https://forno.celo-sepolia.celo-testnet.org` gives you
+pre-funded accounts against forked state, with no rate limits and no network
+flakiness. Reach for a key only when you need funds on the real testnet.
+
 ## Adding chains
 
 ### Web

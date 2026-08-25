@@ -45,6 +45,21 @@ export enum RequestedTokenSet {
   Celo = 'Celo',
 }
 
+/**
+ * API-key metadata. Lives here rather than in utils/api-key so the keys page
+ * can render it without pulling node:crypto into the client bundle.
+ */
+export interface ApiKeyRecord {
+  keyId: string
+  label: string
+  ownerHash: string
+  createdAt: number
+  expiresAt: number
+}
+
+export const MAX_KEYS_PER_OWNER = 2
+export const KEY_TTL_DAYS = 90
+
 export type FaucetAPIResponse =
   | {
       status: RequestStatus.Done | RequestStatus.Pending | RequestStatus.Pending
