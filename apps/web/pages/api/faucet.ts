@@ -132,6 +132,10 @@ export default async function handler(
           verified.reason === 'disabled'
             ? 'Programmatic access is temporarily disabled'
             : 'Invalid or expired API key',
+        error:
+          verified.reason === 'disabled'
+            ? 'api_key_disabled'
+            : 'invalid_api_key',
       })
       return
     }
@@ -217,10 +221,22 @@ export default async function handler(
         network,
         keyId,
       })
-      res.status(403).json({
-        status: RequestStatus.Failed,
-        message: 'Fauceting denied. Please check the faucet rules below.',
-      })
+      // 429 on the key path matches the CDP faucet and is the correct
+      // semantic for a programmatic caller; the browser keeps its existing
+      // 403 so the on-page copy and any existing consumer are untouched.
+      if (channel === AdmissionChannel.apiKey) {
+        res.setHeader('Retry-After', '86400')
+        res.status(429).json({
+          status: RequestStatus.Failed,
+          message: `Rate limit exceeded (${bucket ?? 'unknown'}). See the faucet rules.`,
+          error: 'faucet_limit_exceeded',
+        })
+      } else {
+        res.status(403).json({
+          status: RequestStatus.Failed,
+          message: 'Fauceting denied. Please check the faucet rules below.',
+        })
+      }
     } else {
       throw new Error(reason)
     }

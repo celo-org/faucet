@@ -139,6 +139,19 @@ async function main() {
     }
   }
 
+  const limited = await post(request, CREDENTIAL)
+  if (limited.status === 429) {
+    check(
+      'rate limit returns 429 with faucet_limit_exceeded',
+      limited.body?.error === 'faucet_limit_exceeded',
+      JSON.stringify(limited.body),
+    )
+  } else {
+    console.info(
+      `SKIP  rate-limit check — allowance not exhausted (got ${limited.status})`,
+    )
+  }
+
   console.info(
     `\n${failures === 0 ? 'ALL CHECKS PASSED' : `${failures} CHECK(S) FAILED`}`,
   )

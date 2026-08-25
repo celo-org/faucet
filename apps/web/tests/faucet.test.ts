@@ -239,6 +239,55 @@ describe('POST /api/faucet — API key path', () => {
     expect(verifyKey).not.toHaveBeenCalled()
   })
 
+  // CDP returns 429 with a machine-readable code; the browser keeps its 403.
+  it('returns 429 with faucet_limit_exceeded when a keyed request is limited', async () => {
+    sendRequest.mockResolvedValue({
+      reason: 'rate_limited',
+      bucket: 'user',
+      count: 10,
+      limit: 10,
+    })
+    const { res, run } = call(keyedBody, { authorization: `Bearer ${KEY}` })
+    await run()
+
+    expect(res._getStatusCode()).toBe(429)
+    expect(res._getJSONData().error).toBe('faucet_limit_exceeded')
+    expect(res._getHeaders()['retry-after']).toBe('86400')
+  })
+
+  it('keeps the browser 403 unchanged when the browser is limited', async () => {
+    sendRequest.mockResolvedValue({
+      reason: 'rate_limited',
+      bucket: 'beneficiary',
+      count: 4,
+      limit: 4,
+    })
+    const { res, run } = call(browserBody)
+    await run()
+
+    expect(res._getStatusCode()).toBe(403)
+    expect(res._getJSONData()).toEqual({
+      status: RequestStatus.Failed,
+      message: 'Fauceting denied. Please check the faucet rules below.',
+    })
+  })
+
+  it('tags an invalid key with invalid_api_key', async () => {
+    verifyKey.mockResolvedValue({ ok: false, reason: 'unknown' })
+    const { res, run } = call(keyedBody, { authorization: 'Bearer nope' })
+    await run()
+
+    expect(res._getJSONData().error).toBe('invalid_api_key')
+  })
+
+  it('tags a disabled key with api_key_disabled', async () => {
+    verifyKey.mockResolvedValue({ ok: false, reason: 'disabled' })
+    const { res, run } = call(keyedBody, { authorization: `Bearer ${KEY}` })
+    await run()
+
+    expect(res._getJSONData().error).toBe('api_key_disabled')
+  })
+
   it('refuses the key path on a network that is not allowlisted', async () => {
     process.env.FAUCET_API_KEY_NETWORKS = 'some-other-net'
     const { res, run } = call(keyedBody, { authorization: `Bearer ${KEY}` })

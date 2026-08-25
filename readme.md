@@ -129,14 +129,27 @@ curl "https://faucet.celo.org/api/status?key=<key>&network=celo-sepolia"
 # {"status":"Done","beneficiary":"0x…","txHash":"0x…"}
 ```
 
-Other responses: `400` invalid network or address, `401` missing/invalid/expired
-key, `403` rate limited, `405` wrong method.
+Other responses carry a machine-readable `error` code so you can branch without
+parsing prose:
+
+| Status | `error`                 | Meaning                                    |
+| ------ | ----------------------- | ------------------------------------------ |
+| `400`  | —                       | Invalid network or beneficiary address     |
+| `401`  | `invalid_api_key`       | Missing, malformed, unknown or expired key |
+| `401`  | `api_key_disabled`      | Programmatic access is switched off        |
+| `429`  | `faucet_limit_exceeded` | Rate limited; honour `Retry-After`         |
+| `405`  | —                       | Wrong HTTP method                          |
+
+The browser flow keeps its existing `403` for rate limits; `429` is used only on
+the key path, matching the Coinbase CDP faucet.
 
 ### Limits
 
 - Keyed requests count against **your GitHub account's existing daily
   allowance** (10 per 24h), the same bucket the signed-in browser flow uses. A
   key changes how you prove who you are, not how much you can request.
+- **Holding two keys does not double your allowance** — the limit is bound to
+  the account, not the key, as it is on the Coinbase CDP faucet.
 - The per-address limit is shared with the browser path.
 - A separate daily ceiling applies across all API keys, so programmatic traffic
   can never starve the browser flow.
