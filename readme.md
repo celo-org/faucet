@@ -190,6 +190,21 @@ yarn --cwd apps/web smoke:api-key \
 
 It exits non-zero if any check fails and never prints the key.
 
+### Verifying the payout path on chain
+
+Every other test mocks the sender, so nothing otherwise proves the hash written
+to `goldTxHash` is a real transaction. `apps/firebase/src/celo-adapter.onchain.test.ts`
+sends a real transfer on Celo Sepolia. It is skipped unless explicitly opted in,
+because it spends gas:
+
+```sh
+RUN_ONCHAIN_TESTS=1 PRIVATE_KEY=<funded key> \
+  yarn --cwd apps/firebase test:ci onchain
+```
+
+The transfer is a self-send, so only the gas fee (~0.0011 CELO at the 50 gwei
+floor) is consumed, and the test asserts the balance falls by exactly that fee.
+
 ### Why not a manually issued key?
 
 Keys are self-serve on purpose. Allowlisted keys need a human to triage each
