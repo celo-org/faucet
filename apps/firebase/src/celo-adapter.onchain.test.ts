@@ -19,15 +19,22 @@ const enabled = Boolean(
 )
 
 describe.skipIf(!enabled)('CeloAdapter on-chain (Celo Sepolia)', () => {
-  const raw = process.env.PRIVATE_KEY as string
-  const pk = (raw?.startsWith('0x') ? raw : `0x${raw}`) as `0x${string}`
-  const account = privateKeyToAccount(pk)
-  const publicClient = createPublicClient({
-    chain: celoSepolia,
-    transport: http(NODE_URL),
-  })
+  // Everything derived from PRIVATE_KEY has to stay inside the test body.
+  // describe.skipIf only skips *running* the tests; the callback still
+  // executes at collection, so deriving an account out here crashes the whole
+  // file when the variable is absent, as it is in CI.
+  function signer() {
+    const raw = process.env.PRIVATE_KEY as string
+    const pk = (raw.startsWith('0x') ? raw : `0x${raw}`) as `0x${string}`
+    return { pk, account: privateKeyToAccount(pk) }
+  }
 
   it('sends CELO and returns a hash that confirms on chain', async () => {
+    const { pk, account } = signer()
+    const publicClient = createPublicClient({
+      chain: celoSepolia,
+      transport: http(NODE_URL),
+    })
     const adapter = new CeloAdapter({ pk, nodeUrl: NODE_URL })
     // The unauthenticated drip amount, sent to itself so only gas is spent.
     const amount = 300_000_000_000_000_000n
