@@ -119,7 +119,10 @@ describe('api keys', () => {
     const stored = JSON.stringify([...fake.hashes].map(([k, v]) => [k, [...v]]))
 
     expect(stored).not.toContain(key)
-    expect(stored).not.toContain(key.split('_')[3])
+    // Rejoined, not split('_')[3]: a base64url secret may contain '_', so
+    // indexing yields a fragment 48% of the time and '' when the secret
+    // starts with '_', which makes .not.toContain always fail.
+    expect(stored).not.toContain(key.split('_').slice(3).join('_'))
   })
 
   it.each([
@@ -219,6 +222,9 @@ describe('api keys', () => {
     ])
 
     const minted = results.filter((r) => r.status === 'fulfilled').length
+    // Greater than zero matters as much as the cap: a rollback that fires on
+    // every racer would leave the owner with nothing and still be <= the cap.
+    expect(minted).toBeGreaterThan(0)
     expect(minted).toBeLessThanOrEqual(MAX_KEYS_PER_OWNER)
     await expect(listKeysForOwner(OWNER)).resolves.toHaveLength(minted)
   })

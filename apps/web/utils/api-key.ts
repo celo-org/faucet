@@ -112,10 +112,14 @@ export async function mintKey(
   await tx.exec()
 
   // The cap check above is check-then-act, so two concurrent mints can both
-  // pass it. Re-read the authoritative count and roll this key back if it
-  // put the owner over. Extra keys grant no extra quota, but the cap should
-  // still hold.
-  if ((await redis.scard(ownerKey(ownerHash))) > MAX_KEYS_PER_OWNER) {
+  // pass it. Re-read the membership and withdraw only the excess minters.
+  //
+  // Testing cardinality instead would be a property of the set rather than of
+  // this key, so every racer would revoke its own key and the owner would end
+  // up holding none. Sorting gives all racers the same total order, so the
+  // same keys survive whichever order they observe.
+  const members = (await redis.smembers(ownerKey(ownerHash))).sort()
+  if (members.indexOf(keyId) >= MAX_KEYS_PER_OWNER) {
     await revokeKey(keyId, ownerHash)
     throw new Error(
       `You already have ${MAX_KEYS_PER_OWNER} active keys. Revoke one first.`,

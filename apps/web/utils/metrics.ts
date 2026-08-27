@@ -1,4 +1,4 @@
-import { sha256, toHex } from 'viem'
+import { createHmac } from 'node:crypto'
 
 /**
  * Structured logging for the web side of the faucet.
@@ -25,9 +25,25 @@ export enum AdmissionOutcome {
   badRequest = 'bad_request',
 }
 
-/** Never log a raw IP; hash it so counts stay comparable without the address. */
+/**
+ * Pseudonymise an IP for logging.
+ *
+ * A bare digest is not enough here: IPv4 is only 2^32 inputs, so an unsalted
+ * hash is a brute force away from the address (~40 minutes on one core), and
+ * a rainbow table resolves every log line ever emitted. Keyed with the
+ * server-side pepper the log is only reversible by someone who already holds
+ * the secret, which is the same reasoning `api-key.ts` applies to key storage.
+ *
+ * With no pepper configured the field is omitted rather than logged
+ * reversibly, so the logs never contain something that merely looks
+ * anonymised.
+ */
 export function hashIp(ip: string | undefined): string | undefined {
-  return ip ? sha256(toHex(ip)).slice(0, 18) : undefined
+  const pepper = process.env.FAUCET_API_KEY_PEPPER
+  if (!ip || !pepper) {
+    return undefined
+  }
+  return createHmac('sha256', pepper).update(ip).digest('hex').slice(0, 16)
 }
 
 function emit(level: 'info' | 'warn', entry: Record<string, unknown>) {

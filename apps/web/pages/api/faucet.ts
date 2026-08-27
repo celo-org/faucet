@@ -4,7 +4,11 @@ import { Session } from 'next-auth'
 import { getServerSession } from 'next-auth/next'
 import { Hex, isAddress, sha256 } from 'viem'
 import { authOptions } from './auth/[...nextauth]'
-import { sendRequest } from 'utils/firebase.serverside'
+import {
+  PROGRAMMATIC_BURST_LIMIT,
+  PROGRAMMATIC_GLOBAL_LIMIT,
+  sendRequest,
+} from 'utils/firebase.serverside'
 import { captchaVerify } from 'utils/captcha-verify'
 import { verifyKey } from 'utils/api-key'
 import {
@@ -245,7 +249,13 @@ export default async function handler(
       // semantic for a programmatic caller; the browser keeps its existing
       // 403 so the on-page copy and any existing consumer are untouched.
       if (channel === AdmissionChannel.apiKey) {
-        res.setHeader('Retry-After', '86400')
+        // The burst window clears in ten minutes; sending the daily figure
+        // would park an agent for a day over a limit that has already gone.
+        const retryAfter =
+          bucket === 'programmatic-burst'
+            ? PROGRAMMATIC_BURST_LIMIT.timePeriodInSeconds
+            : PROGRAMMATIC_GLOBAL_LIMIT.timePeriodInSeconds
+        res.setHeader('Retry-After', String(retryAfter))
         res.status(429).json({
           status: RequestStatus.Failed,
           message: `Rate limit exceeded (${bucket ?? 'unknown'}). See the faucet rules.`,

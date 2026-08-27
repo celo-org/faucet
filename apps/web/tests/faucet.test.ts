@@ -10,7 +10,13 @@ const getServerSession = vi.hoisted(() => vi.fn())
 const verifyKey = vi.hoisted(() => vi.fn())
 
 vi.mock('utils/captcha-verify', () => ({ captchaVerify }))
-vi.mock('utils/firebase.serverside', () => ({ sendRequest }))
+// The double must expose the real module's rate-limit constants too: the
+// handler reads their periods to build Retry-After.
+vi.mock('utils/firebase.serverside', () => ({
+  sendRequest,
+  PROGRAMMATIC_BURST_LIMIT: { count: 20, timePeriodInSeconds: 600 },
+  PROGRAMMATIC_GLOBAL_LIMIT: { count: 200, timePeriodInSeconds: 86400 },
+}))
 vi.mock('next-auth/next', () => ({ getServerSession }))
 vi.mock('utils/api-key', () => ({ verifyKey }))
 vi.mock('@vercel/functions', () => ({ ipAddress: () => '203.0.113.7' }))
@@ -252,7 +258,24 @@ describe('POST /api/faucet — API key path', () => {
 
     expect(res._getStatusCode()).toBe(429)
     expect(res._getJSONData().error).toBe('faucet_limit_exceeded')
+    // The daily bucket tripped, so the daily period is the honest wait.
     expect(res._getHeaders()['retry-after']).toBe('86400')
+  })
+
+  // Regression: Retry-After was hardcoded to a day, so an agent that honoured
+  // it lost 24 hours to a window that clears in ten minutes.
+  it('sends the ten-minute period when the burst window is what tripped', async () => {
+    sendRequest.mockResolvedValue({
+      reason: 'rate_limited',
+      bucket: 'programmatic-burst',
+      count: 20,
+      limit: 20,
+    })
+    const { res, run } = call(keyedBody, { authorization: `Bearer ${KEY}` })
+    await run()
+
+    expect(res._getStatusCode()).toBe(429)
+    expect(res._getHeaders()['retry-after']).toBe('600')
   })
 
   it('keeps the browser 403 unchanged when the browser is limited', async () => {
