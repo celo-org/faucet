@@ -10,9 +10,10 @@ export interface NetworkConfig {
 
 const CELO_SEPOLIA_CONFIG: NetworkConfig = {
   nodeUrl: 'https://forno.celo-sepolia.celo-testnet.org',
-  // Celo Sepolia holds a 50 gwei base-fee floor, so 0.3 CELO covered only
-  // about two contract deployments — a first session could exhaust it without
-  // doing anything unusual. 1 CELO is roughly nine.
+  // Celo Sepolia holds a 50 gwei base-fee floor, and a measured transfer paid
+  // 52.5 gwei effective. At that price 0.3 CELO covered only two or three
+  // contract deployments — a first session could exhaust it without doing
+  // anything unusual. 1 CELO is nine or ten.
   faucetGoldAmount: 1_000_000_000_000_000_000n,
   authenticatedGoldAmount: 3_000_000_000_000_000_000n,
 }
