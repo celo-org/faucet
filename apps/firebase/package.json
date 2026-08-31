@@ -45,7 +45,7 @@
     "firebase-bolt": "^0.8.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.3",
-    "vitest": "^1.6.1",
+    "vitest": "^3.0.0",
     "yargs": "17.7.2"
   },
   "engines": {
