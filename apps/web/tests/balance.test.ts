@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { isAddress } from 'viem'
 import { FAUCET_POOL_ADDRESSES } from 'types'
 import { isBalanceBelowPar } from 'utils/balance'
 
@@ -48,6 +49,19 @@ describe('isBalanceBelowPar', () => {
     expect(urls.join()).not.toContain(
       '0x22579CA45eE22E2E16dDF72D955D6cf4c767B0eF',
     )
+  })
+
+  // Regression: the address was hand-cased and failed EIP-55. Blockscout is
+  // case-insensitive so it still worked, but anything using viem would reject
+  // it, and it is simply the wrong string.
+  it('lists only valid checksummed addresses', () => {
+    for (const address of FAUCET_POOL_ADDRESSES['celo-sepolia']) {
+      expect(isAddress(address, { strict: true })).toBe(true)
+    }
+  })
+
+  it('lists at least one pool account', () => {
+    expect(FAUCET_POOL_ADDRESSES['celo-sepolia'].length).toBeGreaterThan(0)
   })
 
   it('reports healthy when the pool is funded', async () => {

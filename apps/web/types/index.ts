@@ -16,7 +16,7 @@ export type Network = (typeof networks)[number]
  * as they are provisioned.
  */
 export const FAUCET_POOL_ADDRESSES: Record<Network, string[]> = {
-  'celo-sepolia': ['0x127c22b97dFB07cbCA4d3208FEe5f395469065f8'],
+  'celo-sepolia': ['0x127C22b97DFB07cbCA4D3208fEE5f395469065f8'],
 }
 
 export enum ChainId {
