@@ -72,10 +72,12 @@ class YieldingRedis {
     const ops: Array<() => Promise<unknown>> = []
     const chain: Record<string, unknown> = {
       hset: (k: string, v: Record<string, unknown>) => (
-        ops.push(() => this.hset(k, v)), chain
+        ops.push(() => this.hset(k, v)),
+        chain
       ),
       sadd: (k: string, ...m: string[]) => (
-        ops.push(() => this.sadd(k, ...m)), chain
+        ops.push(() => this.sadd(k, ...m)),
+        chain
       ),
       expire: () => (ops.push(async () => undefined), chain),
       exec: async () => {

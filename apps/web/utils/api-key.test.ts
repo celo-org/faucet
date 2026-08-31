@@ -62,10 +62,12 @@ class FakeRedis {
     const ops: Array<() => Promise<unknown>> = []
     const chain = {
       hset: (k: string, v: Record<string, unknown>) => (
-        ops.push(() => this.hset(k, v)), chain
+        ops.push(() => this.hset(k, v)),
+        chain
       ),
       sadd: (k: string, ...m: string[]) => (
-        ops.push(() => this.sadd(k, ...m)), chain
+        ops.push(() => this.sadd(k, ...m)),
+        chain
       ),
       expire: () => (ops.push(async () => {}), chain),
       exec: async () => {
