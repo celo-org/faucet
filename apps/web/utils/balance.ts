@@ -1,33 +1,57 @@
-import { FaucetAddress, Network } from 'types'
+import { FAUCET_POOL_ADDRESSES, Network } from 'types'
+
 const MINIMUM_BALANCE = BigInt('5100000000000000000') // IN WEI
 
-function getApiPath(network: Network) {
-  const faucetAddress = FaucetAddress[network]
-  const root = `https://celo-${network}.blockscout.com/api`
-  const apiPath = `${root}?module=account&action=balance&address=${faucetAddress}`
-  return apiPath
+/**
+ * Blockscout host for a network.
+ *
+ * This used to interpolate as `celo-${network}`, which for `celo-sepolia`
+ * produced `celo-celo-sepolia.blockscout.com` — a host that 404s. Every lookup
+ * threw, the catch below swallowed it, and the "out of CELO" banner could
+ * never appear no matter how empty the pool was.
+ */
+function getApiPath(network: Network, address: string) {
+  const root = `https://${network}.blockscout.com/api`
+  return `${root}?module=account&action=balance&address=${address}`
 }
 
-async function getFaucetBalance(network: Network) {
-  const apiPath = getApiPath(network)
-  const result = await fetch(apiPath)
-
+async function getBalance(
+  network: Network,
+  address: string,
+): Promise<bigint | null> {
+  const result = await fetch(getApiPath(network, address))
   const data: { result: string | null } = await result.json()
-
-  return data.result
+  return data.result === null ? null : BigInt(data.result)
 }
 
-// returns true if faucet has less than 5 CELO
+/**
+ * True when the accounts that actually pay out are running dry.
+ *
+ * Sums the pool rather than reading a single address: payouts are dispatched
+ * from whichever account the pool locks, so one account's balance says nothing
+ * about whether the faucet can serve the next request.
+ */
 export async function isBalanceBelowPar(network: Network) {
   try {
-    const balance = await getFaucetBalance(network)
-    if (balance === null) {
-      // if for some reason the Celo Explore returns an error, just let faucet work as if it had balance
+    const balances = await Promise.all(
+      FAUCET_POOL_ADDRESSES[network].map((address) =>
+        getBalance(network, address),
+      ),
+    )
+
+    // A Blockscout error must not be read as an empty faucet — treat unknown
+    // as funded, as the previous implementation did deliberately.
+    if (balances.some((balance) => balance === null)) {
       return false
     }
-    const balanceInt = BigInt(balance)
 
-    return balanceInt <= MINIMUM_BALANCE
-  } catch (error) {}
+    const total = (balances as bigint[]).reduce(
+      (sum, balance) => sum + balance,
+      BigInt(0),
+    )
+    return total <= MINIMUM_BALANCE
+  } catch (error) {
+    console.error('Could not read the faucet pool balance', error)
+  }
   return false
 }
