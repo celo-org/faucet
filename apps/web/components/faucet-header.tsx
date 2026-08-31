@@ -12,9 +12,6 @@ interface Props {
   isOutOfCELO: boolean
 }
 
-/** The faucet itself. Every page can get back here. */
-export const HOME_HREF = '/celo-sepolia'
-
 export const FaucetHeader: FC<Props> = ({ network, isOutOfCELO }) => (
   <div className={styles.top}>
     {isOutOfCELO && (
@@ -27,8 +24,13 @@ export const FaucetHeader: FC<Props> = ({ network, isOutOfCELO }) => (
         The logo was inert on every page, so /keys, /signin and /auth-error
         had no way back to the faucet at all.
       */}
+      {/*
+        Uses the network it was handed rather than a constant: pages that are
+        not network-scoped pass celo-sepolia explicitly, and a second chain
+        would otherwise send its own logo to the wrong faucet.
+      */}
       <Link
-        href={HOME_HREF}
+        href={`/${network}`}
         aria-label="Celo faucet home"
         className={`${styles.logo} dark:filter-[invert(1)]`}
       >
