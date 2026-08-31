@@ -124,7 +124,9 @@ async function dispatchCeloFunds(
   console.info(
     `req(${snap.key}): CELO Transaction Submited to mempool. txhash:${celoTxhash}`,
   )
-  await snap.ref.update({ celoTxhash })
+  // goldTxHash is the field the RequestRecord type, the database rules and the
+  // UI all read; writing celoTxhash left the explorer link permanently empty.
+  await snap.ref.update({ goldTxHash: celoTxhash })
   return celoTxhash
 }
 
