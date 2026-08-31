@@ -60,6 +60,13 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
                 </>
               )}
               <small className={inter.className}>
+                &bull; Scripting or building an agent?{' '}
+                <Link className="underline" href="/keys">
+                  Create an API key
+                </Link>{' '}
+                to skip the captcha
+              </small>
+              <small className={inter.className}>
                 &bull; Need <b>USDC</b>? Get tokens at{' '}
                 <Link className="underline" href="https://faucet.circle.com/">
                   faucet.circle.com
@@ -101,6 +108,14 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
               <p className={inter.className}>
                 &bull; You may faucet 10 times a day if <i>authenticated</i>,
                 for 10 times the amount of unauthenticated requests.
+              </p>
+              <p className={inter.className}>
+                &bull; Requests made with an{' '}
+                <Link className="underline" href="/keys">
+                  API key
+                </Link>{' '}
+                skip the captcha and draw from the same daily allowance as your
+                GitHub sign-in.
               </p>
             </div>
           </Card>

@@ -39,6 +39,9 @@ jobs:
       - name: Run Tests
         run: yarn --cwd=apps/firebase run test:ci
 
+      - name: Run Web Tests
+        run: yarn --cwd=apps/web run test:ci
+
   validate-renovate-config:
     name: Validate Renovate Config
     runs-on: ubuntu-latest
