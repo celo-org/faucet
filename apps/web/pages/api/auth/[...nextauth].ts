@@ -46,6 +46,12 @@ export const authOptions: AuthOptions = {
       return session
     },
   },
+  // next-auth's built-in error page only offers "Try signing in with a
+  // different account", which sends people round a loop when the cause is
+  // server-side. /auth-error names what happened and who can fix it.
+  pages: {
+    error: '/auth-error',
+  },
   // Long enough to mint and copy an API key on /keys. Sessions only select the
   // authenticated tier; the durable control is the per-identity rate-limit
   // bucket keyed on sha256(email), which survives across sessions, so a longer
