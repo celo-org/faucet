@@ -1,7 +1,6 @@
-import { NextPage } from 'next'
+import { GetServerSideProps, NextPage } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
 import {
   Card,
   CardContent,
@@ -10,59 +9,15 @@ import {
 } from '../@/components/ui/card'
 import { FaucetHeader } from 'components/faucet-header'
 import styles from 'styles/Home.module.css'
+import { authErrorCopy, AUTH_ERROR_FALLBACK } from 'utils/auth-errors'
 import { inter } from 'utils/inter'
 
-/**
- * next-auth's built-in error page says only "Try signing in with a different
- * account", which is misleading when the cause is server-side — the visitor
- * changes account, fails again, and has no way to tell it was never their
- * fault. These messages say who can fix it.
- */
-const MESSAGES: Record<string, { title: string; detail: string }> = {
-  Configuration: {
-    title: 'The faucet is misconfigured',
-    detail:
-      'Sign-in cannot complete because of a server-side setting. Nothing you do differently will help — please report this.',
-  },
-  OAuthCallback: {
-    title: 'GitHub sign-in could not be completed',
-    detail:
-      'GitHub sent us back but the response was rejected. This is a problem on the faucet side, not with your account.',
-  },
-  OAuthSignin: {
-    title: 'Could not reach GitHub',
-    detail:
-      'The faucet failed to start the GitHub sign-in. This is usually temporary — try again in a moment.',
-  },
-  OAuthAccountNotLinked: {
-    title: 'That account is already linked elsewhere',
-    detail: 'Sign in with the same GitHub account you used the first time.',
-  },
-  AccessDenied: {
-    title: 'GitHub access was declined',
-    detail:
-      'You cancelled the authorisation, or GitHub refused it. Try again and approve the request.',
-  },
-  Verification: {
-    title: 'That sign-in link has expired',
-    detail: 'Request a new one and use it straight away.',
-  },
-  SessionRequired: {
-    title: 'You need to be signed in',
-    detail: 'Sign in with GitHub to continue.',
-  },
+interface Props {
+  code: string | null
 }
 
-const FALLBACK = {
-  title: 'Sign-in failed',
-  detail:
-    'Something went wrong while signing in. If it keeps happening it is likely a problem on the faucet side rather than with your account.',
-}
-
-const AuthError: NextPage = () => {
-  const { query } = useRouter()
-  const code = typeof query.error === 'string' ? query.error : undefined
-  const { title, detail } = (code && MESSAGES[code]) || FALLBACK
+const AuthError: NextPage<Props> = ({ code }) => {
+  const { title, detail } = authErrorCopy(code) ?? AUTH_ERROR_FALLBACK
 
   return (
     <>
@@ -123,3 +78,11 @@ const AuthError: NextPage = () => {
 }
 
 export default AuthError
+
+// Server-side for the same reason as /signin: the error must be in the
+// initial HTML, not applied after hydration.
+export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => ({
+  props: {
+    code: typeof ctx.query.error === 'string' ? ctx.query.error : null,
+  },
+})
