@@ -11615,8 +11615,8 @@ __metadata:
   linkType: hard
 
 "next-auth@npm:^4.24.11":
-  version: 4.24.13
-  resolution: "next-auth@npm:4.24.13"
+  version: 4.24.15
+  resolution: "next-auth@npm:4.24.15"
   dependencies:
     "@babel/runtime": "npm:^7.20.13"
     "@panva/hkdf": "npm:^1.0.2"
@@ -11626,7 +11626,7 @@ __metadata:
     openid-client: "npm:^5.4.0"
     preact: "npm:^10.6.3"
     preact-render-to-string: "npm:^5.1.19"
-    uuid: "npm:^8.3.2"
+    uuid: "npm:^11.1.1"
   peerDependencies:
     "@auth/core": 0.34.3
     next: ^12.2.5 || ^13 || ^14 || ^15 || ^16
@@ -11638,7 +11638,7 @@ __metadata:
       optional: true
     nodemailer:
       optional: true
-  checksum: 10c0/33a03d71951c30007aacfdb589afabd361440c95635068e4270108bfcdd155cf76b0ab3f82fa99d8c747888f250f0e6c675a8c4f9a2d80ad7f5bcacd8542a5c6
+  checksum: 10c0/25ee2a6048cb1527a1e4b9768be0c35dafdde859644ff3a9c852da37c00b977c1bb6c94dfab06707c268634e8237b00a3675df2c475255196cc9435b803d2389
   languageName: node
   linkType: hard
 
@@ -15630,7 +15630,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^8.0.0, uuid@npm:^8.3.2":
+"uuid@npm:^11.1.1":
+  version: 11.1.1
+  resolution: "uuid@npm:11.1.1"
+  bin:
+    uuid: dist/esm/bin/uuid
+  checksum: 10c0/9e3af58eba872ece5a5e76f4773a94fc78a0ef2c2444c38dbe6b42f41dadf76c01850fd783604f27986f6195e6286aef064d45987d401b2a33127b98ddf7c0c5
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^8.0.0":
   version: 8.3.2
   resolution: "uuid@npm:8.3.2"
   bin:
