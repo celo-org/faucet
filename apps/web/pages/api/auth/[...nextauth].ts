@@ -21,6 +21,13 @@ export const authOptions: AuthOptions = {
     GithubProvider({
       clientId: process.env.GITHUB_ID || '',
       clientSecret: process.env.GITHUB_SECRET || '',
+      // GitHub now returns the RFC 9207 `iss` parameter on the callback.
+      // openid-client validates it against the issuer, and next-auth 4.24.13's
+      // GitHub provider does not set one, so every sign-in fails with
+      // "issuer must be configured on the issuer". Upstream added this same
+      // value in 4.24.14; setting it here fixes sign-in without waiting on the
+      // dependency bump, and deep-merges harmlessly once that lands.
+      issuer: 'https://github.com/login/oauth',
     }),
   ],
   callbacks: {
