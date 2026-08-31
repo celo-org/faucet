@@ -4,8 +4,19 @@ export type E164Number = string
 export const networks = ['celo-sepolia'] as const
 export type Network = (typeof networks)[number]
 
-export enum FaucetAddress {
-  'celo-sepolia' = '0x22579CA45eE22E2E16dDF72D955D6cf4c767B0eF',
+/**
+ * Accounts the faucet actually dispatches payouts from.
+ *
+ * The previous constant pointed at 0x2257...B0eF, which holds ~0.09 CELO and
+ * has never paid a request out — so once the broken Blockscout host was fixed
+ * the banner would have declared a fully funded faucet empty.
+ *
+ * Kept as a list because the payout pool locks whichever account is free, so
+ * a single address is not a meaningful health signal. Add pool accounts here
+ * as they are provisioned.
+ */
+export const FAUCET_POOL_ADDRESSES: Record<Network, string[]> = {
+  'celo-sepolia': ['0x127c22b97dFB07cbCA4d3208FEe5f395469065f8'],
 }
 
 export enum ChainId {
