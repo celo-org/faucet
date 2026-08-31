@@ -9,10 +9,13 @@ enum Errors {
   Timeout = 'timeout-or-duplicate',
 }
 
-interface RecaptchaResponse {
+export interface RecaptchaResponse {
   success: boolean
   challenge_ts: string // timestamp of the challenge load (ISO format yyyy-MM-dd'T'HH:mm:ssZZ)
   apk_package_name: string // the package name of the app where the reCAPTCHA was solved
+  score?: number // v3 only: 0.0 (likely a bot) to 1.0 (likely a human)
+  action?: string // v3 only: the action name passed to executeRecaptcha
+  hostname?: string
   'error-codes'?: Errors[] // optional
 }
 
