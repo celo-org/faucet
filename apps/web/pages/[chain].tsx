@@ -52,7 +52,7 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
               {!session && (
                 <>
                   <small className={inter.className}>
-                    &bull; To receive <b>10x the tokens</b>,{' '}
+                    &bull; To receive <b>3x the tokens</b>,{' '}
                     <Link className="underline" href="/api/auth/signin/github">
                       authenticate with GitHub
                     </Link>
@@ -107,7 +107,7 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
               </p>
               <p className={inter.className}>
                 &bull; You may faucet 10 times a day if <i>authenticated</i>,
-                for 10 times the amount of unauthenticated requests.
+                for 3 times the amount of unauthenticated requests.
               </p>
               <p className={inter.className}>
                 &bull; Requests made with an{' '}
