@@ -46,10 +46,15 @@ export const authOptions: AuthOptions = {
       return session
     },
   },
-  // next-auth's built-in error page only offers "Try signing in with a
-  // different account", which sends people round a loop when the cause is
-  // server-side. /auth-error names what happened and who can fix it.
+  // next-auth only offers "Try signing in with a different account" for most
+  // failures, which sends people round a loop when the cause is server-side.
+  //
+  // signIn matters more than error here: core/index.js routes the common codes
+  // (OAuthCallback, Callback, OAuthSignin, ...) to the *sign-in* page rather
+  // than to pages.error, forwarding the code as `?error=`. Only the remaining
+  // codes, such as Configuration, reach pages.error.
   pages: {
+    signIn: '/signin',
     error: '/auth-error',
   },
   // Long enough to mint and copy an API key on /keys. Sessions only select the
