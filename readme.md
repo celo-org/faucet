@@ -138,6 +138,7 @@ parsing prose:
 | `401`  | `invalid_api_key`       | Missing, malformed, unknown or expired key |
 | `401`  | `api_key_disabled`      | Programmatic access is switched off        |
 | `429`  | `faucet_limit_exceeded` | Rate limited; honour `Retry-After`         |
+| `503`  | `faucet_unavailable`    | A dependency is down; honour `Retry-After` |
 | `405`  | —                       | Wrong HTTP method                          |
 
 The browser flow keeps its existing `403` for rate limits; `429` is used only on

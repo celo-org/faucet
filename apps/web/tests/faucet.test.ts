@@ -137,13 +137,20 @@ describe('POST /api/faucet — browser path', () => {
     })
   })
 
-  it('returns 404 when sendRequest throws', async () => {
+  // Regression: a dependency failure inside sendRequest surfaced as a 404,
+  // which the reporter of the last outage read as a missing route.
+  it('returns 503 with Retry-After when sendRequest throws', async () => {
     sendRequest.mockRejectedValue(new Error('boom'))
     const { res, run } = call(browserBody)
     await run()
 
-    expect(res._getStatusCode()).toBe(404)
-    expect(res._getJSONData().message).toBe('Error while fauceting')
+    expect(res._getStatusCode()).toBe(503)
+    expect(res._getHeaders()['retry-after']).toBe('30')
+    expect(res._getJSONData()).toEqual({
+      status: RequestStatus.Failed,
+      message: 'Faucet temporarily unavailable, retry shortly',
+      error: 'faucet_unavailable',
+    })
   })
 })
 

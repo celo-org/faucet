@@ -240,7 +240,9 @@ export async function sendRequest({
 
     return { key: ref.key! }
   } catch (e) {
-    console.error(`Error while sendRequest: ${e}`)
+    // Pass the error object itself so the stack reaches the runtime logs;
+    // interpolating it kept only the message, which hid where it came from.
+    console.error('Error while sendRequest', e)
     throw e
   }
 }

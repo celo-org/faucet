@@ -271,10 +271,15 @@ export default async function handler(
       throw new Error(reason)
     }
   } catch (error) {
-    console.error(error)
-    res.status(404).json({
+    // Everything that reaches here is a dependency failure (Firebase, Redis,
+    // RPC), not a missing resource. A 404 here was read as a missing route
+    // during the recent outage; 503 says what it is and invites a retry.
+    console.error('Faucet request could not be queued', error)
+    res.setHeader('Retry-After', '30')
+    res.status(503).json({
       status: RequestStatus.Failed,
-      message: 'Error while fauceting',
+      message: 'Faucet temporarily unavailable, retry shortly',
+      error: 'faucet_unavailable',
     })
   }
 }

@@ -80,9 +80,14 @@ export type FaucetAPIResponse =
       status: RequestStatus.Failed
       message: string
       /**
-       * Machine-readable code, set on the API-key path only so programmatic
-       * callers can branch without parsing prose. Mirrors the CDP faucet's
-       * `faucet_limit_exceeded`.
+       * Machine-readable code so programmatic callers can branch without
+       * parsing prose. Mirrors the CDP faucet's `faucet_limit_exceeded`. Set
+       * on the API-key path, plus `faucet_unavailable` on every path when a
+       * dependency behind the faucet is down.
        */
-      error?: 'faucet_limit_exceeded' | 'invalid_api_key' | 'api_key_disabled'
+      error?:
+        | 'faucet_limit_exceeded'
+        | 'invalid_api_key'
+        | 'api_key_disabled'
+        | 'faucet_unavailable'
     }

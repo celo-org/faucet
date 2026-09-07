@@ -676,7 +676,6 @@ __metadata:
   resolution: "@celo/faucet-app@workspace:apps/firebase"
   dependencies:
     "@celo/utils": "npm:6.0.1"
-    "@firebase/app": "npm:^0.15.1"
     "@google-cloud/logging": "npm:^11.1.0"
     "@types/debug": "npm:^4.1.13"
     "@types/node": "npm:^24.13.3"
@@ -1500,19 +1499,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@firebase/app@npm:^0.15.1":
-  version: 0.15.1
-  resolution: "@firebase/app@npm:0.15.1"
-  dependencies:
-    "@firebase/component": "npm:0.7.3"
-    "@firebase/logger": "npm:0.5.1"
-    "@firebase/util": "npm:1.15.1"
-    idb: "npm:7.1.1"
-    tslib: "npm:^2.1.0"
-  checksum: 10c0/71f11e5bf6ab389ac05f0ad23052dc88594032d0d803d2f1fec65749d6b26883236eafe9029853c44a4b2186d4a16c0d4fec82d68855578c577fb1c9b4470536
-  languageName: node
-  linkType: hard
-
 "@firebase/auth-compat@npm:0.6.10":
   version: 0.6.10
   resolution: "@firebase/auth-compat@npm:0.6.10"
@@ -1578,16 +1564,6 @@ __metadata:
     "@firebase/util": "npm:1.13.0"
     tslib: "npm:^2.1.0"
   checksum: 10c0/10e78f51a0c6764dbfe3863eda05b8d6e8ec431430bec165891b0b9c0eca06faf7851c5ec6a6b669f3e0cfab5d997a6f0510b1920c0424e83162a53812220e1a
-  languageName: node
-  linkType: hard
-
-"@firebase/component@npm:0.7.3":
-  version: 0.7.3
-  resolution: "@firebase/component@npm:0.7.3"
-  dependencies:
-    "@firebase/util": "npm:1.15.1"
-    tslib: "npm:^2.1.0"
-  checksum: 10c0/a2c3400afecfa90cf6ec3526579ed3557828aafa8d4c3b34af7221a92ec2d9261c4a85b01c31b89774efcb6194c63f23ff219efe6a9cd842de2a6d41728bbd35
   languageName: node
   linkType: hard
 
@@ -1833,15 +1809,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@firebase/logger@npm:0.5.1":
-  version: 0.5.1
-  resolution: "@firebase/logger@npm:0.5.1"
-  dependencies:
-    tslib: "npm:^2.1.0"
-  checksum: 10c0/ce8644943452e2e1cc00fe4eab2d63c8a0ba6767beb0e57d2ea11f609b5ffa6956c2ec8d6a01efae07a4932b70180c8a07540c53e1ddd876b2baa5858185c247
-  languageName: node
-  linkType: hard
-
 "@firebase/logger@npm:0.5.2":
   version: 0.5.2
   resolution: "@firebase/logger@npm:0.5.2"
@@ -2013,15 +1980,6 @@ __metadata:
   dependencies:
     tslib: "npm:^2.1.0"
   checksum: 10c0/2e0c19dffdf69a1d1f8d786de551268d6af804de857eb195f4af50b732fe9e696cb73c52abc5f0bc98b34527225fb97a81ec380e89bd47a1d8448fc66536845c
-  languageName: node
-  linkType: hard
-
-"@firebase/util@npm:1.15.1":
-  version: 1.15.1
-  resolution: "@firebase/util@npm:1.15.1"
-  dependencies:
-    tslib: "npm:^2.1.0"
-  checksum: 10c0/7fdb0dd80c98181969375d7a2ee9309783061a77e63c0ddc4935915ca97917cb1bc560bcfd21b9b4171630cae8579f6f21241ae260e4b18789e14adbdd329eea
   languageName: node
   linkType: hard
 
