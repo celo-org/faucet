@@ -13,9 +13,18 @@ const hexpire = vi.hoisted(() => vi.fn())
 const getBalance = vi.hoisted(() => vi.fn(async () => 0n))
 const readContract = vi.hoisted(() => vi.fn(async () => 0n))
 
+// getFirebase signs in before every first use, so the double needs the auth
+// surface and the sign-in needs credentials in the environment.
 vi.mock('firebase/compat/app', () => ({
-  default: { apps: [{}], database: () => ({ ref }) },
+  default: {
+    apps: [] as object[],
+    initializeApp: vi.fn(),
+    auth: () => ({ signInWithEmailAndPassword: async () => ({}) }),
+    database: () => ({ ref }),
+  },
 }))
+process.env.FIREBASE_LOGIN_USERNAME = 'faucet@example.com'
+process.env.FIREBASE_LOGIN_PASSWORD = 'test-only'
 vi.mock('firebase/compat/auth', () => ({}))
 vi.mock('firebase/compat/database', () => ({}))
 

@@ -17,30 +17,54 @@ import { config } from './firebase-config'
 import { AdmissionChannel } from './metrics'
 import { getRedis } from './redis'
 
-async function getFirebase() {
+async function signIn(): Promise<typeof firebase> {
+  const loginUsername = process.env.FIREBASE_LOGIN_USERNAME
+  const loginPassword = process.env.FIREBASE_LOGIN_PASSWORD
+  if (
+    loginUsername === undefined ||
+    loginUsername === null ||
+    loginUsername.length === 0 ||
+    loginPassword === undefined
+  ) {
+    throw new Error('Login username or password is empty')
+  }
   if (!firebase.apps.length) {
     firebase.initializeApp(config)
-    const loginUsername = process.env.FIREBASE_LOGIN_USERNAME
-    const loginPassword = process.env.FIREBASE_LOGIN_PASSWORD
-    if (
-      loginUsername === undefined ||
-      loginUsername === null ||
-      loginUsername.length === 0 ||
-      loginPassword === undefined
-    ) {
-      throw new Error('Login username or password is empty')
-    }
-    try {
-      // Source: https://firebase.google.com/docs/auth
-      await firebase
-        .auth()
-        .signInWithEmailAndPassword(loginUsername, loginPassword)
-    } catch (e) {
-      console.error(`Fail to login into Firebase: ${e}`)
-      throw e
-    }
+  }
+  try {
+    // Source: https://firebase.google.com/docs/auth
+    await firebase
+      .auth()
+      .signInWithEmailAndPassword(loginUsername, loginPassword)
+  } catch (e) {
+    console.error('Fail to login into Firebase', e)
+    throw e
   }
   return firebase
+}
+
+/**
+ * One sign-in per process, shared by every caller.
+ *
+ * Readiness used to be `firebase.apps.length`, which is truthy as soon as
+ * initializeApp returns and before the sign-in resolves. On a warm serverless
+ * instance that had two failure modes: a sign-in that rejected once left every
+ * later request skipping sign-in and touching the database unauthenticated
+ * until the instance was recycled, and two concurrent cold requests let the
+ * second one proceed before the first had a token. Memoising the sequence as a
+ * single promise makes every caller wait for the same sign-in, and clearing it
+ * on rejection lets the next request retry instead of inheriting the failure.
+ */
+let ready: Promise<typeof firebase> | undefined
+
+async function getFirebase(): Promise<typeof firebase> {
+  if (!ready) {
+    ready = signIn().catch((e) => {
+      ready = undefined
+      throw e
+    })
+  }
+  return ready
 }
 
 async function getDB(): Promise<firebase.database.Database> {
