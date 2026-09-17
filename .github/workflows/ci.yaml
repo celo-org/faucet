@@ -36,6 +36,11 @@ jobs:
       - name: Build Firebase
         run: yarn --cwd=apps/firebase run build
 
+      # Only Firebase was built here, so a type error or a broken import in
+      # apps/web reached the Vercel deployment before anything caught it.
+      - name: Build Web
+        run: yarn --cwd=apps/web run build
+
       - name: Run Tests
         run: yarn --cwd=apps/firebase run test:ci
 

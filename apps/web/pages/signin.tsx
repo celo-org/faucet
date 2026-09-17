@@ -1,6 +1,5 @@
 import { GetServerSideProps, NextPage } from 'next'
 import { signIn } from 'next-auth/react'
-import Head from 'next/head'
 import Link from 'next/link'
 import { Button } from '../@/components/ui/button'
 import {
@@ -10,6 +9,7 @@ import {
   CardTitle,
 } from '../@/components/ui/card'
 import { FaucetHeader } from 'components/faucet-header'
+import { Seo } from 'components/seo'
 import styles from 'styles/Home.module.css'
 import { authErrorCopy } from 'utils/auth-errors'
 import { inter } from 'utils/inter'
@@ -33,12 +33,12 @@ const SignIn: NextPage<Props> = ({ error, callbackUrl }) => {
 
   return (
     <>
-      <Head>
-        <title>Sign in</title>
-        <meta name="robots" content="noindex" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <Seo
+        title="Sign in"
+        description="Sign in with GitHub to raise your faucet allowance and create API keys."
+        path="/signin"
+        noindex
+      />
       <main className={styles.main}>
         <FaucetHeader network="celo-sepolia" isOutOfCELO={false} />
 

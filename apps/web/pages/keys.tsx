@@ -1,6 +1,5 @@
 import { NextPage } from 'next'
 import { useSession } from 'next-auth/react'
-import Head from 'next/head'
 import Link from 'next/link'
 import { useCallback, useEffect, useState } from 'react'
 import { Button } from '../@/components/ui/button'
@@ -9,11 +8,13 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from '../@/components/ui/card'
 import { Input } from '../@/components/ui/input'
 import { Label } from '../@/components/ui/label'
 import { FaucetHeader } from 'components/faucet-header'
+import { JsonLd } from 'components/json-ld'
+import { Seo } from 'components/seo'
+import { DAILY_REQUESTS, SITE_URL } from 'config/site'
 import styles from 'styles/Home.module.css'
 import { ApiKeyRecord, KEY_TTL_DAYS, MAX_KEYS_PER_OWNER } from 'types'
 import { inter } from 'utils/inter'
@@ -21,7 +22,7 @@ import { inter } from 'utils/inter'
 const formatDate = (ms: number) => new Date(ms).toISOString().slice(0, 10)
 
 const ApiKeys: NextPage = () => {
-  const { data: session, status } = useSession()
+  const { data: session } = useSession()
   const [keys, setKeys] = useState<ApiKeyRecord[]>([])
   const [label, setLabel] = useState('')
   const [freshKey, setFreshKey] = useState<string>()
@@ -93,21 +94,64 @@ const ApiKeys: NextPage = () => {
 
   return (
     <>
-      <Head>
-        <title>Faucet API Keys</title>
-        <meta
-          name="description"
-          content="Create an API key for programmatic access to the Celo faucet"
-        />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <Seo
+        title="Faucet API Keys — Programmatic Access for Scripts and AI Agents"
+        description={`Create an API key to call the Celo faucet over HTTP without solving a captcha. Up to ${MAX_KEYS_PER_OWNER} keys per GitHub account, valid ${KEY_TTL_DAYS} days, Celo Sepolia only.`}
+        path="/keys"
+      />
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@graph': [
+            {
+              '@type': 'WebAPI',
+              '@id': `${SITE_URL}/keys#api`,
+              name: 'Celo Faucet API',
+              description:
+                'Request free testnet CELO on Celo Sepolia over HTTP. Authenticate with a bearer API key to skip the captcha.',
+              documentation: `${SITE_URL}/keys`,
+              termsOfService: 'https://github.com/celo-org/faucet',
+              provider: { '@type': 'Organization', name: 'Celo' },
+              potentialAction: {
+                '@type': 'ConsumeAction',
+                target: `${SITE_URL}/api/faucet`,
+              },
+            },
+            {
+              '@type': 'HowTo',
+              '@id': `${SITE_URL}/keys#howto`,
+              name: 'Get a Celo faucet API key for an agent',
+              step: [
+                {
+                  '@type': 'HowToStep',
+                  name: 'Sign in',
+                  text: 'Sign in with GitHub. The key is bound to that account.',
+                },
+                {
+                  '@type': 'HowToStep',
+                  name: 'Create the key',
+                  text: 'Name the key and create it. It is displayed once and stored only as a hash.',
+                },
+                {
+                  '@type': 'HowToStep',
+                  name: 'Send it as a bearer token',
+                  text: 'Pass the key as an Authorization: Bearer header on POST /api/faucet, then poll GET /api/status for the transaction hash.',
+                },
+              ],
+            },
+          ],
+        }}
+      />
       <main className={styles.main}>
         <FaucetHeader network="celo-sepolia" isOutOfCELO={false} />
 
         <Card className="w-full max-w-lg items-stretch">
           <CardHeader>
-            <CardTitle>API Keys</CardTitle>
+            {/*
+              A real h1 rather than CardTitle: that renders a div, so this page
+              shipped with no h1 or h2 at all.
+            */}
+            <h1 className="font-heading leading-none">API Keys</h1>
           </CardHeader>
 
           <CardContent className="flex flex-col gap-4">
@@ -118,11 +162,15 @@ const ApiKeys: NextPage = () => {
               how much you can request.
             </p>
 
-            {status === 'loading' && (
-              <small className={inter.className}>Loading&hellip;</small>
-            )}
-
-            {status !== 'loading' && !session && (
+            {/*
+              Gated on the session alone, not on `status !== 'loading'`.
+              This page is statically optimised, so at prerender the session is
+              always loading: the old condition put a bare "Loading…" in the
+              HTML a crawler receives and left the only route to a key visible
+              solely after hydration. The cost is that a signed-in visitor may
+              see this line for one frame before the session resolves.
+            */}
+            {!session && (
               <small className={inter.className}>
                 &bull;{' '}
                 <Link className="underline" href="/api/auth/signin/github">
@@ -240,29 +288,45 @@ const ApiKeys: NextPage = () => {
 
         <footer className={styles.grid}>
           <Card className={styles.card}>
-            <h3 className={inter.className}>Using your key</h3>
+            <h2 className={inter.className}>Using your key</h2>
             <div className="flex flex-col gap-1">
               <p className={inter.className}>
                 Send it as a bearer token and leave out the captcha:
               </p>
+              {/*
+                The placeholder address is spelled out rather than elided. It
+                used to read "0x…" with a real ellipsis character, which is
+                invalid input: anything copying this block verbatim — which is
+                the entire point of publishing it for agents — sent a malformed
+                beneficiary and got a 400 back.
+              */}
               <pre className="overflow-x-auto text-xs">
                 <code>{`curl -X POST https://faucet.celo.org/api/faucet \\
   -H "Authorization: Bearer $CELO_FAUCET_API_KEY" \\
   -H 'Content-Type: application/json' \\
-  -d '{"beneficiary":"0x…","network":"celo-sepolia"}'`}</code>
+  -d '{"beneficiary":"0xYOUR_ADDRESS","network":"celo-sepolia"}'`}</code>
               </pre>
             </div>
           </Card>
 
           <Card className={styles.card}>
-            <h3 className={inter.className}>Limits</h3>
+            <h2 className={inter.className}>Limits</h2>
             <div className="flex flex-col gap-1">
+              {/*
+                Read from the constants rather than spelled out. These numbers
+                were hardcoded here while the same values already existed in
+                types/index.ts and firebase.serverside.ts, so the published
+                limits could drift from the enforced ones.
+              */}
               <p className={inter.className}>
                 &bull; Keyed requests share your GitHub account&apos;s allowance
-                of 10 per day.
+                of {DAILY_REQUESTS.authenticated} per day.
               </p>
               <p className={inter.className}>
-                &bull; Holding two keys does not double it.
+                &bull; Holding {MAX_KEYS_PER_OWNER} keys does not double it.
+              </p>
+              <p className={inter.className}>
+                &bull; Keys expire after {KEY_TTL_DAYS} days.
               </p>
               <p className={inter.className}>
                 &bull; Celo Sepolia only. There is no mainnet access.
@@ -270,8 +334,45 @@ const ApiKeys: NextPage = () => {
             </div>
           </Card>
 
+          {/*
+            The error table used to live only in the GitHub README, so the one
+            thing an agent needs in order to behave correctly — whether to
+            retry, back off, or give up — was off-domain and inside a page it
+            had to parse as prose.
+          */}
           <Card className={styles.card}>
-            <h3 className={inter.className}>Check the outcome</h3>
+            <h2 className={inter.className}>Response codes</h2>
+            <div className="flex flex-col gap-1">
+              <p className={inter.className}>
+                &bull; <code>200</code> — queued. Poll the status endpoint.
+              </p>
+              <p className={inter.className}>
+                &bull; <code>400</code> — invalid network or beneficiary
+                address.
+              </p>
+              <p className={inter.className}>
+                &bull; <code>401 invalid_api_key</code> — missing, unknown or
+                expired key.
+              </p>
+              <p className={inter.className}>
+                &bull; <code>429 faucet_limit_exceeded</code> — rate limited.
+                Honour <code>Retry-After</code>.
+              </p>
+              <p className={inter.className}>
+                &bull; <code>503 faucet_unavailable</code> — a dependency is
+                down. Retry after 30s.
+              </p>
+              <p className={inter.className}>
+                &bull; Schema:{' '}
+                <Link className="underline" href="/openapi.json">
+                  openapi.json
+                </Link>
+              </p>
+            </div>
+          </Card>
+
+          <Card className={styles.card}>
+            <h2 className={inter.className}>Check the outcome</h2>
             <div className="flex flex-col gap-1">
               <p className={inter.className}>
                 A request returns a key. Poll it for the transaction hash:
@@ -289,9 +390,9 @@ const ApiKeys: NextPage = () => {
               tabIndex={0}
               rel="noopener noreferrer"
             >
-              <h3 className={inter.className}>
+              <h2 className={inter.className}>
                 Read the docs <span>&rarr;</span>
-              </h3>
+              </h2>
               <p className={inter.className}>
                 Response codes, rate limits and the status endpoint
               </p>
@@ -305,9 +406,9 @@ const ApiKeys: NextPage = () => {
               tabIndex={0}
               rel="noopener noreferrer"
             >
-              <h3 className={inter.className}>
+              <h2 className={inter.className}>
                 Ask questions <span>&rarr;</span>
-              </h3>
+              </h2>
               <p className={inter.className}>
                 Chat with the Celo community on Discord
               </p>

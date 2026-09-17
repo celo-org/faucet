@@ -1,5 +1,4 @@
 import { GetServerSideProps, NextPage } from 'next'
-import Head from 'next/head'
 import Link from 'next/link'
 import {
   Card,
@@ -8,6 +7,7 @@ import {
   CardTitle,
 } from '../@/components/ui/card'
 import { FaucetHeader } from 'components/faucet-header'
+import { Seo } from 'components/seo'
 import styles from 'styles/Home.module.css'
 import { authErrorCopy, AUTH_ERROR_FALLBACK } from 'utils/auth-errors'
 import { inter } from 'utils/inter'
@@ -21,12 +21,12 @@ const AuthError: NextPage<Props> = ({ code }) => {
 
   return (
     <>
-      <Head>
-        <title>Sign-in problem</title>
-        <meta name="robots" content="noindex" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <Seo
+        title="Sign-in problem"
+        description="Something went wrong signing in to the Celo faucet."
+        path="/auth-error"
+        noindex
+      />
       <main className={styles.main}>
         <FaucetHeader network="celo-sepolia" isOutOfCELO={false} />
 
