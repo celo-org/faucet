@@ -39,7 +39,7 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
   const faqs = [
     {
       question: `How do I get ${networkCapitalized} testnet tokens?`,
-      answer: `Paste the address you want funded into the form on this page and submit it. The faucet sends ${drip.unauthenticated} CELO. Signing in with GitHub raises that to ${drip.authenticated} CELO and raises your allowance from ${DAILY_REQUESTS.unauthenticated} to ${DAILY_REQUESTS.authenticated} requests a day.`,
+      answer: `Paste the address you want funded into the form on this page and submit it. The faucet sends ${drip.unauthenticated} CELO on ${networkCapitalized}, chain ID ${ChainId[network]}. Signing in with GitHub raises that to ${drip.authenticated} CELO and raises your allowance from ${DAILY_REQUESTS.unauthenticated} to ${DAILY_REQUESTS.authenticated} requests a day.`,
     },
     {
       question: 'How much CELO does each request send?',

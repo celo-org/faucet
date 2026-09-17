@@ -131,3 +131,18 @@ describe('the published curl is copy-pasteable', () => {
     expect(snippet![0]).not.toContain('…')
   })
 })
+
+describe('the network is identified in prose', () => {
+  /**
+   * The chain ID lived only in the JSON-LD, so an assistant reading the page
+   * answered "NOT STATED" when asked which chain this faucet funds.
+   */
+  it('names the chain ID in an answer, not just in structured data', () => {
+    const source = read('pages', '[chain].tsx')
+    const faqs = source.slice(
+      source.indexOf('const faqs'),
+      source.indexOf('return ('),
+    )
+    expect(faqs).toContain('chain ID ${ChainId[network]}')
+  })
+})
