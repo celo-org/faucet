@@ -1,0 +1,41 @@
+# Celo Faucet
+
+> Free testnet CELO for Celo Sepolia (chain ID 11142220). Send 1 CELO per
+> request, or 3 CELO signed in with GitHub. Scripts and AI agents use an API
+> key over HTTP instead of solving a captcha.
+
+The faucet funds test accounts on Celo Sepolia only. There is no mainnet
+access and no way to obtain real funds here.
+
+## Key facts
+
+- Amount per request: 1 CELO unauthenticated, 3 CELO authenticated.
+- Requests per day: 4 unauthenticated, 10 authenticated. Counted per account
+  and per beneficiary address.
+- "Authenticated" means signed in with GitHub, or holding 0.01 ETH on Ethereum
+  mainnet, or holding 100 LockedCELO on Celo mainnet.
+- Only the native CELO token is dispensed. For USDC use https://faucet.circle.com/
+- The browser flow is gated on reCAPTCHA v3. Scripts and agents use an API key,
+  which skips the captcha.
+- API keys are self-serve at https://faucet.celo.org/keys after signing in with
+  GitHub. Maximum 2 keys per account, each valid 90 days.
+- A key changes how you prove who you are, not how much you can request: keyed
+  requests draw on the same daily allowance as the GitHub account that made them.
+
+## Endpoints
+
+- `POST https://faucet.celo.org/api/faucet` — request funds. Body
+  `{"beneficiary":"0x...","network":"celo-sepolia"}`. Send the key as
+  `Authorization: Bearer cfk_...`. Returns `200 {"status":"Pending","key":"..."}`.
+- `GET https://faucet.celo.org/api/status?key=<key>&network=celo-sepolia` —
+  poll for the outcome. Returns `{"status":"Done","beneficiary":"0x...","txHash":"0x..."}`.
+  Status is one of `Pending`, `Working`, `Done`, `Failed`.
+
+## Docs
+
+- Full API contract: https://faucet.celo.org/llms-full.txt
+- Machine-readable schema: https://faucet.celo.org/openapi.json
+- API key management: https://faucet.celo.org/keys
+- Source and README: https://github.com/celo-org/faucet
+- Celo developer docs: https://docs.celo.org
+- Community support: https://chat.celo.org

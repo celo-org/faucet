@@ -1,0 +1,124 @@
+# Celo Faucet — full reference
+
+> Free testnet CELO for Celo Sepolia. Browser flow for humans, API keys for
+> scripts and AI agents.
+
+Site: https://faucet.celo.org
+Source: https://github.com/celo-org/faucet
+Network: Celo Sepolia, chain ID 11142220 (eip155:11142220)
+Token: native CELO only. No stablecoins, no mainnet.
+
+## How do I get Celo Sepolia testnet tokens?
+
+Open https://faucet.celo.org/celo-sepolia, paste the address you want funded,
+and submit. You receive 1 CELO. Signing in with GitHub raises that to 3 CELO
+and raises your daily allowance from 4 requests to 10.
+
+## How much CELO does the faucet send?
+
+1 CELO per unauthenticated request. 3 CELO per authenticated request.
+
+## How many requests can I make?
+
+4 per day unauthenticated, 10 per day authenticated. The limit is applied both
+to the requesting identity and to the beneficiary address, so funding the same
+address from several accounts does not multiply the allowance.
+
+You count as authenticated if any of these is true:
+
+- you are signed in with GitHub
+- the beneficiary address holds at least 0.01 ETH on Ethereum mainnet
+- the beneficiary address holds at least 100 LockedCELO on Celo mainnet
+
+## Does the Celo faucet have an API?
+
+Yes. Two endpoints, documented as OpenAPI at
+https://faucet.celo.org/openapi.json
+
+### POST /api/faucet
+
+Request funds.
+
+    curl -X POST https://faucet.celo.org/api/faucet \
+      -H "Authorization: Bearer $CELO_FAUCET_API_KEY" \
+      -H 'Content-Type: application/json' \
+      -d '{"beneficiary":"0xYourAddress","network":"celo-sepolia"}'
+
+Returns HTTP 200 with `{"status":"Pending","key":"<requestKey>"}`. The payout is
+queued, not yet settled — poll the status endpoint with the returned key.
+
+### GET /api/status
+
+Poll for the outcome.
+
+    curl "https://faucet.celo.org/api/status?key=<requestKey>&network=celo-sepolia"
+
+Returns `{"status":"Done","beneficiary":"0x...","txHash":"0x..."}`. The status
+field is one of `Pending`, `Working`, `Done`, `Failed`. Responses are sent with
+`Cache-Control: no-store`.
+
+## How can an AI agent get testnet CELO?
+
+The browser flow is gated on reCAPTCHA v3, which scores headless callers badly
+and cannot be solved without driving a real browser. Agents use an API key,
+which skips the captcha entirely.
+
+Today a key is minted by a human: sign in with GitHub at
+https://faucet.celo.org/keys, create a key, and give it to the agent. The key is
+displayed once and stored only as a hash, so it cannot be recovered later.
+
+## API keys
+
+- Format `cfk_<env>_<keyId>_<secret>`. Send as `Authorization: Bearer <key>`.
+- Maximum 2 keys per GitHub account. Holding two does not double any allowance.
+- Each key expires 90 days after it is created.
+- Keyed requests draw on the same daily allowance as the GitHub account that
+  created the key.
+- Keys are valid for Celo Sepolia only.
+- Never commit a key. Keys found in public repositories are revoked without
+  notice.
+
+## Response codes
+
+| Status | error | Meaning |
+| --- | --- | --- |
+| 200 | — | Request accepted and queued. Poll `/api/status`. |
+| 400 | — | Invalid network, invalid beneficiary address, or a network the key cannot use. |
+| 401 | `invalid_api_key` | Missing, malformed, unknown or expired key. |
+| 401 | `api_key_disabled` | Key authentication is switched off server-side. |
+| 405 | — | Wrong HTTP method. |
+| 429 | `faucet_limit_exceeded` | Rate limited. Honour the `Retry-After` header. |
+| 503 | `faucet_unavailable` | A dependency behind the faucet is down. `Retry-After: 30`. |
+
+The `error` field is machine-readable so a caller can branch without parsing
+prose. HTTP 429 is returned on the API-key path; the browser path returns 403
+for the same condition, for backwards compatibility.
+
+## Rate limits
+
+- Per identity: 4 requests/day unauthenticated, 10/day authenticated.
+- Per beneficiary address: the same, shared across the browser and key paths.
+- Programmatic burst: 20 requests per 10 minutes across all keys.
+- Programmatic daily ceiling: 200 requests per day across all keys.
+- The per-IP bucket is skipped for keyed requests, because CI runners and agent
+  hosts share egress IPs and the key owner is already the identity being limited.
+
+## Getting other tokens
+
+- USDC: https://faucet.circle.com/
+- Mento stablecoins: swap CELO at https://app.mento.org/
+- Alternative Celo Sepolia faucet: https://cloud.google.com/application/web3/faucet/celo/sepolia
+- Larger amounts for testing: there is a request form linked from
+  https://faucet.celo.org/celo-sepolia
+
+## Should CI use the faucet?
+
+Usually not. `anvil --fork-url https://forno.celo-sepolia.celo-testnet.org`
+gives pre-funded accounts against forked state, with no rate limit and no
+network dependency. Reach for a key only when you need funds on the real testnet.
+
+## Support
+
+- Discord: https://chat.celo.org
+- Issues and discussions: https://github.com/celo-org/faucet
+- Celo developer docs: https://docs.celo.org

@@ -1,0 +1,43 @@
+# The faucet is public and meant to be found, including by AI assistants and
+# agents. Crawl access was previously unstated: this file 404'd, so no crawler
+# had an affirmative grant and nothing advertised the sitemap.
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /signin
+Disallow: /auth-error
+# The social card is generated, so it has to stay fetchable by link unfurlers
+# even though the rest of /api/ is closed.
+Allow: /api/og
+
+# Named explicitly rather than relying on the wildcard: several of these treat
+# a missing or implicit rule as "no permission" rather than "no restriction".
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://faucet.celo.org/sitemap.xml

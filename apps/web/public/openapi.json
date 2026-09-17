@@ -1,0 +1,230 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Celo Faucet API",
+    "version": "1.0.0",
+    "summary": "Request free testnet CELO on Celo Sepolia.",
+    "description": "Two endpoints: request a payout, then poll for its transaction hash. The browser flow is gated on reCAPTCHA v3, which cannot be solved headlessly, so scripts and AI agents authenticate with an API key instead. Keys are self-serve at https://faucet.celo.org/keys after signing in with GitHub. Celo Sepolia only; there is no mainnet access.",
+    "contact": { "url": "https://github.com/celo-org/faucet" },
+    "license": { "name": "Apache-2.0", "identifier": "Apache-2.0" }
+  },
+  "servers": [{ "url": "https://faucet.celo.org" }],
+  "externalDocs": {
+    "description": "Full reference",
+    "url": "https://faucet.celo.org/llms-full.txt"
+  },
+  "paths": {
+    "/api/faucet": {
+      "post": {
+        "operationId": "requestFunds",
+        "summary": "Request testnet CELO for an address",
+        "description": "Queues a payout and returns a request key. The payout is not settled yet — poll /api/status with the returned key. Sends 1 CELO unauthenticated and 3 CELO authenticated. A key draws on the same daily allowance as the GitHub account that created it.",
+        "security": [{ "apiKey": [] }, {}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/FaucetRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Request accepted and queued.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Queued" },
+                "example": { "status": "Pending", "key": "abc123" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid network, invalid beneficiary address, or a network this key may not use.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Failure" }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, malformed, unknown or expired key (`invalid_api_key`), or key authentication is switched off (`api_key_disabled`).",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Failure" },
+                "example": {
+                  "status": "Failed",
+                  "message": "Invalid API key",
+                  "error": "invalid_api_key"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rate limited on the browser path. The API-key path returns 429 for the same condition.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Failure" }
+              }
+            }
+          },
+          "405": { "description": "Method not allowed. Use POST." },
+          "429": {
+            "description": "Rate limited. Honour the Retry-After header.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying.",
+                "schema": { "type": "integer" }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Failure" },
+                "example": {
+                  "status": "Failed",
+                  "message": "Faucet limit exceeded",
+                  "error": "faucet_limit_exceeded"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A dependency behind the faucet is unavailable.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying. Always 30.",
+                "schema": { "type": "integer" }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Failure" },
+                "example": {
+                  "status": "Failed",
+                  "message": "Faucet unavailable",
+                  "error": "faucet_unavailable"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/status": {
+      "get": {
+        "operationId": "getRequestStatus",
+        "summary": "Poll a queued request for its transaction hash",
+        "description": "The browser subscribes to the Realtime Database over a websocket, which a programmatic caller cannot reasonably do. This endpoint is the HTTP view of the same record. Responses are sent with Cache-Control: no-store.",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "query",
+            "required": true,
+            "description": "The request key returned by POST /api/faucet.",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "network",
+            "in": "query",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/Network" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The current state of the request.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Status" },
+                "example": {
+                  "status": "Done",
+                  "beneficiary": "0x0000000000000000000000000000000000000000",
+                  "txHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid network or missing request key." },
+          "404": { "description": "No such request." },
+          "405": { "description": "Method not allowed. Use GET." },
+          "500": { "description": "Could not read request status." }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "apiKey": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "An API key from https://faucet.celo.org/keys, sent as `Authorization: Bearer cfk_...`. Skips the captcha. Maximum 2 keys per GitHub account, each valid 90 days."
+      }
+    },
+    "schemas": {
+      "Network": {
+        "type": "string",
+        "enum": ["celo-sepolia"],
+        "description": "Celo Sepolia, chain ID 11142220."
+      },
+      "FaucetRequest": {
+        "type": "object",
+        "required": ["beneficiary", "network"],
+        "properties": {
+          "beneficiary": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{40}$",
+            "description": "The address to fund."
+          },
+          "network": { "$ref": "#/components/schemas/Network" },
+          "captchaToken": {
+            "type": "string",
+            "description": "reCAPTCHA v3 token. Required on the browser path only; omit it when sending an API key."
+          }
+        }
+      },
+      "Queued": {
+        "type": "object",
+        "required": ["status", "key"],
+        "properties": {
+          "status": { "type": "string", "enum": ["Pending"] },
+          "key": {
+            "type": ["string", "null"],
+            "description": "Request key. Pass it to GET /api/status."
+          }
+        }
+      },
+      "Status": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["Pending", "Working", "Done", "Failed"]
+          },
+          "beneficiary": { "type": "string" },
+          "txHash": {
+            "type": "string",
+            "description": "Present once the payout has settled."
+          }
+        }
+      },
+      "Failure": {
+        "type": "object",
+        "required": ["status", "message"],
+        "properties": {
+          "status": { "type": "string", "enum": ["Failed"] },
+          "message": { "type": "string" },
+          "error": {
+            "type": "string",
+            "enum": [
+              "faucet_limit_exceeded",
+              "invalid_api_key",
+              "api_key_disabled",
+              "faucet_unavailable"
+            ],
+            "description": "Machine-readable code so a caller can branch without parsing prose."
+          }
+        }
+      }
+    }
+  }
+}

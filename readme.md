@@ -103,6 +103,21 @@ The browser flow is gated on reCAPTCHA v3, which scores headless callers badly
 and cannot be solved without driving a real browser. Scripts and AI agents use
 an API key instead.
 
+This section used to be the only place the API was documented, which meant an
+agent had to fetch and parse a README on GitHub to learn how to behave. The
+same contract is now published on the faucet's own domain, in formats meant to
+be read by a machine:
+
+| File                                                      | For                                                                     |
+| --------------------------------------------------------- | ----------------------------------------------------------------------- |
+| [`/openapi.json`](https://faucet.celo.org/openapi.json)   | The schema. Endpoints, request and response shapes, every error code.   |
+| [`/llms-full.txt`](https://faucet.celo.org/llms-full.txt) | The full reference as prose, for assistants that read rather than call. |
+| [`/llms.txt`](https://faucet.celo.org/llms.txt)           | The short index.                                                        |
+
+Keep this section and those files in agreement. `apps/web/tests/geo-assets.test.ts`
+asserts the published limits and payout amounts still match the constants the
+code enforces, but the prose is on you.
+
 ### Getting a key
 
 Sign in with GitHub at [`/keys`](https://faucet.celo.org/keys) and create one.
@@ -121,8 +136,9 @@ curl -X POST https://faucet.celo.org/api/faucet \
   -d '{"beneficiary":"0xYourAddress","network":"celo-sepolia"}'
 ```
 
-A successful call returns `202`-style bookkeeping: `{"status":"Pending","key":"…"}`.
-Poll for the outcome with that key:
+A successful call returns HTTP `200` with `{"status":"Pending","key":"…"}`. The
+queueing is carried by the `status` field, not by the status code: the payout is
+accepted but not yet settled. Poll for the outcome with that key:
 
 ```sh
 curl "https://faucet.celo.org/api/status?key=<key>&network=celo-sepolia"
