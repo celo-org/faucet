@@ -133,12 +133,33 @@ describe('published numbers match the enforced ones', () => {
 })
 
 describe('openapi.json', () => {
-  it('documents both endpoints an agent needs', () => {
-    expect(Object.keys(openapi.paths)).toEqual(['/api/faucet', '/api/status'])
+  it('documents every endpoint an agent needs, including minting its own key', () => {
+    expect(Object.keys(openapi.paths)).toEqual([
+      '/api/faucet',
+      '/api/status',
+      '/api/keys/challenge',
+      '/api/keys/agent',
+    ])
     expect(openapi.paths['/api/faucet'].post.operationId).toBe('requestFunds')
     expect(openapi.paths['/api/status'].get.operationId).toBe(
       'getRequestStatus',
     )
+    expect(openapi.paths['/api/keys/challenge'].post.operationId).toBe(
+      'createAgentChallenge',
+    )
+    expect(openapi.paths['/api/keys/agent'].post.operationId).toBe(
+      'mintAgentKey',
+    )
+  })
+
+  /**
+   * An agent reading only the schema must be able to find the registry it has
+   * to be listed in, and on which chain. Without both it cannot get started.
+   */
+  it('names the registry and chain an agent must be registered on', () => {
+    const schema = JSON.stringify(openapi)
+    expect(schema).toContain('0x8004A169FB4a3325136EB29fA0ceB6D2e539a432')
+    expect(schema).toContain('42220')
   })
 
   it('points at the canonical origin', () => {

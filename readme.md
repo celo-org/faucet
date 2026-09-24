@@ -125,6 +125,68 @@ The key is shown once and only a hash of it is stored, so it cannot be
 recovered — create a new one if you lose it. You may hold up to 2 keys and they
 expire after 90 days.
 
+### Agents: minting a key without a browser
+
+A key minted the way above is a human's credential handed to an agent. The
+faucet cannot tell one agent from another, or an agent from the person running
+it, because its only notion of identity was a GitHub account — and an agent
+cannot hold one.
+
+An agent registered under [ERC-8004](https://eips.ethereum.org/EIPS/eip-8004)
+has an identity of its own, so it can mint its own key. Two calls, no browser,
+no OAuth, no human:
+
+```sh
+# 1. Ask for a challenge.
+curl -X POST https://faucet.celo.org/api/keys/challenge \
+  -H 'Content-Type: application/json' \
+  -d '{"agentId":"2"}'
+# → {"message":"…","nonce":"…","expiresAt":…,"agentWallet":"0x…"}
+
+# 2. Sign that message with the agent wallet, then exchange it.
+curl -X POST https://faucet.celo.org/api/keys/agent \
+  -H 'Content-Type: application/json' \
+  -d '{"agentId":"2","nonce":"…","signature":"0x…"}'
+# → 201 {"key":"cfk_prd_…","record":{…}}
+```
+
+The key is bound to the agent id rather than to a person, so it draws on the
+agent's own daily allowance.
+
+Design notes, since each of these is load-bearing:
+
+- **Mainnet registry only**, `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432` on
+  chain 42220. Registering on Celo Sepolia costs Sepolia gas, which is what this
+  faucet hands out — a testnet registry would let an attacker faucet its way to
+  as many identities as it wanted.
+- **No fallback to `ownerOf`.** An agent whose `getAgentWallet` is unset is
+  refused with `agent_wallet_unset`. `ownerOf` is whoever holds the NFT, often a
+  human or a multisig, so accepting it would authenticate the operator while
+  reporting that an agent had signed. Agent 1 on mainnet is in exactly this
+  state today, so this is the common case, not an edge one.
+- **The challenge is spent before the signature is verified.** Verifying first
+  would leave a window in which two requests carrying the same signature both
+  verify and both mint.
+- **The signed message is rebuilt server-side** from the stored expiry, never
+  taken from the request, so a caller cannot present a signature over text of
+  its own choosing. It carries the domain, registry and chain so a signature
+  gathered elsewhere cannot be replayed here.
+- **ERC-1271 is honoured**, so agents using smart accounts work.
+
+Sybil resistance is unchanged and deliberately modest: mainnet registration
+costs only gas. What bounds exposure is the programmatic ceiling that already
+existed — 20 requests per 10 minutes and 200 per day across every key. See
+[discussion #286](https://github.com/celo-org/faucet/discussions/286) for the
+x402 and reputation phases that turn "capped" into "costly".
+
+Verify the whole path against a deployment with no cookie jar at all:
+
+```sh
+export AGENT_SIGNING_KEY=0x...
+yarn --cwd apps/web smoke:agent-key \
+  --url https://faucet.celo.org --agent-id 2 --beneficiary 0xYourAddress
+```
+
 ### Making a request
 
 Send the key as a bearer token and omit `captchaToken`:

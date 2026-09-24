@@ -32,7 +32,8 @@ You count as authenticated if any of these is true:
 
 ## Does the Celo faucet have an API?
 
-Yes. Two endpoints, documented as OpenAPI at
+Yes. Two endpoints to request funds, plus two to mint and revoke a key without
+a browser. All four are documented as OpenAPI at
 https://faucet.celo.org/openapi.json
 
 ### POST /api/faucet
@@ -63,17 +64,63 @@ The browser flow is gated on reCAPTCHA v3, which scores headless callers badly
 and cannot be solved without driving a real browser. Agents use an API key,
 which skips the captcha entirely.
 
-Today a key is minted by a human: sign in with GitHub at
-https://faucet.celo.org/keys, create a key, and give it to the agent. The key is
-displayed once and stored only as a hash, so it cannot be recovered later.
+There are two ways to get one.
+
+### An agent with an ERC-8004 identity mints its own
+
+No browser, no GitHub account and no human. The agent proves control of the
+wallet registered against its agent id in the ERC-8004 Identity Registry on
+Celo mainnet (chain 42220), at 0x8004A169FB4a3325136EB29fA0ceB6D2e539a432.
+
+Step one, ask for a challenge:
+
+    curl -X POST https://faucet.celo.org/api/keys/challenge \
+      -H 'Content-Type: application/json' \
+      -d '{"agentId":"2"}'
+
+Returns the message to sign, a single-use `nonce`, an expiry five minutes out,
+and `agentWallet` — the address the registry says this agent signs with.
+
+Step two, sign that message and exchange it for a key:
+
+    curl -X POST https://faucet.celo.org/api/keys/agent \
+      -H 'Content-Type: application/json' \
+      -d '{"agentId":"2","nonce":"<nonce>","signature":"0x<signature>"}'
+
+Returns `201` with the key, shown once. The key is bound to the agent id, so it
+draws on the agent's own daily allowance rather than a person's.
+
+Notes that matter:
+
+- The agent's wallet must be set in the registry. An agent whose wallet is the
+  zero address is refused with `agent_wallet_unset` rather than falling back to
+  `ownerOf`, which is whoever holds the NFT and is often a human or a multisig.
+- The challenge is single-use and expires in five minutes. Replaying one
+  returns `401 invalid_challenge`.
+- The message is bound to this domain, the registry and chain 42220, so a
+  signature collected elsewhere cannot be replayed here.
+- Smart-account agents work: signatures are verified through ERC-1271 as well
+  as plain EOA recovery.
+- Registration must be on Celo **mainnet**. A testnet registry would let an
+  attacker use this faucet to pay for the identities that unlock the faucet.
+- To revoke, send the same proof to `DELETE /api/keys/agent` with the `keyId`.
+  An agent key cannot be reached from the signed-in page, so this is the only
+  way to withdraw one before it expires.
+
+### A human mints one and hands it over
+
+Sign in with GitHub at https://faucet.celo.org/keys and create a key. It is
+displayed once and stored only as a hash, so it cannot be recovered later. Keys
+minted this way share the GitHub account's allowance.
 
 ## API keys
 
 - Format `cfk_<env>_<keyId>_<secret>`. Send as `Authorization: Bearer <key>`.
-- Maximum 2 keys per GitHub account. Holding two does not double any allowance.
+- Maximum 2 keys per owner, where an owner is a GitHub account or an ERC-8004
+  agent. Holding two does not double any allowance.
 - Each key expires 90 days after it is created.
-- Keyed requests draw on the same daily allowance as the GitHub account that
-  created the key.
+- A key minted from a GitHub account draws on that account's daily allowance. A
+  key minted by an agent draws on the agent's own.
 - Keys are valid for Celo Sepolia only.
 - Never commit a key. Keys found in public repositories are revoked without
   notice.
