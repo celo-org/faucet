@@ -28,12 +28,13 @@
   "packageManager": "yarn@4.3.1",
   "resolutions": {
     "tar": "^7.5.19",
-    "form-data@npm:^2.5.0": "2.5.4",
-    "form-data@npm:^4.0.1": "4.0.4",
+    "form-data@npm:^2.5.0": "2.5.6",
+    "form-data@npm:^4.0.1": "4.0.6",
     "elliptic": "^6.6.1",
     "protobufjs": "^7.5.5",
     "websocket-driver": "^0.7.5",
     "basic-ftp": "^5.2.0",
-    "proxy-addr": "^2.0.8"
+    "proxy-addr": "^2.0.8",
+    "tinypool": "2.1.2"
   }
 }

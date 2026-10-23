@@ -8632,30 +8632,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"form-data@npm:2.5.4":
-  version: 2.5.4
-  resolution: "form-data@npm:2.5.4"
+"form-data@npm:2.5.6":
+  version: 2.5.6
+  resolution: "form-data@npm:2.5.6"
   dependencies:
     asynckit: "npm:^0.4.0"
     combined-stream: "npm:^1.0.8"
     es-set-tostringtag: "npm:^2.1.0"
-    has-own: "npm:^1.0.1"
+    hasown: "npm:^2.0.4"
     mime-types: "npm:^2.1.35"
     safe-buffer: "npm:^5.2.1"
-  checksum: 10c0/4256b7f0cc8709fd458b8f4c7670ce52bc6b8386b4bdfac53c9163354ef071a07cf5cb9400170870ec97dcd508b610ddf3b6852e1faaa7fd82dfe3bae4e016a5
+  checksum: 10c0/de6b085a2b0d013299ccc888b677dbdb3d2a54ef8d74982bda9ad7d928f57440abae1bc736a5b85ea01077cfb6c72e9a7752dc786304271c03bd0013ef8f08cb
   languageName: node
   linkType: hard
 
-"form-data@npm:4.0.4":
-  version: 4.0.4
-  resolution: "form-data@npm:4.0.4"
+"form-data@npm:4.0.6":
+  version: 4.0.6
+  resolution: "form-data@npm:4.0.6"
   dependencies:
     asynckit: "npm:^0.4.0"
     combined-stream: "npm:^1.0.8"
     es-set-tostringtag: "npm:^2.1.0"
-    hasown: "npm:^2.0.2"
-    mime-types: "npm:^2.1.12"
-  checksum: 10c0/373525a9a034b9d57073e55eab79e501a714ffac02e7a9b01be1c820780652b16e4101819785e1e18f8d98f0aee866cc654d660a435c378e16a72f2e7cac9695
+    hasown: "npm:^2.0.4"
+    mime-types: "npm:^2.1.35"
+  checksum: 10c0/43947a77bf0ff45c6ceed789778982d47a3f3e720a74b71721174ebf3310a5f1a8be1d6b38a3ee3688e8a18a2c4273073ec0844cd37efda3eaf46d41c9c318ff
   languageName: node
   linkType: hard
 
@@ -9482,13 +9482,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"has-own@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "has-own@npm:1.0.1"
-  checksum: 10c0/2dcc9ca33a484254f59c47c2ebd8002f58ed9b0f77e4cad705371ea6cb59387168c5a076b51fc2fefdc28737df53ba5e668639d23c2eb660ddbcee6f7e13136e
-  languageName: node
-  linkType: hard
-
 "has-property-descriptors@npm:^1.0.0, has-property-descriptors@npm:^1.0.1":
   version: 1.0.1
   resolution: "has-property-descriptors@npm:1.0.1"
@@ -9585,6 +9578,15 @@ __metadata:
   dependencies:
     function-bind: "npm:^1.1.2"
   checksum: 10c0/3769d434703b8ac66b209a4cca0737519925bbdb61dd887f93a16372b14694c63ff4e797686d87c90f08168e81082248b9b028bad60d4da9e0d1148766f56eb9
+  languageName: node
+  linkType: hard
+
+"hasown@npm:^2.0.4":
+  version: 2.0.4
+  resolution: "hasown@npm:2.0.4"
+  dependencies:
+    function-bind: "npm:^1.1.2"
+  checksum: 10c0/2d8de939e270b70618f8cebb69746620db10617dbb495bc66ddad326955ea24d3ca4af133aff3eb7c1853e0218f867bc2b050ec26fe02e3aea58f880ffc5e506
   languageName: node
   linkType: hard
 
@@ -11584,7 +11586,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mime-types@npm:^2.1.12, mime-types@npm:^2.1.35, mime-types@npm:~2.1.24, mime-types@npm:~2.1.34":
+"mime-types@npm:^2.1.35, mime-types@npm:~2.1.24, mime-types@npm:~2.1.34":
   version: 2.1.35
   resolution: "mime-types@npm:2.1.35"
   dependencies:
@@ -15362,10 +15364,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tinypool@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "tinypool@npm:1.1.1"
-  checksum: 10c0/bf26727d01443061b04fa863f571016950888ea994ba0cd8cba3a1c51e2458d84574341ab8dbc3664f1c3ab20885c8cf9ff1cc4b18201f04c2cde7d317fff69b
+"tinypool@npm:2.1.2":
+  version: 2.1.2
+  resolution: "tinypool@npm:2.1.2"
+  checksum: 10c0/4d8c0cf2d9710eff4aa9cb4318fecaac09d847f1d7dce3eb314d36bea35ed23f754315592a3c00c1d0aa21d9eb4a1f69e84c69feb8517b4cd769e1e0a7ee308e
   languageName: node
   linkType: hard
 
