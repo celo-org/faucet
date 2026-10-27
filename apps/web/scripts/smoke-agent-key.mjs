@@ -12,10 +12,13 @@
  *   yarn --cwd apps/web smoke:agent-key \
  *     --url https://<deployment> --agent-id 2 --beneficiary 0xYourAddress
  *
+ * PRIVATE_KEY_2 and PRIVATE_KEY are read as fallbacks (see
+ * register-smoke-agent.mjs, which mints an agent for that same key).
+ *
  * Exits non-zero if any check fails. No secret is ever printed.
  */
 
-import { privateKeyToAccount } from 'viem/accounts'
+import { loadSigningKey } from './register-smoke-agent.mjs'
 
 const USAGE = `Usage:
   export AGENT_SIGNING_KEY=0x...
@@ -35,14 +38,6 @@ const BASE = arg('url').replace(/\/$/, '')
 const NETWORK = arg('network', 'celo-sepolia')
 const AGENT_ID = arg('agent-id')
 const BENEFICIARY = arg('beneficiary')
-const SIGNING_KEY = process.env.AGENT_SIGNING_KEY
-
-if (!SIGNING_KEY) {
-  console.error(
-    'Set AGENT_SIGNING_KEY to the private key of the wallet registered for this agent',
-  )
-  process.exit(1)
-}
 
 let failures = 0
 function check(label, ok, detail = '') {
@@ -70,7 +65,7 @@ function post(path, body) {
 }
 
 async function main() {
-  const account = privateKeyToAccount(SIGNING_KEY)
+  const { account } = loadSigningKey()
   console.info(
     `Target ${BASE}\n  agent=${AGENT_ID}  wallet=${account.address}  beneficiary=${BENEFICIARY}\n`,
   )

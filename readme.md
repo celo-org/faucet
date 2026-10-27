@@ -179,13 +179,22 @@ existed — 20 requests per 10 minutes and 200 per day across every key. See
 [discussion #286](https://github.com/celo-org/faucet/discussions/286) for the
 x402 and reputation phases that turn "capped" into "costly".
 
-Verify the whole path against a deployment with no cookie jar at all:
+Verify the whole path against a deployment with no cookie jar at all. You need
+the signing key of a registered agent's wallet. If you do not hold one, register
+a throwaway agent first: every `register()` overload in the registry sets the
+agent wallet to the calling address, so one transaction from any wallet you
+control (a fraction of a cent of mainnet CELO) gives you an agent id whose key
+you already have.
 
 ```sh
-export AGENT_SIGNING_KEY=0x...
+export AGENT_SIGNING_KEY=0x...                 # any wallet with a little mainnet CELO
+yarn --cwd apps/web register:smoke-agent       # prints the new agent id
 yarn --cwd apps/web smoke:agent-key \
-  --url https://faucet.celo.org --agent-id 2 --beneficiary 0xYourAddress
+  --url https://faucet.celo.org --agent-id <id> --beneficiary 0xYourAddress
 ```
+
+Neither script prints the key. `PRIVATE_KEY_2` and `PRIVATE_KEY` are read as
+fallbacks when `AGENT_SIGNING_KEY` is unset.
 
 ### Making a request
 
