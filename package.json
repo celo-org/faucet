@@ -35,6 +35,11 @@
     "websocket-driver": "^0.7.5",
     "basic-ftp": "^5.2.0",
     "proxy-addr": "^2.0.8",
-    "tinypool": "^2.1.2"
+    "tinypool": "^2.1.2",
+    "body-parser@npm:1.20.1": "^1.20.9",
+    "body-parser@npm:1.20.3": "^1.20.9",
+    "body-parser@npm:^1.18.3": "^1.20.9",
+    "body-parser@npm:^1.19.0": "^1.20.9",
+    "body-parser@npm:^2.2.1": "^2.4.0"
   }
 }
