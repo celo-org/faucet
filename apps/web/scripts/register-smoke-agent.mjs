@@ -16,9 +16,11 @@
  *   yarn --cwd apps/web register:smoke-agent --dry-run   # address + balance only
  *   yarn --cwd apps/web register:smoke-agent             # sends one transaction
  *
- * The signing key is read from the environment, first match wins:
- *   AGENT_SIGNING_KEY, PRIVATE_KEY_2, PRIVATE_KEY
- * Only the derived address is ever printed.
+ * The signing key is read from AGENT_SIGNING_KEY. To use a key that lives
+ * under another variable name, point AGENT_SIGNING_KEY_ENV at that name; no
+ * other variable is ever read implicitly, because this script sends a mainnet
+ * transaction and should never pick up a wallet by accident. Only the derived
+ * address is ever printed.
  */
 
 import {
@@ -36,7 +38,8 @@ import { celo } from 'viem/chains'
 export const IDENTITY_REGISTRY_ADDRESS =
   '0x8004A169FB4a3325136EB29fA0ceB6D2e539a432'
 
-const KEY_ENV_NAMES = ['AGENT_SIGNING_KEY', 'PRIVATE_KEY_2', 'PRIVATE_KEY']
+const KEY_ENV = 'AGENT_SIGNING_KEY'
+const KEY_ENV_POINTER = 'AGENT_SIGNING_KEY_ENV'
 
 const abi = parseAbi([
   'function register() returns (uint256 agentId)',
@@ -46,17 +49,20 @@ const abi = parseAbi([
 
 /** Shared with smoke-agent-key.mjs so neither script needs a key on argv. */
 export function loadSigningKey() {
-  for (const name of KEY_ENV_NAMES) {
-    const raw = process.env[name]
-    if (raw) {
-      const key = raw.startsWith('0x') ? raw : `0x${raw}`
-      return { name, account: privateKeyToAccount(key) }
-    }
+  // Explicit only: the direct variable, or one named by the pointer variable.
+  // There is no fallback to any other wallet variable that happens to be set.
+  const name = process.env[KEY_ENV]
+    ? KEY_ENV
+    : process.env[KEY_ENV_POINTER] || undefined
+  const raw = name ? process.env[name] : undefined
+  if (!name || !raw) {
+    console.error(
+      `No signing key found. Set ${KEY_ENV} to the agent wallet's private key, or set ${KEY_ENV_POINTER} to the name of the variable that holds it.`,
+    )
+    process.exit(1)
   }
-  console.error(
-    `No signing key found. Set one of: ${KEY_ENV_NAMES.join(', ')} (the agent wallet's private key).`,
-  )
-  process.exit(1)
+  const key = raw.startsWith('0x') ? raw : `0x${raw}`
+  return { name, account: privateKeyToAccount(key) }
 }
 
 const transport = fallback([

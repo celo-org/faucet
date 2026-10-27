@@ -272,7 +272,7 @@
             "description": "Malformed agentId or signature."
           },
           "401": {
-            "description": "Unknown, expired or already-used challenge (`invalid_challenge`), or a signature that does not verify against the agent wallet (`invalid_signature`)."
+            "description": "Unknown, expired or already-used challenge (`invalid_challenge`), a challenge issued for a revoke rather than a mint (`wrong_action`), or a signature that does not verify against the agent wallet (`invalid_signature`)."
           },
           "404": {
             "description": "The agent has no wallet set in the registry (`agent_wallet_unset`)."
@@ -287,8 +287,8 @@
       },
       "delete": {
         "operationId": "revokeAgentKey",
-        "summary": "Revoke a key the agent holds",
-        "description": "Proved the same way as minting. An agent key is bound to an agent rather than to a person, so it cannot be reached through the signed-in path at /keys \u2014 without this, a leaked agent key would be irrevocable until it expired.",
+        "summary": "Revoke a key the agent holds, or every key it holds",
+        "description": "Proved the same way as minting, with a challenge requested with action \"revoke\". An agent key is bound to an agent rather than to a person, so it cannot be reached through the signed-in path at /keys \u2014 without this, a leaked agent key would be irrevocable until it expired. Omit keyId to revoke every key the agent holds: the recovery path after a signing-key compromise, when the attacker's keys were never shown to the rightful agent.",
         "requestBody": {
           "required": true,
           "content": {
@@ -300,11 +300,10 @@
                   },
                   {
                     "type": "object",
-                    "required": ["keyId"],
                     "properties": {
                       "keyId": {
                         "type": "string",
-                        "description": "The keyId from the record returned at creation."
+                        "description": "The keyId from the record returned at creation. Omit to revoke every key the agent holds."
                       }
                     }
                   }
@@ -315,13 +314,25 @@
         },
         "responses": {
           "200": {
-            "description": "Key revoked."
+            "description": "Revoked. `revoked` carries how many keys went (1 with a keyId; the agent's live count without).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["message", "revoked"],
+                  "properties": {
+                    "message": { "type": "string" },
+                    "revoked": { "type": "integer" }
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Malformed agentId or signature."
           },
           "401": {
-            "description": "Invalid challenge or signature."
+            "description": "Invalid challenge or signature, or a challenge issued for a mint rather than a revoke (`wrong_action`)."
           },
           "404": {
             "description": "No such key. Returned for another agent's key as well as a missing one, so this cannot be used to probe which key ids exist."
@@ -425,6 +436,12 @@
             "pattern": "^[0-9]{1,78}$",
             "description": "ERC-8004 agent id (an ERC-721 token id) in the Identity Registry at 0x8004A169FB4a3325136EB29fA0ceB6D2e539a432 on Celo mainnet, chain 42220.",
             "example": "2"
+          },
+          "action": {
+            "type": "string",
+            "enum": ["mint", "revoke"],
+            "default": "mint",
+            "description": "What the signed challenge will authorise. Named in the signed text, so a signature gathered for a mint cannot revoke and vice versa."
           }
         }
       },
@@ -450,7 +467,7 @@
       },
       "Challenge": {
         "type": "object",
-        "required": ["message", "nonce", "expiresAt", "agentWallet"],
+        "required": ["message", "nonce", "expiresAt", "action", "agentWallet"],
         "properties": {
           "message": {
             "type": "string",
@@ -462,6 +479,11 @@
           "expiresAt": {
             "type": "integer",
             "description": "Unix milliseconds. Five minutes out."
+          },
+          "action": {
+            "type": "string",
+            "enum": ["mint", "revoke"],
+            "description": "What this challenge authorises. POST /api/keys/agent needs a mint challenge, DELETE needs a revoke challenge."
           },
           "agentWallet": {
             "type": "string",
@@ -491,6 +513,14 @@
               },
               "expiresAt": {
                 "type": "integer"
+              },
+              "agentId": {
+                "type": "string",
+                "description": "Present on keys minted by an ERC-8004 agent."
+              },
+              "agentRegisteredAt": {
+                "type": "integer",
+                "description": "When the agent was registered, unix milliseconds. Decides the daily allowance at request time: 2 requests a day for an agent registered under 7 days ago, 10 for an established one. Absent when the registration time could not be read, in which case the agent is treated as new."
               }
             }
           }

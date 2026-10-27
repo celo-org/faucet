@@ -66,6 +66,14 @@ export interface ApiKeyRecord {
   ownerHash: string
   createdAt: number
   expiresAt: number
+  /** Set on keys minted by an ERC-8004 agent; absent on GitHub-minted keys. */
+  agentId?: string
+  /**
+   * When that agent was registered, unix ms. Decides the agent's daily
+   * allowance at request time; undefined means the age could not be read at
+   * mint and the agent is treated as new.
+   */
+  agentRegisteredAt?: number
 }
 
 export const MAX_KEYS_PER_OWNER = 2

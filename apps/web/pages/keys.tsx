@@ -317,7 +317,14 @@ POST /api/keys/agent      {"agentId":"2","nonce":"…","signature":"0x…"}`}</c
               </pre>
               <p className={inter.className}>
                 &bull; The key is bound to the agent, so it draws on its own
-                allowance rather than a person&apos;s.
+                allowance rather than a person&apos;s: 2 requests a day for an
+                agent registered under 7 days ago, 10 once it is established.
+              </p>
+              <p className={inter.className}>
+                &bull; Revoke with the same proof via DELETE, using a challenge
+                requested with{' '}
+                <code>&quot;action&quot;:&quot;revoke&quot;</code>. Omit{' '}
+                <code>keyId</code> to revoke every key the agent holds.
               </p>
               <p className={inter.className}>
                 &bull; Set the agent wallet in the registry first; an agent with

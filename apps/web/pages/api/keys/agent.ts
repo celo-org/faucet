@@ -6,14 +6,17 @@ import {
   challengeMessage,
   consumeChallenge,
   parseAgentId,
+  resolveAgentRegisteredAt,
   resolveAgentWallet,
   verifyAgentSignature,
 } from 'utils/agent-identity'
-import { mintKey, revokeKey } from 'utils/api-key'
+import { agentTier } from 'utils/agent-allowance'
+import { mintKey, revokeAllKeysForOwner, revokeKey } from 'utils/api-key'
 
 export type AgentKeyAPIResponse =
   /** `key` is returned exactly once, at creation, and never stored in full. */
-  { key: string; record: ApiKeyRecord } | { message: string; error?: string }
+  | { key: string; record: ApiKeyRecord }
+  | { message: string; revoked?: number; error?: string }
 
 const SIGNATURE_PATTERN = /^0x[0-9a-fA-F]+$/
 
@@ -31,12 +34,10 @@ export default async function handler(
 ) {
   if (req.method !== 'POST' && req.method !== 'DELETE') {
     res.setHeader('Allow', 'POST, DELETE')
-    res
-      .status(405)
-      .json({
-        message: `Method ${req.method} not allowed`,
-        error: 'bad_method',
-      })
+    res.status(405).json({
+      message: `Method ${req.method} not allowed`,
+      error: 'bad_method',
+    })
     return
   }
 
@@ -52,12 +53,10 @@ export default async function handler(
     return
   }
   if (!SIGNATURE_PATTERN.test(signature)) {
-    res
-      .status(400)
-      .json({
-        message: 'signature must be 0x-prefixed hex',
-        error: 'invalid_signature',
-      })
+    res.status(400).json({
+      message: 'signature must be 0x-prefixed hex',
+      error: 'invalid_signature',
+    })
     return
   }
 
@@ -65,8 +64,8 @@ export default async function handler(
     // Consumed before anything else can fail, and before the key is minted.
     // Verifying first and deleting afterwards would leave a window in which
     // two concurrent requests both verify the same signature and both mint.
-    const expiresAt = await consumeChallenge(agentId, nonce)
-    if (!expiresAt) {
+    const challenge = await consumeChallenge(agentId, nonce)
+    if (!challenge) {
       res.status(401).json({
         message:
           'Unknown, expired or already-used challenge. Request a new one.',
@@ -75,7 +74,21 @@ export default async function handler(
       return
     }
 
-    const wallet = await resolveAgentWallet(agentId)
+    // A challenge says what it is for, so a signature gathered for a mint
+    // cannot be turned into a revoke, or the other way round.
+    const wanted = req.method === 'DELETE' ? 'revoke' : 'mint'
+    if (challenge.action !== wanted) {
+      res.status(401).json({
+        message: `This challenge authorises "${challenge.action}", not "${wanted}". Request one with action "${wanted}".`,
+        error: 'wrong_action',
+      })
+      return
+    }
+
+    // Read fresh rather than from the cache: a wallet rotated or cleared in
+    // the registry must stop authorising immediately, not after the cache
+    // window. The open challenge route is the one that gets the cache.
+    const wallet = await resolveAgentWallet(agentId, { fresh: true })
     if (!wallet) {
       res.status(404).json({
         message: `Agent ${agentId} has no wallet set in the registry`,
@@ -86,7 +99,12 @@ export default async function handler(
 
     // Rebuilt from the stored expiry rather than taken from the request, so a
     // caller cannot present a signature over a message of its own choosing.
-    const expected = challengeMessage(agentId, nonce, expiresAt)
+    const expected = challengeMessage(
+      agentId,
+      nonce,
+      challenge.expiresAt,
+      challenge.action,
+    )
     const valid = await verifyAgentSignature(wallet, expected, signature as Hex)
     if (!valid) {
       res.status(401).json({
@@ -103,9 +121,35 @@ export default async function handler(
      * bound to an agent rather than to a person: nobody can reach it through
      * the signed-in path at /keys. Without this an agent that leaked a key
      * could not withdraw it, and would have to wait out the 90-day expiry.
+     *
+     * With no keyId, every key the agent holds is revoked. That is the
+     * recovery path after a signing-key compromise: the attacker's keys were
+     * never shown to the rightful agent, so it cannot name them, and listing
+     * them would hand the attacker the same view.
      */
     if (req.method === 'DELETE') {
-      const keyId = String(req.body?.keyId ?? '')
+      const keyId =
+        req.body?.keyId === undefined || req.body?.keyId === null
+          ? ''
+          : String(req.body.keyId)
+
+      if (!keyId) {
+        const count = await revokeAllKeysForOwner(ownerHash)
+        console.info(
+          JSON.stringify({
+            event: 'celo/faucet/keys_revoked_all',
+            channel: 'agent',
+            agentId: agentId.toString(),
+            revoked: count,
+          }),
+        )
+        res.status(200).json({
+          message: count === 1 ? '1 key revoked' : `${count} keys revoked`,
+          revoked: count,
+        })
+        return
+      }
+
       const revoked = await revokeKey(keyId, ownerHash)
       if (!revoked) {
         // Returns the same 404 for another agent's key as for a missing one,
@@ -121,11 +165,18 @@ export default async function handler(
           agentId: agentId.toString(),
         }),
       )
-      res.status(200).json({ message: 'Key revoked' })
+      res.status(200).json({ message: 'Key revoked', revoked: 1 })
       return
     }
 
-    const { key, record } = await mintKey(ownerHash, `agent-${agentId}`)
+    // Recorded on the key so the allowance can be decided at request time
+    // without touching the chain again. Unknown reads as new.
+    const agentRegisteredAt = await resolveAgentRegisteredAt(agentId)
+
+    const { key, record } = await mintKey(ownerHash, `agent-${agentId}`, {
+      agentId: agentId.toString(),
+      agentRegisteredAt,
+    })
 
     console.info(
       JSON.stringify({
@@ -133,6 +184,7 @@ export default async function handler(
         channel: 'agent',
         keyId: record.keyId,
         agentId: agentId.toString(),
+        agentTier: agentTier(agentRegisteredAt),
         expiresAt: record.expiresAt,
       }),
     )

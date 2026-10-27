@@ -147,6 +147,11 @@ export interface SendRequestParams {
   ip?: string
   /** sha256 of the GitHub email. Shared by the browser and API-key paths. */
   userId?: string
+  /**
+   * Overrides the per-user daily limit for this identity. Agent keys pass an
+   * age-based allowance here; everything else takes RATE_LIMITS[authLevel].
+   */
+  userLimit?: RateLimit
 }
 
 export interface SendRequestResult {
@@ -166,6 +171,7 @@ export async function sendRequest({
   channel,
   ip,
   userId,
+  userLimit,
 }: SendRequestParams): Promise<SendRequestResult> {
   // NOTE: make sure address is stable (no lowercase/not-prefixed BS)
   const beneficiary = getAddress(
@@ -224,7 +230,7 @@ export async function sendRequest({
       buckets.push({
         name: 'user',
         path: `${namespace}:${userId}`,
-        limit: RATE_LIMITS[authLevel],
+        limit: userLimit ?? RATE_LIMITS[authLevel],
       })
     }
     buckets.push({

@@ -86,6 +86,7 @@ import {
   listKeysForOwner,
   mintKey,
   parseKey,
+  revokeAllKeysForOwner,
   revokeKey,
   verifyKey,
 } from './api-key'
@@ -260,5 +261,64 @@ describe('api keys', () => {
   it('throws when the pepper is not configured', async () => {
     delete process.env.FAUCET_API_KEY_PEPPER
     await expect(mintKey(OWNER, 'x')).rejects.toThrow(/FAUCET_API_KEY_PEPPER/)
+  })
+
+  /**
+   * The recovery path for an agent whose signing key leaked: it has never
+   * seen the attacker's key ids, so it clears the whole set.
+   */
+  it('revokes every key an owner holds in one call', async () => {
+    const a = await mintKey(OWNER, 'a')
+    const b = await mintKey(OWNER, 'b')
+    const theirs = await mintKey(OTHER, 'theirs')
+
+    await expect(revokeAllKeysForOwner(OWNER)).resolves.toBe(2)
+    await expect(verifyKey(a.key)).resolves.toMatchObject({ ok: false })
+    await expect(verifyKey(b.key)).resolves.toMatchObject({ ok: false })
+    await expect(verifyKey(theirs.key)).resolves.toMatchObject({ ok: true })
+    await expect(listKeysForOwner(OWNER)).resolves.toEqual([])
+    // Both slots are free again.
+    await expect(mintKey(OWNER, 'c')).resolves.toBeTruthy()
+  })
+
+  it('reports zero when the owner holds nothing', async () => {
+    await expect(revokeAllKeysForOwner(OWNER)).resolves.toBe(0)
+  })
+
+  /**
+   * Agent fields ride along with the record so the faucet can size the
+   * allowance at request time without going back to the chain.
+   */
+  it('carries agent identity and registration time through verify and list', async () => {
+    const { key, record } = await mintKey(OWNER, 'agent-2', {
+      agentId: '2',
+      agentRegisteredAt: 1_690_000_000_000,
+    })
+    expect(record.agentId).toBe('2')
+    expect(record.agentRegisteredAt).toBe(1_690_000_000_000)
+    await expect(verifyKey(key)).resolves.toEqual({
+      ok: true,
+      keyId: record.keyId,
+      ownerHash: OWNER,
+      agentId: '2',
+      agentRegisteredAt: 1_690_000_000_000,
+    })
+    const [listed] = await listKeysForOwner(OWNER)
+    expect(listed.agentId).toBe('2')
+    expect(listed.agentRegisteredAt).toBe(1_690_000_000_000)
+  })
+
+  it('leaves the registration time off when it was unknown at mint', async () => {
+    const { key } = await mintKey(OWNER, 'agent-2', { agentId: '2' })
+    const verified = await verifyKey(key)
+    expect(verified).toMatchObject({ ok: true, agentId: '2' })
+    expect(verified).not.toHaveProperty('agentRegisteredAt')
+  })
+
+  it('adds no agent fields to a GitHub-minted key', async () => {
+    const { key } = await mintKey(OWNER, 'ci')
+    const verified = await verifyKey(key)
+    expect(verified).not.toHaveProperty('agentId')
+    expect(verified).not.toHaveProperty('agentRegisteredAt')
   })
 })

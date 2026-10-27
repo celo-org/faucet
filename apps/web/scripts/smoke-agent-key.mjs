@@ -12,8 +12,12 @@
  *   yarn --cwd apps/web smoke:agent-key \
  *     --url https://<deployment> --agent-id 2 --beneficiary 0xYourAddress
  *
- * PRIVATE_KEY_2 and PRIVATE_KEY are read as fallbacks (see
- * register-smoke-agent.mjs, which mints an agent for that same key).
+ * To sign with a key held under another variable name, set
+ * AGENT_SIGNING_KEY_ENV to that name (see register-smoke-agent.mjs, which
+ * mints an agent for the same key).
+ *
+ * The key this mints is revoked at the end, so a run does not hold one of the
+ * agent's two slots for 90 days, and so the revoke path is exercised live.
  *
  * Exits non-zero if any check fails. No secret is ever printed.
  */
@@ -94,9 +98,10 @@ async function main() {
     `registry says ${challenge.body.agentWallet}, signing as ${account.address}`,
   )
   check(
-    'challenge is bound to this domain and chain',
+    'challenge is bound to this domain, chain and action',
     challenge.body.message?.includes('faucet.celo.org') &&
-      challenge.body.message?.includes('Chain ID: 42220'),
+      challenge.body.message?.includes('Chain ID: 42220') &&
+      challenge.body.message?.includes('Action: mint'),
   )
 
   const signature = await account.signMessage({
@@ -144,10 +149,30 @@ async function main() {
   )
 
   const key = minted.body.key
+  const keyId = minted.body.record?.keyId
   if (!key) {
     console.info(`\n${failures} CHECK(S) FAILED`)
     process.exit(1)
   }
+
+  // A mint signature must not revoke. Spend a fresh mint challenge on DELETE
+  // and expect to be turned away before the signature is even looked at.
+  const mintOnly = await post('/api/keys/challenge', { agentId: AGENT_ID })
+  const wrongAction = await json('/api/keys/agent', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      agentId: AGENT_ID,
+      nonce: mintOnly.body.nonce,
+      signature: await account.signMessage({ message: mintOnly.body.message }),
+      keyId,
+    }),
+  })
+  check(
+    'a mint challenge cannot be used to revoke',
+    wrongAction.status === 401 && wrongAction.body.error === 'wrong_action',
+    `got ${wrongAction.status} ${JSON.stringify(wrongAction.body)}`,
+  )
 
   const funded = await json('/api/faucet', {
     method: 'POST',
@@ -186,6 +211,50 @@ async function main() {
       console.info(`      https://celo-sepolia.blockscout.com/tx/${txHash}`)
     }
   }
+
+  // Revoke what this run minted, through the same proof, with a challenge
+  // issued for a revoke. Leaves the agent's slots as they were found.
+  const revokeChallenge = await post('/api/keys/challenge', {
+    agentId: AGENT_ID,
+    action: 'revoke',
+  })
+  check(
+    'revoke challenge names its action',
+    revokeChallenge.status === 200 &&
+      revokeChallenge.body.message?.includes('Action: revoke'),
+    `got ${revokeChallenge.status}`,
+  )
+  const revoked = await json('/api/keys/agent', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      agentId: AGENT_ID,
+      nonce: revokeChallenge.body.nonce,
+      signature: await account.signMessage({
+        message: revokeChallenge.body.message,
+      }),
+      keyId,
+    }),
+  })
+  check(
+    'the minted key is revoked through the same proof',
+    revoked.status === 200 && revoked.body.revoked === 1,
+    `got ${revoked.status} ${JSON.stringify(revoked.body)}`,
+  )
+
+  const afterRevoke = await json('/api/faucet', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${key}`,
+    },
+    body: JSON.stringify({ beneficiary: BENEFICIARY, network: NETWORK }),
+  })
+  check(
+    'a revoked key no longer authenticates',
+    afterRevoke.status === 401 && afterRevoke.body.error === 'invalid_api_key',
+    `got ${afterRevoke.status} ${JSON.stringify(afterRevoke.body)}`,
+  )
 
   console.info(
     `\n${failures === 0 ? 'ALL CHECKS PASSED — an agent can do this unattended' : `${failures} CHECK(S) FAILED`}`,

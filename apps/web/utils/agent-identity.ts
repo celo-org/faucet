@@ -64,8 +64,25 @@ const WALLET_CACHE_TTL_SECONDS = 5 * 60
 
 const CHALLENGE_NAMESPACE = 'agent-challenge'
 const WALLET_NAMESPACE = 'agent-wallet'
+const REGISTERED_AT_NAMESPACE = 'agent-registered-at'
 
 export const AGENT_DOMAIN = 'faucet.celo.org'
+
+/**
+ * What a challenge authorises. Named in the signed text so a signature
+ * collected for a mint cannot be presented to revoke, or the other way round.
+ */
+export type ChallengeAction = 'mint' | 'revoke'
+export const CHALLENGE_ACTIONS: readonly ChallengeAction[] = ['mint', 'revoke']
+
+export function parseChallengeAction(
+  raw: unknown,
+): ChallengeAction | undefined {
+  if (raw === undefined || raw === null || raw === '') return 'mint'
+  return CHALLENGE_ACTIONS.includes(raw as ChallengeAction)
+    ? (raw as ChallengeAction)
+    : undefined
+}
 
 /** Agent ids are token ids: a non-negative integer, given as a decimal string. */
 export function parseAgentId(raw: unknown): bigint | undefined {
@@ -95,53 +112,112 @@ export function agentOwnerHash(agentId: bigint): string {
 /**
  * The wallet the agent itself acts with.
  *
- * Returns undefined when the registry holds the zero address, which is the
- * common case for a freshly registered agent — agent 1 on mainnet is in
- * exactly that state today. Deliberately does not fall back to `ownerOf`: that
- * is whoever holds the NFT, often a human or a multisig, so accepting it would
+ * Returns undefined when the registry holds the zero address, which is what an
+ * unregistered id returns as well as a registered agent whose wallet was
+ * cleared on transfer. Deliberately does not fall back to `ownerOf`: that is
+ * whoever holds the NFT, often a human or a multisig, so accepting it would
  * authenticate the operator while reporting an agent, which is the precise
  * confusion this path exists to remove.
+ *
+ * An RPC failure propagates. Swallowing it and caching "no wallet" turned a
+ * registry outage into five minutes of confident 404s, and left the 503 in the
+ * challenge route unreachable from the registry side.
+ *
+ * `fresh` skips the cached value. The mint and revoke paths use it so that a
+ * wallet rotated or cleared in the registry stops authorising at once, rather
+ * than for up to the cache window. The challenge route, which is open and
+ * cheap to hit, keeps the cache.
  */
 export async function resolveAgentWallet(
   agentId: bigint,
+  { fresh = false }: { fresh?: boolean } = {},
 ): Promise<Address | undefined> {
   const redis = getRedis()
   const cacheKey = `${WALLET_NAMESPACE}:${IDENTITY_REGISTRY_CHAIN_ID}:${agentId}`
 
-  const cached = await redis.get<string>(cacheKey)
-  if (cached) {
-    return cached === zeroAddress ? undefined : (cached as Address)
+  if (!fresh) {
+    const cached = await redis.get<string>(cacheKey)
+    if (cached) {
+      return cached === zeroAddress ? undefined : (cached as Address)
+    }
   }
 
-  let wallet: Address
-  try {
-    wallet = await registryClient.readContract({
-      address: IDENTITY_REGISTRY_ADDRESS,
-      abi: identityRegistryAbi,
-      functionName: 'getAgentWallet',
-      args: [agentId],
-    })
-  } catch {
-    // An unregistered id reverts rather than returning zero. That is not an
-    // outage, so it is cached as "no wallet" like any other miss.
-    wallet = zeroAddress
-  }
+  const wallet = await registryClient.readContract({
+    address: IDENTITY_REGISTRY_ADDRESS,
+    abi: identityRegistryAbi,
+    functionName: 'getAgentWallet',
+    args: [agentId],
+  })
 
+  // Only a real answer from the chain is cached, zero included.
   await redis.set(cacheKey, wallet, { ex: WALLET_CACHE_TTL_SECONDS })
   return wallet === zeroAddress ? undefined : wallet
+}
+
+const BLOCKSCOUT_API = 'https://celo.blockscout.com/api/v2'
+const REGISTERED_AT_TIMEOUT_MS = 5_000
+
+/**
+ * When the agent was registered, as a unix millisecond timestamp.
+ *
+ * Read from the token's mint transfer on Blockscout: the public RPC refuses
+ * `eth_getLogs` over any useful range, and the registry keeps no timestamp.
+ * The answer never changes once known, so it is cached without expiry.
+ * Returns undefined when it cannot be determined, and callers treat an agent
+ * of unknown age as new, which is the conservative reading.
+ */
+export async function resolveAgentRegisteredAt(
+  agentId: bigint,
+): Promise<number | undefined> {
+  const redis = getRedis()
+  const cacheKey = `${REGISTERED_AT_NAMESPACE}:${IDENTITY_REGISTRY_CHAIN_ID}:${agentId}`
+
+  const cached = await redis.get<string | number>(cacheKey)
+  if (cached) {
+    const value = Number(cached)
+    if (Number.isFinite(value) && value > 0) return value
+  }
+
+  let registeredAt: number | undefined
+  try {
+    const res = await fetch(
+      `${BLOCKSCOUT_API}/tokens/${IDENTITY_REGISTRY_ADDRESS}/instances/${agentId}/transfers`,
+      { signal: AbortSignal.timeout(REGISTERED_AT_TIMEOUT_MS) },
+    )
+    if (res.ok) {
+      const body = (await res.json()) as {
+        items?: { timestamp?: string; from?: { hash?: string } }[]
+      }
+      const mint = body.items?.find(
+        (item) => item.from?.hash?.toLowerCase() === zeroAddress,
+      )
+      const parsed = mint?.timestamp ? Date.parse(mint.timestamp) : NaN
+      if (Number.isFinite(parsed)) registeredAt = parsed
+    }
+  } catch (error) {
+    console.warn('Could not read agent registration time', error)
+  }
+
+  if (registeredAt !== undefined) {
+    await redis.set(cacheKey, registeredAt)
+  }
+  return registeredAt
 }
 
 export function challengeMessage(
   agentId: bigint,
   nonce: string,
   expiresAt: number,
+  action: ChallengeAction = 'mint',
 ): string {
   // Carries the domain, the chain and the registry so a signature collected
   // here cannot be replayed against another service that also asks an agent to
-  // sign, and an expiry so a captured one does not stay useful.
+  // sign, the action so a mint signature cannot revoke or vice versa, and an
+  // expiry so a captured one does not stay useful.
   return [
     `${AGENT_DOMAIN} wants you to prove control of an ERC-8004 agent.`,
     '',
+    `Action: ${action}`,
     `Agent ID: ${agentId.toString()}`,
     `Registry: ${IDENTITY_REGISTRY_ADDRESS}`,
     `Chain ID: ${IDENTITY_REGISTRY_CHAIN_ID}`,
@@ -150,26 +226,37 @@ export function challengeMessage(
   ].join('\n')
 }
 
-export async function createChallenge(agentId: bigint): Promise<{
+interface StoredChallenge {
+  expiresAt: number
+  action: ChallengeAction
+}
+
+export async function createChallenge(
+  agentId: bigint,
+  action: ChallengeAction = 'mint',
+): Promise<{
   message: string
   nonce: string
   expiresAt: number
+  action: ChallengeAction
 }> {
   const nonce = randomBytes(16).toString('hex')
   const expiresAt = Date.now() + CHALLENGE_TTL_SECONDS * 1000
 
   // Keyed by nonce rather than by agent, so issuing a second challenge does
   // not invalidate one already in flight.
+  const stored: StoredChallenge = { expiresAt, action }
   await getRedis().set(
     `${CHALLENGE_NAMESPACE}:${IDENTITY_REGISTRY_CHAIN_ID}:${agentId}:${nonce}`,
-    expiresAt,
+    JSON.stringify(stored),
     { ex: CHALLENGE_TTL_SECONDS },
   )
 
   return {
-    message: challengeMessage(agentId, nonce, expiresAt),
+    message: challengeMessage(agentId, nonce, expiresAt, action),
     nonce,
     expiresAt,
+    action,
   }
 }
 
@@ -178,16 +265,32 @@ export async function createChallenge(agentId: bigint): Promise<{
  * both win — the loser sees a missing nonce. Callers must consume before
  * minting, never after: the mint-race fix in tests/mint-race.test.ts is the
  * same class of bug read from the other direction.
+ *
+ * The stored expiry is checked against the clock as well as relying on the
+ * Redis TTL, so a challenge is never honoured past the time printed in it.
  */
 export async function consumeChallenge(
   agentId: bigint,
   nonce: string,
-): Promise<number | undefined> {
+  now = Date.now(),
+): Promise<StoredChallenge | undefined> {
   if (!/^[0-9a-f]{32}$/.test(nonce)) return undefined
-  const stored = await getRedis().getdel<number>(
+  const raw = await getRedis().getdel<string | StoredChallenge>(
     `${CHALLENGE_NAMESPACE}:${IDENTITY_REGISTRY_CHAIN_ID}:${agentId}:${nonce}`,
   )
-  return stored ? Number(stored) : undefined
+  if (!raw) return undefined
+
+  let stored: Partial<StoredChallenge>
+  try {
+    stored = typeof raw === 'string' ? JSON.parse(raw) : raw
+  } catch {
+    return undefined
+  }
+  const expiresAt = Number(stored.expiresAt)
+  const action = parseChallengeAction(stored.action)
+  if (!Number.isFinite(expiresAt) || !action) return undefined
+  if (expiresAt <= now) return undefined
+  return { expiresAt, action }
 }
 
 /**

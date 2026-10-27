@@ -21,8 +21,21 @@ const INDEX_KEY = `${NAMESPACE}:index`
 const DISABLED_KEY = `${NAMESPACE}:disabled`
 
 export type VerifyResult =
-  | { ok: true; keyId: string; ownerHash: string }
+  | {
+      ok: true
+      keyId: string
+      ownerHash: string
+      /** Present only on keys minted by an ERC-8004 agent. */
+      agentId?: string
+      agentRegisteredAt?: number
+    }
   | { ok: false; reason: 'malformed' | 'unknown' | 'disabled' }
+
+/** Fields an agent mint records beyond what a GitHub mint does. */
+export interface AgentKeyExtras {
+  agentId: string
+  agentRegisteredAt?: number
+}
 
 /**
  * `prd` keys must not work against staging and vice versa, which is
@@ -77,6 +90,7 @@ export function parseKey(
 export async function mintKey(
   ownerHash: string,
   label: string,
+  extras?: AgentKeyExtras,
 ): Promise<{ key: string; record: ApiKeyRecord }> {
   const redis = getRedis()
 
@@ -98,6 +112,12 @@ export async function mintKey(
     ownerHash,
     createdAt: now,
     expiresAt: now + KEY_TTL_SECONDS * 1000,
+  }
+  if (extras) {
+    record.agentId = extras.agentId
+    if (extras.agentRegisteredAt !== undefined) {
+      record.agentRegisteredAt = extras.agentRegisteredAt
+    }
   }
 
   const hash = hashKey(key)
@@ -167,7 +187,25 @@ export async function verifyKey(presented: string): Promise<VerifyResult> {
     return { ok: false, reason: 'unknown' }
   }
 
-  return { ok: true, keyId: record.keyId, ownerHash: record.ownerHash }
+  return {
+    ok: true,
+    keyId: record.keyId,
+    ownerHash: record.ownerHash,
+    ...agentFields(record),
+  }
+}
+
+function agentFields(
+  record: Record<string, string>,
+): Pick<ApiKeyRecord, 'agentId' | 'agentRegisteredAt'> {
+  if (!record.agentId) return {}
+  const registeredAt = Number(record.agentRegisteredAt)
+  return {
+    agentId: record.agentId,
+    ...(Number.isFinite(registeredAt) && registeredAt > 0
+      ? { agentRegisteredAt: registeredAt }
+      : {}),
+  }
 }
 
 export async function listKeysForOwner(
@@ -197,6 +235,7 @@ export async function listKeysForOwner(
         ownerHash: record.ownerHash,
         createdAt: Number(record.createdAt),
         expiresAt: Number(record.expiresAt),
+        ...agentFields(record),
       })
     } else {
       // Records expire via their own TTL; the owner set has to be tidied here.
@@ -232,4 +271,22 @@ export async function revokeKey(
     redis.srem(ownerKey(ownerHash), keyId),
   ])
   return true
+}
+
+/**
+ * Revokes every live key an owner holds and returns how many went.
+ *
+ * Exists for the case where the owner no longer knows its key ids: an agent
+ * whose signing key leaked has an attacker holding keys it never saw, and
+ * revoking by id would need a listing endpoint that the attacker could also
+ * read. Clearing the whole set needs only the proof of control.
+ */
+export async function revokeAllKeysForOwner(
+  ownerHash: string,
+): Promise<number> {
+  const live = await listKeysForOwner(ownerHash)
+  const results = await Promise.all(
+    live.map((record) => revokeKey(record.keyId, ownerHash)),
+  )
+  return results.filter(Boolean).length
 }

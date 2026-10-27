@@ -151,7 +151,20 @@ curl -X POST https://faucet.celo.org/api/keys/agent \
 ```
 
 The key is bound to the agent id rather than to a person, so it draws on the
-agent's own daily allowance.
+agent's own daily allowance. That allowance grows with the age of the
+registration: an agent registered less than 7 days ago gets 2 requests a day,
+and an established one gets 10, the same as a signed-in person. Registering an
+agent costs a fraction of a cent, so without this one wallet could mint twenty
+identities and fill the shared programmatic ceiling on its own. The tier is
+decided at request time from the registration timestamp recorded on the key,
+so an agent grows into the larger allowance without minting a new key.
+
+To revoke, ask for a challenge with `"action":"revoke"` and send the proof to
+`DELETE /api/keys/agent` with the `keyId`. Omit `keyId` to revoke every key the
+agent holds, which is the recovery path after a signing-key compromise: the
+attacker's keys were never shown to the rightful agent, so it cannot name them.
+A challenge names its action in the signed text, so a mint signature cannot be
+turned into a revoke or the other way round.
 
 Design notes, since each of these is load-bearing:
 
@@ -193,8 +206,11 @@ yarn --cwd apps/web smoke:agent-key \
   --url https://faucet.celo.org --agent-id <id> --beneficiary 0xYourAddress
 ```
 
-Neither script prints the key. `PRIVATE_KEY_2` and `PRIVATE_KEY` are read as
-fallbacks when `AGENT_SIGNING_KEY` is unset.
+Neither script prints the key, and neither falls back to any other wallet
+variable: to sign with a key held under a different name, set
+`AGENT_SIGNING_KEY_ENV` to that name. The smoke run revokes the key it minted at
+the end, so it leaves the agent's two slots as it found them and exercises the
+revoke path live.
 
 ### Making a request
 

@@ -88,7 +88,12 @@ Step two, sign that message and exchange it for a key:
       -d '{"agentId":"2","nonce":"<nonce>","signature":"0x<signature>"}'
 
 Returns `201` with the key, shown once. The key is bound to the agent id, so it
-draws on the agent's own daily allowance rather than a person's.
+draws on the agent's own daily allowance rather than a person's. The allowance
+depends on how long the agent has been registered: under 7 days, 2 requests a
+day; 7 days or more, 10 a day, the same as a signed-in person. The tier is
+decided at request time, so an agent grows into the larger allowance without
+minting a new key. An agent whose registration time cannot be read is treated
+as new.
 
 Notes that matter:
 
@@ -103,9 +108,16 @@ Notes that matter:
   as plain EOA recovery.
 - Registration must be on Celo **mainnet**. A testnet registry would let an
   attacker use this faucet to pay for the identities that unlock the faucet.
-- To revoke, send the same proof to `DELETE /api/keys/agent` with the `keyId`.
-  An agent key cannot be reached from the signed-in page, so this is the only
-  way to withdraw one before it expires.
+- A challenge names what it is for. `POST /api/keys/challenge` takes an
+  optional `"action"`, `mint` (default) or `revoke`, and the signed text
+  carries it, so a signature gathered for one cannot be used for the other
+  (`401 wrong_action`).
+- To revoke, ask for a challenge with `"action":"revoke"` and send the proof to
+  `DELETE /api/keys/agent` with the `keyId`. Omit `keyId` to revoke every key
+  the agent holds; the response reports how many went. That is the recovery
+  path after a signing-key compromise, since the attacker's keys were never
+  shown to the rightful agent. An agent key cannot be reached from the
+  signed-in page, so this is the only way to withdraw one before it expires.
 
 ### A human mints one and hands it over
 

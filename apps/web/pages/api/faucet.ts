@@ -11,6 +11,7 @@ import {
 } from 'utils/firebase.serverside'
 import { captchaVerify } from 'utils/captcha-verify'
 import { verifyKey } from 'utils/api-key'
+import { AgentRateLimit, agentRateLimit } from 'utils/agent-allowance'
 import {
   AdmissionChannel,
   AdmissionOutcome,
@@ -100,6 +101,7 @@ export default async function handler(
   let authLevel = AuthLevel.none
   let userId: string | undefined
   let keyId: string | undefined
+  let userLimit: AgentRateLimit | undefined
 
   if (token) {
     // A key stands in for the GitHub identity, so the session is not consulted:
@@ -168,6 +170,12 @@ export default async function handler(
     authLevel = AuthLevel.authenticated
     userId = verified.ownerHash
     keyId = verified.keyId
+    // An agent's allowance grows with the age of its registration, so a
+    // wallet that mints twenty fresh identities buys twenty small buckets,
+    // not twenty human-sized ones.
+    if (verified.agentId) {
+      userLimit = agentRateLimit(verified.agentRegisteredAt)
+    }
 
     logAdmission({
       channel,
@@ -231,6 +239,7 @@ export default async function handler(
       channel,
       ip,
       userId,
+      userLimit,
     })
 
     if (key) {
