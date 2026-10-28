@@ -125,6 +125,93 @@ The key is shown once and only a hash of it is stored, so it cannot be
 recovered — create a new one if you lose it. You may hold up to 2 keys and they
 expire after 90 days.
 
+### Agents: minting a key without a browser
+
+A key minted the way above is a human's credential handed to an agent. The
+faucet cannot tell one agent from another, or an agent from the person running
+it, because its only notion of identity was a GitHub account — and an agent
+cannot hold one.
+
+An agent registered under [ERC-8004](https://eips.ethereum.org/EIPS/eip-8004)
+has an identity of its own, so it can mint its own key. Two calls, no browser,
+no OAuth, no human:
+
+```sh
+# 1. Ask for a challenge.
+curl -X POST https://faucet.celo.org/api/keys/challenge \
+  -H 'Content-Type: application/json' \
+  -d '{"agentId":"2"}'
+# → {"message":"…","nonce":"…","expiresAt":…,"agentWallet":"0x…"}
+
+# 2. Sign that message with the agent wallet, then exchange it.
+curl -X POST https://faucet.celo.org/api/keys/agent \
+  -H 'Content-Type: application/json' \
+  -d '{"agentId":"2","nonce":"…","signature":"0x…"}'
+# → 201 {"key":"cfk_prd_…","record":{…}}
+```
+
+The key is bound to the agent id rather than to a person, so it draws on the
+agent's own daily allowance. That allowance grows with the age of the
+registration: an agent registered less than 7 days ago gets 2 requests a day,
+and an established one gets 10, the same as a signed-in person. Registering an
+agent costs a fraction of a cent, so without this one wallet could mint twenty
+identities and fill the shared programmatic ceiling on its own. The tier is
+decided at request time from the registration timestamp recorded on the key,
+so an agent grows into the larger allowance without minting a new key.
+
+To revoke, ask for a challenge with `"action":"revoke"` and send the proof to
+`DELETE /api/keys/agent` with the `keyId`. Omit `keyId` to revoke every key the
+agent holds, which is the recovery path after a signing-key compromise: the
+attacker's keys were never shown to the rightful agent, so it cannot name them.
+A challenge names its action in the signed text, so a mint signature cannot be
+turned into a revoke or the other way round.
+
+Design notes, since each of these is load-bearing:
+
+- **Mainnet registry only**, `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432` on
+  chain 42220. Registering on Celo Sepolia costs Sepolia gas, which is what this
+  faucet hands out — a testnet registry would let an attacker faucet its way to
+  as many identities as it wanted.
+- **No fallback to `ownerOf`.** An agent whose `getAgentWallet` is unset is
+  refused with `agent_wallet_unset`. `ownerOf` is whoever holds the NFT, often a
+  human or a multisig, so accepting it would authenticate the operator while
+  reporting that an agent had signed. Agent 1 on mainnet is in exactly this
+  state today, so this is the common case, not an edge one.
+- **The challenge is spent before the signature is verified.** Verifying first
+  would leave a window in which two requests carrying the same signature both
+  verify and both mint.
+- **The signed message is rebuilt server-side** from the stored expiry, never
+  taken from the request, so a caller cannot present a signature over text of
+  its own choosing. It carries the domain, registry and chain so a signature
+  gathered elsewhere cannot be replayed here.
+- **ERC-1271 is honoured**, so agents using smart accounts work.
+
+Sybil resistance is unchanged and deliberately modest: mainnet registration
+costs only gas. What bounds exposure is the programmatic ceiling that already
+existed — 20 requests per 10 minutes and 200 per day across every key. See
+[discussion #286](https://github.com/celo-org/faucet/discussions/286) for the
+x402 and reputation phases that turn "capped" into "costly".
+
+Verify the whole path against a deployment with no cookie jar at all. You need
+the signing key of a registered agent's wallet. If you do not hold one, register
+a throwaway agent first: every `register()` overload in the registry sets the
+agent wallet to the calling address, so one transaction from any wallet you
+control (a fraction of a cent of mainnet CELO) gives you an agent id whose key
+you already have.
+
+```sh
+export AGENT_SIGNING_KEY=0x...                 # any wallet with a little mainnet CELO
+yarn --cwd apps/web register:smoke-agent       # prints the new agent id
+yarn --cwd apps/web smoke:agent-key \
+  --url https://faucet.celo.org --agent-id <id> --beneficiary 0xYourAddress
+```
+
+Neither script prints the key, and neither falls back to any other wallet
+variable: to sign with a key held under a different name, set
+`AGENT_SIGNING_KEY_ENV` to that name. The smoke run revokes the key it minted at
+the end, so it leaves the agent's two slots as it found them and exercises the
+revoke path live.
+
 ### Making a request
 
 Send the key as a bearer token and omit `captchaToken`:

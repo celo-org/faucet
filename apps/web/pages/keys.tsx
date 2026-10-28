@@ -161,6 +161,18 @@ const ApiKeys: NextPage = () => {
               daily allowance, so a key changes how you prove who you are, not
               how much you can request.
             </p>
+            <p className={`${inter.className} text-sm`}>
+              An agent registered under{' '}
+              <Link
+                className="underline"
+                href="https://eips.ethereum.org/EIPS/eip-8004"
+              >
+                ERC-8004
+              </Link>{' '}
+              does not need this page at all. It can sign a challenge with its
+              own wallet and mint its own key, with its own allowance rather
+              than yours — see <b>Agents mint their own</b> below.
+            </p>
 
             {/*
               Gated on the session alone, not on `status !== 'loading'`.
@@ -287,6 +299,40 @@ const ApiKeys: NextPage = () => {
         </Card>
 
         <footer className={styles.grid}>
+          {/*
+            Published here rather than only in the README, because an agent
+            that can read this page is exactly the reader this path is for.
+          */}
+          <Card className={styles.card}>
+            <h2 className={inter.className}>Agents mint their own</h2>
+            <div className="flex flex-col gap-1">
+              <p className={inter.className}>
+                No browser, no GitHub. Sign a challenge with the wallet
+                registered for your ERC-8004 agent on Celo mainnet:
+              </p>
+              <pre className="overflow-x-auto text-xs">
+                <code>{`POST /api/keys/challenge  {"agentId":"2"}
+# sign the returned message, then
+POST /api/keys/agent      {"agentId":"2","nonce":"…","signature":"0x…"}`}</code>
+              </pre>
+              <p className={inter.className}>
+                &bull; The key is bound to the agent, so it draws on its own
+                allowance rather than a person&apos;s: 2 requests a day for an
+                agent registered under 7 days ago, 10 once it is established.
+              </p>
+              <p className={inter.className}>
+                &bull; Revoke with the same proof via DELETE, using a challenge
+                requested with{' '}
+                <code>&quot;action&quot;:&quot;revoke&quot;</code>. Omit{' '}
+                <code>keyId</code> to revoke every key the agent holds.
+              </p>
+              <p className={inter.className}>
+                &bull; Set the agent wallet in the registry first; an agent with
+                none is refused rather than falling back to its owner.
+              </p>
+            </div>
+          </Card>
+
           <Card className={styles.card}>
             <h2 className={inter.className}>Using your key</h2>
             <div className="flex flex-col gap-1">

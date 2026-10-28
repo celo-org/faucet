@@ -2,6 +2,7 @@ import { createMocks } from 'node-mocks-http'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AuthLevel, RequestStatus } from 'types'
+import { AGENT_RATE_LIMITS } from 'utils/agent-allowance'
 import { AdmissionChannel } from 'utils/metrics'
 
 const captchaVerify = vi.hoisted(() => vi.fn())
@@ -212,6 +213,55 @@ describe('POST /api/faucet — API key path', () => {
     await run()
 
     expect(sendRequest.mock.calls[0][0].userId).toBe('0xowner')
+    expect(sendRequest.mock.calls[0][0].userLimit).toBeUndefined()
+  })
+
+  /**
+   * An agent key carries an age-based allowance. Twenty throwaway agent
+   * registrations must buy twenty small buckets, not twenty human-sized ones
+   * that between them fill the shared programmatic ceiling.
+   */
+  it('sizes an agent key allowance by the age of its registration', async () => {
+    const DAY = 24 * 60 * 60 * 1000
+    verifyKey.mockResolvedValue({
+      ok: true,
+      keyId: '0123456789ab',
+      ownerHash: '0xagent',
+      agentId: '9997',
+      agentRegisteredAt: Date.now() - DAY,
+    })
+    const fresh = call(keyedBody, { authorization: `Bearer ${KEY}` })
+    await fresh.run()
+    expect(sendRequest.mock.calls[0][0].userLimit).toEqual(
+      AGENT_RATE_LIMITS.new,
+    )
+
+    verifyKey.mockResolvedValue({
+      ok: true,
+      keyId: '0123456789ab',
+      ownerHash: '0xagent',
+      agentId: '2',
+      agentRegisteredAt: Date.now() - 400 * DAY,
+    })
+    const old = call(keyedBody, { authorization: `Bearer ${KEY}` })
+    await old.run()
+    expect(sendRequest.mock.calls[1][0].userLimit).toEqual(
+      AGENT_RATE_LIMITS.established,
+    )
+  })
+
+  it('treats an agent of unknown age as new', async () => {
+    verifyKey.mockResolvedValue({
+      ok: true,
+      keyId: '0123456789ab',
+      ownerHash: '0xagent',
+      agentId: '9997',
+    })
+    const { run } = call(keyedBody, { authorization: `Bearer ${KEY}` })
+    await run()
+    expect(sendRequest.mock.calls[0][0].userLimit).toEqual(
+      AGENT_RATE_LIMITS.new,
+    )
   })
 
   it.each([

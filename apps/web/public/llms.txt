@@ -19,6 +19,9 @@ access and no way to obtain real funds here.
   which skips the captcha.
 - API keys are self-serve at https://faucet.celo.org/keys after signing in with
   GitHub. Maximum 2 keys per account, each valid 90 days.
+- An agent registered under ERC-8004 on Celo mainnet can mint its own key with
+  no browser and no human: sign a challenge with the wallet in the registry.
+  The key is bound to the agent, with the agent's own allowance.
 - A key changes how you prove who you are, not how much you can request: keyed
   requests draw on the same daily allowance as the GitHub account that made them.
 
@@ -30,6 +33,10 @@ access and no way to obtain real funds here.
 - `GET https://faucet.celo.org/api/status?key=<key>&network=celo-sepolia` —
   poll for the outcome. Returns `{"status":"Done","beneficiary":"0x...","txHash":"0x..."}`.
   Status is one of `Pending`, `Working`, `Done`, `Failed`.
+- `POST https://faucet.celo.org/api/keys/challenge` — body `{"agentId":"2"}`.
+  Returns a message to sign, a single-use nonce, and the agent's wallet.
+- `POST https://faucet.celo.org/api/keys/agent` — body
+  `{"agentId":"2","nonce":"...","signature":"0x..."}`. Returns `201` with a key.
 
 ## Docs
 

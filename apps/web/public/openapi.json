@@ -4,11 +4,20 @@
     "title": "Celo Faucet API",
     "version": "1.0.0",
     "summary": "Request free testnet CELO on Celo Sepolia.",
-    "description": "Two endpoints: request a payout, then poll for its transaction hash. The browser flow is gated on reCAPTCHA v3, which cannot be solved headlessly, so scripts and AI agents authenticate with an API key instead. Keys are self-serve at https://faucet.celo.org/keys after signing in with GitHub. Celo Sepolia only; there is no mainnet access.",
-    "contact": { "url": "https://github.com/celo-org/faucet" },
-    "license": { "name": "Apache-2.0", "identifier": "Apache-2.0" }
+    "description": "Two endpoints to request funds, plus two to mint a key. The browser flow is gated on reCAPTCHA v3, which cannot be solved headlessly, so scripts and AI agents authenticate with an API key instead. A human can mint a key at https://faucet.celo.org/keys after signing in with GitHub; an agent registered under ERC-8004 on Celo mainnet mints its own by signing a challenge, with no browser and no human. Celo Sepolia only; there is no mainnet access.",
+    "contact": {
+      "url": "https://github.com/celo-org/faucet"
+    },
+    "license": {
+      "name": "Apache-2.0",
+      "identifier": "Apache-2.0"
+    }
   },
-  "servers": [{ "url": "https://faucet.celo.org" }],
+  "servers": [
+    {
+      "url": "https://faucet.celo.org"
+    }
+  ],
   "externalDocs": {
     "description": "Full reference",
     "url": "https://faucet.celo.org/llms-full.txt"
@@ -18,13 +27,20 @@
       "post": {
         "operationId": "requestFunds",
         "summary": "Request testnet CELO for an address",
-        "description": "Queues a payout and returns a request key. The payout is not settled yet — poll /api/status with the returned key. Sends 1 CELO unauthenticated and 3 CELO authenticated. A key draws on the same daily allowance as the GitHub account that created it.",
-        "security": [{ "apiKey": [] }, {}],
+        "description": "Queues a payout and returns a request key. The payout is not settled yet \u2014 poll /api/status with the returned key. Sends 1 CELO unauthenticated and 3 CELO authenticated. A key draws on the same daily allowance as the GitHub account that created it.",
+        "security": [
+          {
+            "apiKey": []
+          },
+          {}
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/FaucetRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/FaucetRequest"
+              }
             }
           }
         },
@@ -33,8 +49,13 @@
             "description": "Request accepted and queued.",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Queued" },
-                "example": { "status": "Pending", "key": "abc123" }
+                "schema": {
+                  "$ref": "#/components/schemas/Queued"
+                },
+                "example": {
+                  "status": "Pending",
+                  "key": "abc123"
+                }
               }
             }
           },
@@ -42,7 +63,9 @@
             "description": "Invalid network, invalid beneficiary address, or a network this key may not use.",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Failure" }
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
               }
             }
           },
@@ -50,7 +73,9 @@
             "description": "Missing, malformed, unknown or expired key (`invalid_api_key`), or key authentication is switched off (`api_key_disabled`).",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Failure" },
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                },
                 "example": {
                   "status": "Failed",
                   "message": "Invalid API key",
@@ -63,22 +88,30 @@
             "description": "Rate limited on the browser path. The API-key path returns 429 for the same condition.",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Failure" }
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
               }
             }
           },
-          "405": { "description": "Method not allowed. Use POST." },
+          "405": {
+            "description": "Method not allowed. Use POST."
+          },
           "429": {
             "description": "Rate limited. Honour the Retry-After header.",
             "headers": {
               "Retry-After": {
                 "description": "Seconds to wait before retrying.",
-                "schema": { "type": "integer" }
+                "schema": {
+                  "type": "integer"
+                }
               }
             },
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Failure" },
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                },
                 "example": {
                   "status": "Failed",
                   "message": "Faucet limit exceeded",
@@ -92,12 +125,16 @@
             "headers": {
               "Retry-After": {
                 "description": "Seconds to wait before retrying. Always 30.",
-                "schema": { "type": "integer" }
+                "schema": {
+                  "type": "integer"
+                }
               }
             },
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Failure" },
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                },
                 "example": {
                   "status": "Failed",
                   "message": "Faucet unavailable",
@@ -120,13 +157,17 @@
             "in": "query",
             "required": true,
             "description": "The request key returned by POST /api/faucet.",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "network",
             "in": "query",
             "required": true,
-            "schema": { "$ref": "#/components/schemas/Network" }
+            "schema": {
+              "$ref": "#/components/schemas/Network"
+            }
           }
         ],
         "responses": {
@@ -134,7 +175,9 @@
             "description": "The current state of the request.",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Status" },
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                },
                 "example": {
                   "status": "Done",
                   "beneficiary": "0x0000000000000000000000000000000000000000",
@@ -143,10 +186,157 @@
               }
             }
           },
-          "400": { "description": "Invalid network or missing request key." },
-          "404": { "description": "No such request." },
-          "405": { "description": "Method not allowed. Use GET." },
-          "500": { "description": "Could not read request status." }
+          "400": {
+            "description": "Invalid network or missing request key."
+          },
+          "404": {
+            "description": "No such request."
+          },
+          "405": {
+            "description": "Method not allowed. Use GET."
+          },
+          "500": {
+            "description": "Could not read request status."
+          }
+        }
+      }
+    },
+    "/api/keys/challenge": {
+      "post": {
+        "operationId": "createAgentChallenge",
+        "summary": "Ask for a challenge to prove control of an ERC-8004 agent",
+        "description": "Step one of minting a key without a browser. Returns a message bound to this domain, the registry and chain 42220, a single-use nonce valid for five minutes, and the wallet the registry says this agent signs with. Open: it reveals only what the registry already publishes.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentIdRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Challenge issued.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Challenge"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "agentId is not a decimal ERC-8004 agent id (`invalid_agent_id`)."
+          },
+          "404": {
+            "description": "The agent has no wallet set in the registry (`agent_wallet_unset`). Call setAgentWallet and retry. Not substituted with ownerOf, which is the NFT holder rather than the agent."
+          },
+          "405": {
+            "description": "Method not allowed. Use POST."
+          },
+          "503": {
+            "description": "The identity registry was unreachable (`faucet_unavailable`)."
+          }
+        }
+      }
+    },
+    "/api/keys/agent": {
+      "post": {
+        "operationId": "mintAgentKey",
+        "summary": "Exchange a signed challenge for an API key",
+        "description": "Step two. No session is consulted and no captcha is accepted, so an agent holding only a signing key can complete this. The key is bound to the agent id, so it draws on the agent's own daily allowance rather than its operator's. The challenge is spent before the signature is checked, so the same signature cannot mint twice. Smart-account agents verify through ERC-1271.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentKeyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Key minted. Shown once; only a hash is stored.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MintedKey"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed agentId or signature."
+          },
+          "401": {
+            "description": "Unknown, expired or already-used challenge (`invalid_challenge`), a challenge issued for a revoke rather than a mint (`wrong_action`), or a signature that does not verify against the agent wallet (`invalid_signature`)."
+          },
+          "404": {
+            "description": "The agent has no wallet set in the registry (`agent_wallet_unset`)."
+          },
+          "405": {
+            "description": "Method not allowed. Use POST."
+          },
+          "409": {
+            "description": "This agent already holds the maximum number of keys (`key_limit_reached`)."
+          }
+        }
+      },
+      "delete": {
+        "operationId": "revokeAgentKey",
+        "summary": "Revoke a key the agent holds, or every key it holds",
+        "description": "Proved the same way as minting, with a challenge requested with action \"revoke\". An agent key is bound to an agent rather than to a person, so it cannot be reached through the signed-in path at /keys \u2014 without this, a leaked agent key would be irrevocable until it expired. Omit keyId to revoke every key the agent holds: the recovery path after a signing-key compromise, when the attacker's keys were never shown to the rightful agent.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/AgentKeyRequest"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "keyId": {
+                        "type": "string",
+                        "description": "The keyId from the record returned at creation. Omit to revoke every key the agent holds."
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Revoked. `revoked` carries how many keys went (1 with a keyId; the agent's live count without).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["message", "revoked"],
+                  "properties": {
+                    "message": { "type": "string" },
+                    "revoked": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed agentId or signature."
+          },
+          "401": {
+            "description": "Invalid challenge or signature, or a challenge issued for a mint rather than a revoke (`wrong_action`)."
+          },
+          "404": {
+            "description": "No such key. Returned for another agent's key as well as a missing one, so this cannot be used to probe which key ids exist."
+          }
         }
       }
     }
@@ -174,7 +364,9 @@
             "pattern": "^0x[a-fA-F0-9]{40}$",
             "description": "The address to fund."
           },
-          "network": { "$ref": "#/components/schemas/Network" },
+          "network": {
+            "$ref": "#/components/schemas/Network"
+          },
           "captchaToken": {
             "type": "string",
             "description": "reCAPTCHA v3 token. Required on the browser path only; omit it when sending an API key."
@@ -185,7 +377,10 @@
         "type": "object",
         "required": ["status", "key"],
         "properties": {
-          "status": { "type": "string", "enum": ["Pending"] },
+          "status": {
+            "type": "string",
+            "enum": ["Pending"]
+          },
           "key": {
             "type": ["string", "null"],
             "description": "Request key. Pass it to GET /api/status."
@@ -200,7 +395,9 @@
             "type": "string",
             "enum": ["Pending", "Working", "Done", "Failed"]
           },
-          "beneficiary": { "type": "string" },
+          "beneficiary": {
+            "type": "string"
+          },
           "txHash": {
             "type": "string",
             "description": "Present once the payout has settled."
@@ -211,8 +408,13 @@
         "type": "object",
         "required": ["status", "message"],
         "properties": {
-          "status": { "type": "string", "enum": ["Failed"] },
-          "message": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["Failed"]
+          },
+          "message": {
+            "type": "string"
+          },
           "error": {
             "type": "string",
             "enum": [
@@ -222,6 +424,105 @@
               "faucet_unavailable"
             ],
             "description": "Machine-readable code so a caller can branch without parsing prose."
+          }
+        }
+      },
+      "AgentIdRequest": {
+        "type": "object",
+        "required": ["agentId"],
+        "properties": {
+          "agentId": {
+            "type": "string",
+            "pattern": "^[0-9]{1,78}$",
+            "description": "ERC-8004 agent id (an ERC-721 token id) in the Identity Registry at 0x8004A169FB4a3325136EB29fA0ceB6D2e539a432 on Celo mainnet, chain 42220.",
+            "example": "2"
+          },
+          "action": {
+            "type": "string",
+            "enum": ["mint", "revoke"],
+            "default": "mint",
+            "description": "What the signed challenge will authorise. Named in the signed text, so a signature gathered for a mint cannot revoke and vice versa."
+          }
+        }
+      },
+      "AgentKeyRequest": {
+        "type": "object",
+        "required": ["agentId", "nonce", "signature"],
+        "properties": {
+          "agentId": {
+            "type": "string",
+            "pattern": "^[0-9]{1,78}$"
+          },
+          "nonce": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$",
+            "description": "The nonce from POST /api/keys/challenge. Single-use."
+          },
+          "signature": {
+            "type": "string",
+            "pattern": "^0x[0-9a-fA-F]+$",
+            "description": "The challenge message signed by the agent wallet. The server verifies against a message it rebuilds itself, so the message is not accepted from the caller."
+          }
+        }
+      },
+      "Challenge": {
+        "type": "object",
+        "required": ["message", "nonce", "expiresAt", "action", "agentWallet"],
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Sign this exactly as given."
+          },
+          "nonce": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "integer",
+            "description": "Unix milliseconds. Five minutes out."
+          },
+          "action": {
+            "type": "string",
+            "enum": ["mint", "revoke"],
+            "description": "What this challenge authorises. POST /api/keys/agent needs a mint challenge, DELETE needs a revoke challenge."
+          },
+          "agentWallet": {
+            "type": "string",
+            "description": "The address the registry says this agent signs with."
+          }
+        }
+      },
+      "MintedKey": {
+        "type": "object",
+        "required": ["key", "record"],
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "The full key. Returned exactly once."
+          },
+          "record": {
+            "type": "object",
+            "properties": {
+              "keyId": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "createdAt": {
+                "type": "integer"
+              },
+              "expiresAt": {
+                "type": "integer"
+              },
+              "agentId": {
+                "type": "string",
+                "description": "Present on keys minted by an ERC-8004 agent."
+              },
+              "agentRegisteredAt": {
+                "type": "integer",
+                "description": "When the agent was registered, unix milliseconds. Decides the daily allowance at request time: 2 requests a day for an agent registered under 7 days ago, 10 for an established one. Absent when the registration time could not be read, in which case the agent is treated as new."
+              }
+            }
           }
         }
       }

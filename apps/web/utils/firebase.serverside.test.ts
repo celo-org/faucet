@@ -198,6 +198,33 @@ describe('sendRequest', () => {
       expect(push).not.toHaveBeenCalled()
     })
 
+    /**
+     * An agent key passes an age-based allowance as userLimit. The user
+     * bucket has to be measured against it, not against the authLevel table,
+     * or a new agent would quietly get a human-sized allowance.
+     */
+    it('measures the owner bucket against userLimit when one is given', async () => {
+      const small = { count: 2, timePeriodInSeconds: 24 * 60 * 60 }
+      hlen.mockImplementation(async (key: string) =>
+        key.endsWith('owner-hash') ? small.count : 0,
+      )
+
+      await expect(
+        sendRequest({ ...keyed(), userLimit: small }),
+      ).resolves.toMatchObject({
+        reason: 'rate_limited',
+        bucket: 'user',
+        count: small.count,
+        limit: small.count,
+      })
+      expect(push).not.toHaveBeenCalled()
+
+      // The same count is under the default limit without the override.
+      await expect(sendRequest(keyed())).resolves.toMatchObject({
+        key: expect.any(String),
+      })
+    })
+
     // Regression: every keyed bucket was a 24h window, so a day's worth of
     // requests could arrive at once and starve the payout pool.
     it('is subject to a sub-daily concurrency window', async () => {
