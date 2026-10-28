@@ -165,6 +165,11 @@ const REGISTERED_AT_TIMEOUT_MS = 5_000
  * The answer never changes once known, so it is cached without expiry.
  * Returns undefined when it cannot be determined, and callers treat an agent
  * of unknown age as new, which is the conservative reading.
+ *
+ * Only the first page is read, newest first, 50 transfers. An agent token
+ * that has changed hands more than 50 times will not show its mint there and
+ * reads as new. That fails safe, and an agent traded that often is not the
+ * case this tier exists to protect.
  */
 export async function resolveAgentRegisteredAt(
   agentId: bigint,
