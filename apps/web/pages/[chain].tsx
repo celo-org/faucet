@@ -111,7 +111,11 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
       />
       <main className={styles.main}>
         <FaucetHeader network={network} isOutOfCELO={isOutOfCELO} />
-        <Card className="w-full max-w-sm items-stretch">
+        {/*
+          Same width as the /keys card, so moving between the two pages does
+          not resize the main card.
+        */}
+        <Card className="w-full max-w-lg items-stretch">
           <CardHeader>
             {/*
               A real h1 rather than CardTitle: that renders a div, so both
@@ -125,7 +129,7 @@ const Home: NextPage<Props> = ({ isOutOfCELO, network }: Props) => {
           <CardContent>
             <RequestForm network={network} isOutOfCELO={isOutOfCELO} />
           </CardContent>
-          <CardFooter className="flex-col gap-2">
+          <CardFooter className="flex-col items-start gap-2">
             <div className="mt-4 text-sm flex flex-col gap-0.5 items-start">
               {!session && (
                 <>

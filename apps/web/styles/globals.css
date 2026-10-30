@@ -87,3 +87,17 @@ body {
 button {
   cursor: pointer;
 }
+
+/*
+  Inline code (status codes, header names, JSON fields on /keys) rendered in
+  the body font with nothing to set it apart, so `401 invalid_api_key` read
+  as prose. Blocks are styled by components/code-block.tsx.
+*/
+:not(pre) > code {
+  font-size: 0.85em;
+  padding: 0.05em 0.35em;
+  background: var(--secondary-background);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  white-space: nowrap;
+}
