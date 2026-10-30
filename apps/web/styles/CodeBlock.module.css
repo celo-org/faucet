@@ -1,0 +1,40 @@
+.block {
+  position: relative;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0.25rem 0;
+}
+
+.pre {
+  margin: 0;
+  /*
+    The copy button sits in the top padding, above the first line, so code
+    scrolled sideways on a phone never runs underneath it.
+  */
+  padding: 2.25rem 1rem 0.75rem;
+  overflow-x: auto;
+  white-space: pre;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  background: var(--secondary-background);
+  border: 2px solid var(--border);
+  border-radius: 5px;
+}
+
+.copy {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--main-foreground);
+  background: var(--main);
+  border: 2px solid var(--border);
+  border-radius: 5px;
+}
+
+.copy:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
