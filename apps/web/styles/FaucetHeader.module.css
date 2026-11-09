@@ -4,14 +4,40 @@
 
 .topBar {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+  margin-right: 0.75rem;
 }
 
 .logo {
   display: inline-block;
   margin-top: 20px;
   margin-left: 20px;
+}
+
+.navLink {
+  font-size: 0.875rem;
+  white-space: nowrap;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  padding: 0.125rem 0.25rem;
+  border-radius: 4px;
+}
+
+/* The current page reads as a place, not a link: highlighted, no underline. */
+.navLink[aria-current='page'] {
+  text-decoration: none;
+  font-weight: 700;
+  background: var(--main);
+  color: var(--main-foreground);
 }
 
 .notice {
@@ -32,8 +58,21 @@
   }
   .logo {
     margin-top: 4px;
+    /* Two nav links plus sign-in and the toggle have to fit in 375px. */
+    margin-left: 12px;
   }
   .logo svg {
     width: 70px;
+  }
+  /*
+    Two nav links, sign-in and the theme toggle do not fit beside the logo
+    in 375px, so the nav takes its own row under the bar.
+  */
+  .nav {
+    order: 3;
+    width: 100%;
+    justify-content: flex-end;
+    margin: 0;
+    padding: 0.25rem 12px 0.5rem;
   }
 }

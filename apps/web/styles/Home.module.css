@@ -10,10 +10,16 @@
 }
 
 .grid {
+  /*
+    Columns are equal shares of a capped width rather than 25% minimums sized
+    by content: the old rule let a long code line widen its column, which put
+    /keys 238px past the edge of a 375px screen, and made the grid a different
+    width on every page.
+  */
   display: grid;
-  grid-template-columns: repeat(4, minmax(25%, auto));
-  padding-right: 2rem;
-  max-width: 100%;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: 100%;
+  max-width: 80rem;
   gap: 1rem;
 }
 
@@ -26,8 +32,10 @@
 
 .card {
   text-align: left;
-  padding: 1rem 1.2rem;
+  padding: 1.25rem 1.5rem;
   width: 100%;
+  min-width: 0;
+  gap: 0.75rem;
 }
 
 .card span {
@@ -36,9 +44,20 @@
 }
 
 .card :is(h2, h3) {
-  font-weight: 500;
-  margin-bottom: 0.7rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.3;
+  margin: 0;
   display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  /*
+    A bar in the brand colour under the heading: yellow in light mode, lilac
+    in dark. Under the text rather than behind it, so the heading keeps its
+    contrast in both themes.
+  */
+  border-bottom: 4px solid var(--main);
+  padding-bottom: 0.15rem;
 }
 
 .card :is(h2, h3) img {
@@ -49,9 +68,16 @@
   margin: 0;
   opacity: 0.85;
   font-size: 0.9rem;
-  line-height: 1.5;
-  max-width: 30ch;
+  line-height: 1.6;
+  max-width: 70ch;
   text-align: left;
+}
+
+/* Link cards, where the whole card body is one link around a heading and a line. */
+.card > a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .card :is(h2, h3) span {
@@ -89,12 +115,9 @@
     padding: 1rem;
   }
   .grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     margin-top: 40px;
     margin-bottom: 40px;
-    max-width: 100%;
-    gap: 1rem;
-    padding-right: 0rem;
   }
 
   .grid > :first-child {
@@ -106,11 +129,7 @@
   }
 
   .card {
-    padding: 1rem 2.5rem;
-  }
-
-  .card :is(h2, h3) {
-    margin-bottom: 0.5rem;
+    padding: 1rem 1.25rem;
   }
 
   .container {
@@ -125,10 +144,7 @@
     justify-content: unset;
   }
   .grid {
-    grid-template-columns: repeat(2, 50%);
-    justify-items: center;
-    gap: 1rem;
-    padding-right: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .grid > :first-child {
