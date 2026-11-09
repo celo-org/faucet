@@ -52,7 +52,7 @@
     "vitest": "^3.0.0"
   },
   "resolutions": {
-    "is-arrayish": "0.3.2",
+    "is-arrayish": "0.3.4",
     "simple-swizzle": "0.2.2",
     "error-ex": "1.3.2"
   },
