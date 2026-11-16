@@ -6,6 +6,7 @@ import { Logo } from 'components/logo'
 import { ModeToggle } from 'components/mode-toggle'
 import styles from 'styles/FaucetHeader.module.css'
 import { Network } from 'types'
+import { currentPage } from 'utils/current-page'
 import { inter } from 'utils/inter'
 
 interface Props {
@@ -21,9 +22,9 @@ interface Props {
 const navLinkClass = `${inter.className} ${styles.navLink}`
 
 export const FaucetHeader: FC<Props> = ({ network, isOutOfCELO }) => {
-  const { pathname } = useRouter()
-  const onFaucet = pathname === '/[chain]'
-  const onKeys = pathname === '/keys'
+  const page = currentPage(useRouter().pathname)
+  const onFaucet = page === 'faucet'
+  const onKeys = page === 'keys'
 
   return (
     <div className={styles.top}>

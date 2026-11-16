@@ -57,6 +57,11 @@
     contrast in both themes.
   */
   border-bottom: 4px solid var(--main);
+  /*
+    Yellow on the cream card is about 1:1, so the bar all but vanished in
+    light mode. A 1px rule in the border colour gives it an edge in both themes.
+  */
+  box-shadow: 0 1px 0 var(--border);
   padding-bottom: 0.15rem;
 }
 
