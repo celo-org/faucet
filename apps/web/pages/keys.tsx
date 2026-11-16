@@ -11,15 +11,23 @@ import {
 } from '../@/components/ui/card'
 import { Input } from '../@/components/ui/input'
 import { Label } from '../@/components/ui/label'
+import { CodeBlock } from 'components/code-block'
 import { FaucetHeader } from 'components/faucet-header'
 import { JsonLd } from 'components/json-ld'
 import { Seo } from 'components/seo'
 import { DAILY_REQUESTS, SITE_URL } from 'config/site'
 import styles from 'styles/Home.module.css'
-import { ApiKeyRecord, KEY_TTL_DAYS, MAX_KEYS_PER_OWNER } from 'types'
+import { ApiKeyRecord, KEY_TTL_DAYS, MAX_KEYS_PER_OWNER, Network } from 'types'
 import { inter } from 'utils/inter'
 
 const formatDate = (ms: number) => new Date(ms).toISOString().slice(0, 10)
+
+/**
+ * Keys only work on Celo Sepolia (see Limits below), so this page belongs to
+ * that faucet. One constant feeds the header and the footer's way back, which
+ * used to be two separate hardcoded strings.
+ */
+const KEYS_NETWORK: Network = 'celo-sepolia'
 
 const ApiKeys: NextPage = () => {
   const { data: session } = useSession()
@@ -143,7 +151,7 @@ const ApiKeys: NextPage = () => {
         }}
       />
       <main className={styles.main}>
-        <FaucetHeader network="celo-sepolia" isOutOfCELO={false} />
+        <FaucetHeader network={KEYS_NETWORK} isOutOfCELO={false} />
 
         <Card className="w-full max-w-lg items-stretch">
           <CardHeader>
@@ -278,7 +286,7 @@ const ApiKeys: NextPage = () => {
             )}
           </CardContent>
 
-          <CardFooter className="flex-col gap-2">
+          <CardFooter className="flex-col items-start gap-2">
             <div className="mt-4 text-sm flex flex-col gap-0.5 items-start">
               <small className={inter.className}>
                 &bull; You may hold {MAX_KEYS_PER_OWNER} keys. They expire after{' '}
@@ -290,7 +298,7 @@ const ApiKeys: NextPage = () => {
               </small>
               <small className={inter.className}>
                 &bull;{' '}
-                <Link className="underline" href="/celo-sepolia">
+                <Link className="underline" href={`/${KEYS_NETWORK}`}>
                   Back to the faucet
                 </Link>
               </small>
@@ -310,11 +318,12 @@ const ApiKeys: NextPage = () => {
                 No browser, no GitHub. Sign a challenge with the wallet
                 registered for your ERC-8004 agent on Celo mainnet:
               </p>
-              <pre className="overflow-x-auto text-xs">
-                <code>{`POST /api/keys/challenge  {"agentId":"2"}
+              <CodeBlock
+                label="agent key requests"
+                code={`POST /api/keys/challenge  {"agentId":"2"}
 # sign the returned message, then
-POST /api/keys/agent      {"agentId":"2","nonce":"…","signature":"0x…"}`}</code>
-              </pre>
+POST /api/keys/agent      {"agentId":"2","nonce":"…","signature":"0x…"}`}
+              />
               <p className={inter.className}>
                 &bull; The key is bound to the agent, so it draws on its own
                 allowance rather than a person&apos;s: 2 requests a day for an
@@ -346,12 +355,13 @@ POST /api/keys/agent      {"agentId":"2","nonce":"…","signature":"0x…"}`}</c
                 the entire point of publishing it for agents — sent a malformed
                 beneficiary and got a 400 back.
               */}
-              <pre className="overflow-x-auto text-xs">
-                <code>{`curl -X POST https://faucet.celo.org/api/faucet \\
+              <CodeBlock
+                label="curl example"
+                code={`curl -X POST https://faucet.celo.org/api/faucet \\
   -H "Authorization: Bearer $CELO_FAUCET_API_KEY" \\
   -H 'Content-Type: application/json' \\
-  -d '{"beneficiary":"0xYOUR_ADDRESS","network":"celo-sepolia"}'`}</code>
-              </pre>
+  -d '{"beneficiary":"0xYOUR_ADDRESS","network":"celo-sepolia"}'`}
+              />
             </div>
           </Card>
 
@@ -423,9 +433,10 @@ POST /api/keys/agent      {"agentId":"2","nonce":"…","signature":"0x…"}`}</c
               <p className={inter.className}>
                 A request returns a key. Poll it for the transaction hash:
               </p>
-              <pre className="whitespace-pre-wrap break-all text-xs">
-                <code>{`GET /api/status?key=<key>&network=celo-sepolia`}</code>
-              </pre>
+              <CodeBlock
+                label="status request"
+                code={`GET /api/status?key=<key>&network=celo-sepolia`}
+              />
             </div>
           </Card>
 
