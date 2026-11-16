@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { currentPage } from 'utils/current-page'
 
 /**
  * No jsdom/RTL in this repo, so this asserts the source rather than a render.
@@ -32,9 +33,34 @@ describe('FaucetHeader navigation', () => {
     expect(source).not.toMatch(/href="\/celo-sepolia"/)
   })
 
-  it('offers a single nav item to the agent page', () => {
+  it('offers a nav item to the agent page', () => {
     expect(source).toContain('For Agents')
     expect(source).toMatch(/href="\/keys"/)
+  })
+
+  // Regression (#303): /keys offered only the logo as a way back.
+  it('offers a Faucet nav item that follows the network', () => {
+    expect(source).toMatch(
+      /<Link[\s\S]*?href=\{`\/\$\{network\}`\}[\s\S]*?>\s*Faucet\s*<\/Link>/,
+    )
+  })
+
+  it('marks the current page on both nav items', () => {
+    expect(source).toMatch(/aria-current=\{onFaucet \? 'page' : undefined\}/)
+    expect(source).toMatch(/aria-current=\{onKeys \? 'page' : undefined\}/)
+    expect(source).toMatch(/currentPage\(useRouter\(\)\.pathname\)/)
+  })
+
+  // The source match above cannot see the comparison itself: a typo in the
+  // route pattern left every nav item unmarked and still passed.
+  it.each([
+    ['/[chain]', 'faucet'],
+    ['/keys', 'keys'],
+    ['/signin', undefined],
+    ['/auth-error', undefined],
+    ['/celo-sepolia', undefined],
+  ])('treats %s as current page %s', (pathname, expected) => {
+    expect(currentPage(pathname)).toBe(expected)
   })
 
   it('keeps the logo out of the right-hand controls', () => {
