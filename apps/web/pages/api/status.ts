@@ -2,6 +2,18 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { networks, RequestStatus } from 'types'
 import { getRequestRecord } from 'utils/firebase.serverside'
 
+/**
+ * A single Realtime Database key: no path separators or other characters RTDB
+ * reserves, and short enough to be a push ID. Without this, `key=/` resolved
+ * to `/{net}/requests` (Firebase drops empty segments) and `key=<id>/<field>`
+ * reached a request's leaves.
+ *
+ * Deliberately not the strict push-ID shape: `key=probe` must still reach
+ * Firebase and answer 404, because that is the outage probe (404 when the
+ * database works, 500 when it does not).
+ */
+const REQUEST_KEY = /^[^/.#$[\]\u0000-\u001f\u007f]{1,64}$/
+
 export type StatusAPIResponse =
   | {
       status: RequestStatus
@@ -36,6 +48,10 @@ export default async function handler(
   }
   if (!key) {
     res.status(400).json({ message: 'Missing request key' })
+    return
+  }
+  if (!REQUEST_KEY.test(key)) {
+    res.status(400).json({ message: 'Invalid request key' })
     return
   }
 
