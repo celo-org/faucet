@@ -34,7 +34,7 @@
     "form-data@npm:^2.5.0": "4.0.6",
     "form-data@npm:^4.0.1": "4.0.6",
     "elliptic": "^6.6.1",
-    "protobufjs": "^7.5.5",
+    "protobufjs": "^7.6.6",
     "websocket-driver": "^0.7.5",
     "basic-ftp": "^6.2.6",
     "proxy-addr": "^2.0.8",
